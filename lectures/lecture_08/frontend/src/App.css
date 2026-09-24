@@ -778,11 +778,22 @@
     margin-bottom: 8px;
   }
 
-  /* Sticky (not absolute) so it stays pinned to the bottom of the visible
-     screen while the page above it scrolls, instead of floating wherever
-     the total scrollable content happens to end. */
+  /* position: sticky inside a custom scroll container (.desktop, sized
+     via vh/%) is unreliable on real mobile browsers — the address bar
+     collapsing/expanding resizes the visual viewport and breaks sticky's
+     math. position: fixed anchors to the actual screen instead, which
+     doesn't depend on any of that. */
   .taskbar {
-    position: sticky;
+    position: fixed;
+  }
+
+  /* .start-menu is `position: absolute` relative to .desktop (its nearest
+     positioned ancestor) in desktop mode, which is fine when .desktop
+     doesn't scroll. Now that it does, an absolute menu would appear at
+     whatever the current scroll position happens to be instead of right
+     above the (now fixed) taskbar. Needs to be viewport-anchored too. */
+  .start-menu {
+    position: fixed;
   }
 }
 
