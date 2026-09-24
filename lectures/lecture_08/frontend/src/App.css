@@ -744,16 +744,21 @@
      234 cards at full height instead of scrolling internally. */
   .catalog-window {
     flex: none;
-    height: 65vh;
+    height: 82vh;
   }
 
   .catalog-list {
     grid-template-columns: 1fr;
   }
 
+  /* ~25 categories wrapping to 9+ rows was eating almost the whole window,
+     leaving barely anything for the actual course list. Keep it a single
+     swipeable row instead, like a mobile filter carousel. */
   .catalog-chips {
+    flex-wrap: nowrap;
     max-height: none;
-    overflow-y: visible;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 
   .chat-window {
