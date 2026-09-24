@@ -722,19 +722,82 @@
 
 /* ---------- small screens ---------- */
 @media (max-width: 900px) {
+  /* Desktop mode locks .desktop to 100vh with overflow hidden, which is
+     fine when two windows fit side by side. On a phone they can't, so the
+     whole page scrolls here instead of squeezing everything to fit. */
+  .desktop {
+    overflow-y: auto;
+    padding: 12px 12px 76px;
+  }
+
   .workspace {
     flex-direction: column;
+    flex: none;
     padding-left: 0;
+    gap: 12px;
+  }
+
+  /* Explicit bounded heights, not flex:1 — flex:1 only resolves to
+     something finite when every ancestor up to .desktop is bounded too,
+     which stacking vertically breaks. Without a bound here, .catalog-list's
+     own flex:1/overflow-y:auto has nothing to clip against and renders all
+     234 cards at full height instead of scrolling internally. */
+  .catalog-window {
+    flex: none;
+    height: 65vh;
+  }
+
+  .catalog-list {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-chips {
+    max-height: none;
+    overflow-y: visible;
   }
 
   .chat-window {
     width: 100%;
-    height: 340px;
+    flex-shrink: 0;
+  }
+
+  .chat-window-body {
+    height: 60vh;
   }
 
   .desktop-icons {
+    position: static;
     flex-direction: row;
-    top: 4px;
-    left: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+
+  /* Sticky (not absolute) so it stays pinned to the bottom of the visible
+     screen while the page above it scrolls, instead of floating wherever
+     the total scrollable content happens to end. */
+  .taskbar {
+    position: sticky;
+  }
+}
+
+@media (max-width: 480px) {
+  .gw-titlebar-text {
+    font-size: 12px;
+  }
+
+  .course-card {
+    padding: 10px;
+  }
+
+  .chip-btn {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .chat-input-row input,
+  .chat-input-row button {
+    font-size: 13px;
+    padding: 8px 10px;
   }
 }

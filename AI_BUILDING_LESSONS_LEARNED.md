@@ -139,3 +139,76 @@ lessons than the parts that just worked.
 **Soundbite:** "Nothing here failed because of bad code. The moments that
 mattered were catching a claim I hadn't actually measured, and knowing which
 blockers were mine to fix versus a person's to decide."
+
+## Lecture 08 — SQLite-backed course explorer with auth + chat history, 2026-09-24
+
+Migrated the Lecture 07 app to a real database (SQLite, `users`/`chats`
+tables added), email/password login (bcrypt + JWT), per-user chat history, a
+public GitHub repo, and a live Render deployment (Web Service backend +
+Static Site frontend). It all worked end-to-end, but getting there ran
+through several real missteps worth keeping — most of them mine, not
+Christopher's.
+
+1. **Interruptions don't queue themselves — unfinished work has to be
+   explicitly re-surfaced.** A git commit got left at "dry-run only" while a
+   string of Render dashboard questions arrived back-to-back. Nothing forced
+   a return to finish it, so it silently stayed undone. Render's "root
+   directory doesn't exist" error then looked like a deploy-config problem;
+   the real cause was an entire folder that had simply never been pushed.
+   *CoS translation:* when work gets interrupted repeatedly, say out loud
+   what's still pending before moving on to the next thing — don't assume
+   you'll remember to circle back.
+2. **Public-exposure risk is about what's stored in plaintext, not password
+   strength.** A throwaway password is fully protected by bcrypt even if
+   it's weak — that's the whole point of the hash. The signup *email*,
+   though, sits in the database as plaintext, and once that database is
+   committed to a public repo it's permanently, publicly linked to whoever's
+   email is in it. The real risk question is "what's hashed vs. what's
+   plaintext," not "is my password strong enough." *CoS translation:* "low
+   stakes because it's a throwaway password" can hide a completely different
+   exposure sitting one field over.
+3. **In a monorepo, every path is relative to the repo root, not to the
+   folder you're mentally standing in.** Typing `backend` instead of
+   `lectures/lecture_08/backend` into Render's Root Directory field produced
+   an error that read like a bigger problem than it was. *CoS translation:*
+   when a system spans multiple nested projects, state paths in
+   root-relative terms — "the folder" is ambiguous the moment there's more
+   than one.
+4. **When reasoning from indirect evidence, say so — don't present one
+   plausible mechanism as the fix.** An unchanged rebuilt JS bundle got
+   explained as "you clicked the wrong deploy button" — a specific,
+   confident-sounding claim that was never checked against an actual build
+   log, and turned out not to be the real cause at all (a typo'd env var key
+   was). The right move once a first fix doesn't work is to flag the
+   previous explanation as unconfirmed, not layer a second confident guess
+   on top. *CoS translation:* state a diagnosis's confidence level honestly
+   — "my best guess is X" and "X is what's wrong" should never sound
+   identical.
+5. **Verify against the actual deployed artifact, not a report that an
+   action was taken.** "It's wired right, I did your check" (a passing
+   health check) still left the frontend silently pointed at localhost in
+   production. What actually confirmed the fix was curling the live JS
+   bundle and grepping for the real backend URL baked into it. *CoS
+   translation:* a status report ("I did the thing") is a claim, not
+   evidence — check the artifact itself before declaring something fixed.
+6. **A fix can introduce a new failure mode — re-verify with real metrics,
+   not a glance at the top of the screen.** Fixing mobile crowding by
+   setting a container to `height: auto` looked fine in a screenshot of the
+   top of the page, but silently broke the internal scroll-clipping chain
+   beneath it, rendering all 234 course cards unclipped (a 39,575px-tall
+   element). Only checking the actual `scrollHeight` number caught it. *CoS
+   translation:* "it looks right in the screenshot" and "it's actually
+   right" are different claims — check a number, not just an impression.
+7. **A comfortable heuristic works right up until it doesn't — know the
+   real underlying rule.** "Static Site = frontend, Web Service = backend"
+   was correct for this app, but only because the frontend has zero
+   server-side logic. The actual line Render draws is "does this need a
+   running process per request," not "frontend vs. backend" — a framework
+   with server-side rendering (e.g. Next.js) would need a Web Service for
+   its "frontend" too. *CoS translation:* know *why* a rule of thumb holds,
+   not just that it happened to hold this time — that's the difference
+   between it generalizing and it quietly failing on the next project.
+
+**Soundbite:** "Every real bug today was upstream of the code — an
+unfinished task, a wrong assumption stated with too much confidence, or a
+path typed relative to the wrong root."
