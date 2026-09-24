@@ -1,0 +1,69 @@
+:root {
+  --gw-face: #c8c8d0;
+  --gw-face-light: #e4e4ea;
+  --gw-highlight: #ffffff;
+  --gw-shadow: #6f6f7c;
+  --gw-shadow-dark: #45454f;
+  --gw-well: #dcdce3;
+  --gw-title-start: #0a3d91;
+  --gw-title-end: #2f7fe0;
+  --gw-title-text: #f4f8ff;
+  --gw-desktop-1: #0f5c73;
+  --gw-desktop-2: #0a3345;
+  --gw-accent: #ff8a1e;
+  --gw-accent-2: #ffcf70;
+  --gw-ink: #1c1c26;
+  --gw-sans: "Segoe UI", Tahoma, Verdana, sans-serif;
+  --gw-mono: "Consolas", "Courier New", monospace;
+
+  font-family: var(--gw-sans);
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--gw-sans);
+  color: var(--gw-ink);
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gw-face);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gw-face);
+  border: 2px outset var(--gw-face);
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}

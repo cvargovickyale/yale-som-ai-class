@@ -19,3 +19,9 @@ __pycache__/
 **/.DS_Store
 
 lectures/lecture_02/leases.json
+
+# Lecture 08+: course/user/chat SQLite files are committed on purpose (no
+# Supabase yet, small course dataset) — protect them from any future data/
+# or *.db ignore rule added above.
+!lectures/lecture_08/data/
+!lectures/lecture_08/data/**

@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "lectures/lecture_07/frontend", "run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "lecture08-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "lectures/lecture_08/frontend", "run", "dev"],
+      "port": 5174
     }
   ]
 }
