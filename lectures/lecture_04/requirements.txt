@@ -1,0 +1,4 @@
+dash
+python-dotenv
+pydantic-ai-slim[openai]
+yfinance

@@ -1,0 +1,1180 @@
+{
+  "model": "gpt-5.6-luna",
+  "generated_at": "2026-09-21T21:47:49.467763+00:00",
+  "entries": [
+    {
+      "filename": "2025-yale-vs-harvard-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve T-shirt featuring a large central “THE GAME” graphic with 2025 lettering and Yale-versus-Harvard football helmet imagery across the chest.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray"
+      ]
+    },
+    {
+      "filename": "baseball-left-chest-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Navy crewneck sweatshirt with a small white 'YALE BASEBALL' wordmark on the left chest.",
+      "school_or_program": "Yale Baseball",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "basic-hoodie-big-yale.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with a large white YALE wordmark centered across the chest.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy",
+        "white"
+      ]
+    },
+    {
+      "filename": "benjamin-franklin-1-4-zip.jpg",
+      "source": "vision_model",
+      "merch_type": "quarter_zip",
+      "description": "Heather gray long-sleeve quarter-zip pullover with a Benjamin Franklin College shield crest and the college name embroidered on the left chest.",
+      "school_or_program": "Benjamin Franklin College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "heather gray"
+      ]
+    },
+    {
+      "filename": "benjamin-franklin-fleece-jacket.jpg",
+      "source": "vision_model",
+      "merch_type": "fleece_jacket",
+      "description": "Heather gray full-zip fleece jacket with a stand collar and zippered hand pockets. A Benjamin Franklin College shield crest and the words “BENJAMIN FRANKLIN” appear on the left chest.",
+      "school_or_program": "Benjamin Franklin College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "heather gray"
+      ]
+    },
+    {
+      "filename": "benjamin-franklin-t-shirt.jpg",
+      "source": "manual",
+      "merch_type": "t_shirt",
+      "description": "T-shirt with a large (about 9-inch) centered Benjamin Franklin College crest, with 'BENJAMIN FRANKLIN' above and 'COLLEGE' below the crest.",
+      "school_or_program": "Benjamin Franklin College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": []
+    },
+    {
+      "filename": "berkeley-1-4-zip.jpg",
+      "source": "manual",
+      "merch_type": "quarter_zip",
+      "description": "Light gray quarter-zip sweatshirt with the Berkeley College crest and 'BERKELEY' text underneath it on the left chest (upper right of the photo).",
+      "school_or_program": "Berkeley College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "light gray"
+      ]
+    },
+    {
+      "filename": "berkeley-sweater-fleece-jacket.jpg",
+      "source": "vision_model",
+      "merch_type": "fleece_jacket",
+      "description": "Heather gray full-zip fleece jacket with a red Berkeley College shield crest and small “BERKELEY” wordmark on the left chest.",
+      "school_or_program": "Berkeley College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "heather gray",
+        "red"
+      ]
+    },
+    {
+      "filename": "big-yale-tri-blend-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Salmon pink short-sleeve tri-blend T-shirt with a large white arched YALE wordmark centered across the chest.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "salmon pink",
+        "white"
+      ]
+    },
+    {
+      "filename": "boola-boola-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Navy short-sleeve T-shirt with large stylized silver-white “Boola Boola” text centered on the chest.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "branford-1-4-zip.jpg",
+      "source": "vision_model",
+      "merch_type": "quarter_zip",
+      "description": "Heather gray quarter-zip pullover with a Branford College shield crest and the word “BRANFORD” embroidered beneath it on the left chest.",
+      "school_or_program": "Branford College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "heather gray"
+      ]
+    },
+    {
+      "filename": "brooks-brothers-bomber-jacket-yale.jpg",
+      "source": "vision_model",
+      "merch_type": "bomber_jacket",
+      "description": "Navy full-zip bomber jacket with a ribbed collar, cuffs, and hem, plus flap pockets. White 'YALE' text appears on the upper left chest.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "brooks-brothers-double-knit-full-zip-hoodie-yale.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy full-zip hooded sweatshirt with drawstrings, front pouch pockets, and ribbed cuffs and hem. A white YALE wordmark is positioned on the left chest.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "champion-full-zip-hood.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Charcoal gray full-zip hooded sweatshirt with large arched YALE text across the chest and a small Champion logo on the sleeve cuff.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "charcoal gray"
+      ]
+    },
+    {
+      "filename": "champion-mens-triumph-raglan-crew.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Dark heather gray raglan-sleeve crewneck sweatshirt with large white YALE text and smaller “EST. 1701” text centered on the chest.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "dark heather gray",
+        "white"
+      ]
+    },
+    {
+      "filename": "champion-reverse-weave-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Light heather gray crewneck sweatshirt with a large navy YALE wordmark centered across the chest and a small Champion logo on the sleeve cuff.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "champion-reverse-weave-hoodie-1.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with a large white YALE wordmark across the chest and a small Champion logo on the lower sleeve.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy",
+        "white"
+      ]
+    },
+    {
+      "filename": "crew-left-chest-hoodie.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with a front kangaroo pocket and drawstring hood. White “YALE CREW” text is printed on the left chest.",
+      "school_or_program": "Yale Crew",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "davenport-college-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Heather gray crewneck sweatshirt with a small Davenport College crest and the word \"DAVENPORT\" beneath it on the left chest.",
+      "school_or_program": "Davenport College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "heather gray"
+      ]
+    },
+    {
+      "filename": "district-tri-blend-t-shirt-vintage-shield.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve T-shirt with a large Yale shield featuring the interlocking Y centered on the chest.",
+      "school_or_program": "Yale",
+      "branding_style": "crest_only",
+      "primary_colors": [
+        "heather gray"
+      ]
+    },
+    {
+      "filename": "district-vit-crewneck-vintage-bulldog.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Dark heather gray crewneck sweatshirt with a large white Yale wordmark across the upper chest and a vintage bulldog icon centered beneath it.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "dark heather gray",
+        "white"
+      ]
+    },
+    {
+      "filename": "district-vit-crewneck-vintage-standing-bulldog.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Heather charcoal gray crewneck sweatshirt featuring a large vintage standing bulldog graphic with a Yale block wordmark arranged vertically beside it on the front.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather charcoal gray",
+        "navy",
+        "white"
+      ]
+    },
+    {
+      "filename": "district-vit-hoodie-vintage-bulldog.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Dark heather gray pullover hoodie with a white YALE wordmark and a white bulldog graphic centered on the chest.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "dark heather gray",
+        "white"
+      ]
+    },
+    {
+      "filename": "district-vit-hoodie-vintage-sailor-bulldog.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Dark heather gray pullover hoodie with large white YALE wordmark and a bulldog icon centered on the chest.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "dark heather gray"
+      ]
+    },
+    {
+      "filename": "diving-left-chest-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Navy crewneck sweatshirt with white stacked 'YALE DIVING' text on the left chest.",
+      "school_or_program": "Yale Diving",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "divinity-school-fleece-sweater.jpg",
+      "source": "vision_model",
+      "merch_type": "fleece_jacket",
+      "description": "Navy full-zip fleece jacket with a stand collar. 'Yale Divinity School' appears as text on the left chest above the school's red shield crest.",
+      "school_or_program": "Yale Divinity School",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "navy",
+        "red"
+      ]
+    },
+    {
+      "filename": "dry-zone-long-sleeve.jpg",
+      "source": "vision_model",
+      "merch_type": "long_sleeve",
+      "description": "Navy long-sleeve athletic shirt with large white “YALE” text and smaller “BULLDOGS” text centered on the chest.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy",
+        "white"
+      ]
+    },
+    {
+      "filename": "fencing-left-chest-hoodie.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with white 'YALE FENCING' text on the left chest and a front kangaroo pocket.",
+      "school_or_program": "Yale Fencing",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "football-left-chest-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Navy short-sleeve crew-neck T-shirt with small white “YALE FOOTBALL” text on the left chest.",
+      "school_or_program": "Yale Football",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "grace-hopper-college-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Navy crewneck sweatshirt with a small Grace Hopper College shield emblem and the words “GRACE HOPPER” beneath it on the left chest.",
+      "school_or_program": "Grace Hopper College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "grace-hopper-logo-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve crew-neck T-shirt with the Grace Hopper College shield centered on the chest and the words “GRACE HOPPER COLLEGE” beneath it.",
+      "school_or_program": "Grace Hopper College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "heather gray",
+        "blue",
+        "yellow",
+        "black"
+      ]
+    },
+    {
+      "filename": "hype-and-vice-yale-university-offside-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Navy crewneck sweatshirt with a large block YALЕ wordmark across the chest and a small secondary mark on the lower sleeve.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "hype-and-vice-yale-university-premium-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "White crewneck sweatshirt with navy ribbed trim at the collar, cuffs, and hem. A centered Yale University wordmark and university crest appear on the chest, with a small additional label on the sleeve.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "white",
+        "navy"
+      ]
+    },
+    {
+      "filename": "ice-hockey-left-chest-hoodie.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with a front kangaroo pocket and white “YALE HOCKEY” text on the left chest.",
+      "school_or_program": "Yale Ice Hockey",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "jonathan-edwards-college-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Heather gray crewneck sweatshirt with a small Jonathan Edwards College shield emblem and the text “JONATHAN EDWARDS” printed on the left chest.",
+      "school_or_program": "Jonathan Edwards College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "heather gray"
+      ]
+    },
+    {
+      "filename": "lacrosse-left-chest-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Navy crewneck sweatshirt with white “YALE LACROSSE” text positioned on the left chest.",
+      "school_or_program": "Yale Lacrosse",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "morse-1-4-zip.jpg",
+      "source": "vision_model",
+      "merch_type": "quarter_zip",
+      "description": "Heather gray quarter-zip pullover with a small Morse College shield on the left chest and the text “MORSE” beneath it.",
+      "school_or_program": "Morse College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "heather gray"
+      ]
+    },
+    {
+      "filename": "morse-logo-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve T-shirt with the Morse College shield crest centered on the chest, featuring a red key and black dots, with “MORSE COLLEGE” text beneath.",
+      "school_or_program": "Morse College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "heather gray"
+      ]
+    },
+    {
+      "filename": "pierson-college-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Navy crewneck sweatshirt with a small Pierson College shield emblem and the word “PIERSON” beneath it on the left chest.",
+      "school_or_program": "Pierson College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "pierson-logo-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve crew-neck T-shirt with the Pierson College shield centered on the chest and “PIERSON COLLEGE” text beneath it.",
+      "school_or_program": "Pierson College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "heather gray"
+      ]
+    },
+    {
+      "filename": "poly-twill-crewneck-arched-yale.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Off-white crewneck sweatshirt with a large arched navy YALE wordmark centered across the chest.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "off-white",
+        "navy"
+      ]
+    },
+    {
+      "filename": "sailing-left-chest-hoodie.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with a front kangaroo pocket and white 'YALE SAILING' text on the left chest.",
+      "school_or_program": "Yale Sailing",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "saybrook-college-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Navy crewneck sweatshirt with a small Saybrook College shield crest and 'SAYBROOK' text on the left chest.",
+      "school_or_program": "Saybrook College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "saybrook-logo-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve T-shirt with the Saybrook College shield centered on the chest and “SAYBROOK COLLEGE” text beneath it.",
+      "school_or_program": "Saybrook College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "heather gray"
+      ]
+    },
+    {
+      "filename": "saybrook-sweater-fleece-jacket.jpg",
+      "source": "vision_model",
+      "merch_type": "fleece_jacket",
+      "description": "Heather gray full-zip sweater fleece jacket with a Saybrook College crest and “SAYBROOK” text on the left chest.",
+      "school_or_program": "Saybrook College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "heather gray"
+      ]
+    },
+    {
+      "filename": "school-of-architecture-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "quarter_zip",
+      "description": "Navy quarter-zip pullover with a stand collar, ribbed cuffs, and hem. 'Yale School of Architecture' appears as text on the upper left chest above the school's shield crest.",
+      "school_or_program": "Yale School of Architecture",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "school-of-architecture-fleece-sweater.jpg",
+      "source": "vision_model",
+      "merch_type": "fleece_jacket",
+      "description": "Navy full-zip fleece jacket with a stand collar. 'Yale School of Architecture' text appears on the upper chest beside a shield crest.",
+      "school_or_program": "Yale School of Architecture",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "school-of-art-1-4-zip.jpg",
+      "source": "vision_model",
+      "merch_type": "quarter_zip",
+      "description": "Navy quarter-zip pullover with a small 'Yale School of Art' wordmark and colorful shield emblem on the left chest.",
+      "school_or_program": "Yale School of Art",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "school-of-art-fleece-sweater.jpg",
+      "source": "vision_model",
+      "merch_type": "fleece_jacket",
+      "description": "Navy full-zip fleece jacket with a stand collar. “Yale School of Art” appears as text on the left chest above a colorful shield emblem.",
+      "school_or_program": "Yale School of Art",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "school-of-engineering-1-4-zip.jpg",
+      "source": "vision_model",
+      "merch_type": "quarter_zip",
+      "description": "Navy quarter-zip pullover with a raised collar and ribbed cuffs and hem. White Yale School of Engineering and Applied Science text appears on the left chest above a shield crest.",
+      "school_or_program": "Yale School of Engineering and Applied Science",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "school-of-management-crest-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Navy short-sleeve T-shirt with “Yale School of Management” text across the chest and the school’s shield crest centered below it.",
+      "school_or_program": "Yale School of Management",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "school-of-medicine-1-4-zip.jpg",
+      "source": "vision_model",
+      "merch_type": "quarter_zip",
+      "description": "Navy quarter-zip pullover with a stand collar and ribbed cuffs and hem. 'Yale School of Medicine' appears as text on the left chest above a shield crest.",
+      "school_or_program": "Yale School of Medicine",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "school-of-music-fleece-sweater.jpg",
+      "source": "vision_model",
+      "merch_type": "fleece_jacket",
+      "description": "Navy full-zip fleece jacket with a stand collar. The text 'Yale School of Music' appears on the left chest above a shield crest.",
+      "school_or_program": "Yale School of Music",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "school-of-nursing-crest-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Navy short-sleeve crew-neck T-shirt with “Yale School of Nursing” in white text across the chest and the school crest centered beneath it.",
+      "school_or_program": "Yale School of Nursing",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "navy",
+        "white"
+      ]
+    },
+    {
+      "filename": "school-of-public-health-1-4-zip.jpg",
+      "source": "vision_model",
+      "merch_type": "quarter_zip",
+      "description": "Navy quarter-zip pullover with a raised collar and embroidered Yale School of Public Health text on the left chest alongside a multicolored shield crest.",
+      "school_or_program": "Yale School of Public Health",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "soccer-left-chest-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Navy crewneck sweatshirt with a small white “YALE SOCCER” text mark on the left chest.",
+      "school_or_program": "Yale Soccer",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "squash-left-chest-hoodie.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with a front kangaroo pocket and white “YALE SQUASH” text on the left chest.",
+      "school_or_program": "Yale Squash",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "squash-left-chest-tennis.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Navy crewneck sweatshirt with white “YALE SQUASH” text on the left chest.",
+      "school_or_program": "Yale Squash",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "super-heavyweight-crewneck-arched-yale-crest.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Heather gray crewneck sweatshirt with an arched YALE wordmark across the chest and a Yale bulldog mascot graphic with a Y beneath it.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray"
+      ]
+    },
+    {
+      "filename": "t-felt-y-heavyweight.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Off-white heavyweight short-sleeve T-shirt with a large navy Yale 'Y' emblem centered on the chest; a small Yale label is visible at the inside collar.",
+      "school_or_program": "Yale",
+      "branding_style": "logo_only",
+      "primary_colors": [
+        "off-white",
+        "navy"
+      ]
+    },
+    {
+      "filename": "the-forest-school-hoodie.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with large white YALE text across the chest and smaller white 'THE FOREST SCHOOL' text beneath it.",
+      "school_or_program": "Yale School of Forestry & Environmental Studies (The Forest School)",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy",
+        "white"
+      ]
+    },
+    {
+      "filename": "timothy-dwight-college-crewneck.jpg",
+      "source": "manual",
+      "merch_type": "crewneck",
+      "description": "Heather gray crewneck sweatshirt with the Timothy Dwight College crest and 'TIMOTHY DWIGHT' text on the left chest.",
+      "school_or_program": "Timothy Dwight College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "gray"
+      ]
+    },
+    {
+      "filename": "track-field-left-chest-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Navy short-sleeve crew-neck T-shirt with a small white chest wordmark reading “YALE” above “TRACK & FIELD” on the left chest.",
+      "school_or_program": "Yale Track & Field",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "tri-blend-sports-baseball-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve T-shirt with navy \"YALE BASEBALL\" text centered on the chest and a navy Yale Y beneath it.",
+      "school_or_program": "Yale Baseball",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "tri-blend-sports-basketball-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve T-shirt with navy 'YALE BASKETBALL' text across the chest and a Yale Y logo beneath it.",
+      "school_or_program": "Yale Basketball",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "tri-blend-sports-football-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve T-shirt with centered navy text reading “YALE FOOTBALL” and a large navy Y beneath it.",
+      "school_or_program": "Yale Football",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "tri-blend-sports-hockey-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve T-shirt with large navy “YALE HOCKEY” text centered on the chest and a Yale Y icon beneath it.",
+      "school_or_program": "Yale Hockey",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "tri-blend-sports-soccer-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve T-shirt with navy “YALE SOCCER” text centered on the chest and a large navy Y beneath it.",
+      "school_or_program": "Yale Soccer",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "tri-blend-sports-tennis-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve T-shirt with centered navy “YALE TENNIS” text and a Yale Y beneath it.",
+      "school_or_program": "Yale Tennis",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "tri-blend-sports-track-and-field-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve T-shirt with navy “YALE” and “TRACK & FIELD” text centered on the chest, with a navy Yale Y mark beneath.",
+      "school_or_program": "Yale Track & Field",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "trumbull-1-4-zip.jpg",
+      "source": "vision_model",
+      "merch_type": "quarter_zip",
+      "description": "Heather gray quarter-zip pullover with a small Trumbull College shield crest and the text “TRUMBULL” beneath it on the left chest.",
+      "school_or_program": "Trumbull College",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "heather gray"
+      ]
+    },
+    {
+      "filename": "ua-gameday-double-knit-hood.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with a white Yale 'Y' emblem centered on the chest and a small Under Armour logo on the sleeve.",
+      "school_or_program": "Yale",
+      "branding_style": "logo_only",
+      "primary_colors": [
+        "navy",
+        "white"
+      ]
+    },
+    {
+      "filename": "ua-mens-tech-l-s-2-0.jpg",
+      "source": "vision_model",
+      "merch_type": "long_sleeve",
+      "description": "Navy long-sleeve performance shirt with large outlined YALE text, a Y emblem, and BULLDOGS text centered across the chest; Under Armour logo appears below.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "navy",
+        "white"
+      ]
+    },
+    {
+      "filename": "volleyball-left-chest-hoodie.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with a front kangaroo pocket and drawstring hood. White 'YALE VOLLEYBALL' text branding appears on the left chest.",
+      "school_or_program": "Yale Volleyball",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-aunt-hoodie.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with a front kangaroo pocket and white chest branding reading “YALE UNIVERSITY” with “AUNT” beneath it.",
+      "school_or_program": "Yale Aunt",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-bowl-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "White short-sleeve T-shirt with navy ribbed collar and sleeve trim. The chest graphic features the Yale wordmark, a large Yale Y logo, and an illustrated Yale Bowl diagram.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "white",
+        "navy blue",
+        "light blue"
+      ]
+    },
+    {
+      "filename": "yale-brother-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Heather gray crewneck sweatshirt with a large navy Yale wordmark and the text “UNIVERSITY BROTHER” centered across the chest.",
+      "school_or_program": "Yale Brother",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-cousin-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Heather gray crewneck sweatshirt with a navy Yale University wordmark and 'COUSIN' text centered across the chest.",
+      "school_or_program": "Yale Cousin",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-dad-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Heather gray crewneck sweatshirt with large navy “YALE” and smaller “UNIVERSITY DAD” text across the upper chest.",
+      "school_or_program": "Yale Dad",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-dad-hoodie.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with a front kangaroo pocket and white chest text reading “YALE UNIVERSITY DAD.”",
+      "school_or_program": "Yale Dad",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-dad-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve crewneck T-shirt with a centered navy Yale University wordmark and “DAD” text across the chest.",
+      "school_or_program": "Yale Dad",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-diving-t-shirt.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve T-shirt with navy “YALE” and “DIVING” text centered on the chest, plus a navy Yale Y icon beneath.",
+      "school_or_program": "Yale Diving",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-grandma-hoodie.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with a large white YALE wordmark across the chest and smaller GRANDMA affinity text beneath it.",
+      "school_or_program": "Yale Grandma",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy",
+        "white"
+      ]
+    },
+    {
+      "filename": "yale-grandpa-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Heather gray crewneck sweatshirt with a large navy YALE wordmark and smaller UNIVERSITY GRANDPA text centered across the chest.",
+      "school_or_program": "Yale Grandpa",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-grandpa-hoodie.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with a large white YALE wordmark centered across the chest and small 'GRANDPA' affinity text beneath it.",
+      "school_or_program": "Yale Grandpa",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-law-school-1-4-zip.jpg",
+      "source": "vision_model",
+      "merch_type": "quarter_zip",
+      "description": "Navy quarter-zip pullover with a stand collar and ribbed cuffs and hem. “Yale Law School” appears as text on the left chest beside a shield crest.",
+      "school_or_program": "Yale Law School",
+      "branding_style": "wordmark_and_crest",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-maplehouse-diana-mockneck.jpg",
+      "source": "vision_model",
+      "merch_type": "mockneck",
+      "description": "Cream mockneck sweatshirt with large arched “BULLDOGS” lettering across the chest in navy with light blue outlining.",
+      "school_or_program": "Yale",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "cream",
+        "navy",
+        "light blue"
+      ]
+    },
+    {
+      "filename": "yale-mom-crewneck.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Heather gray crewneck sweatshirt with a large navy Yale University wordmark and underlined design across the upper chest, with “MOM” beneath it.",
+      "school_or_program": "Yale Mom",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-mom-hoodie.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with large white “YALE” text across the chest and smaller “MOM” text beneath it.",
+      "school_or_program": "Yale Mom",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-sports-creqneck-field-hockey.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Heather gray crewneck sweatshirt with large navy “YALE” and “FIELD HOCKEY” text across the chest, with a navy Yale Y logo beneath.",
+      "school_or_program": "Yale Field Hockey",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-sports-crewneck-baseball.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Heather gray crewneck sweatshirt with large navy “YALE BASEBALL” text centered on the chest and a Yale Y logo beneath it.",
+      "school_or_program": "Yale Baseball",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-sports-crewneck-golf.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Heather gray crewneck sweatshirt with navy 'YALE GOLF' text centered on the chest and a navy Yale Y emblem beneath it.",
+      "school_or_program": "Yale Golf",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-sports-crewneck-volleyball.jpg",
+      "source": "vision_model",
+      "merch_type": "crewneck",
+      "description": "Heather gray crewneck sweatshirt with large navy “YALE” and “VOLLEYBALL” text centered on the chest, with a navy Yale Y logo beneath.",
+      "school_or_program": "Yale Volleyball",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-sports-hoodie-baseball.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Heather gray pullover hoodie with large navy “YALE” and “BASEBALL” text centered on the chest, accompanied by a Yale Y logo beneath.",
+      "school_or_program": "Yale Baseball",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-sports-hoodie-diving.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Heather gray pullover hoodie with a front kangaroo pocket and drawstring hood. Large navy “YALE” wordmark sits across the chest above “DIVING,” with a Yale Y mark below.",
+      "school_or_program": "Yale Diving",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-sports-hoodie-golf.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Heather gray pullover hoodie with large navy “YALE” text and “GOLF” text across the chest, plus a Yale Y logo beneath the lettering.",
+      "school_or_program": "Yale Golf",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-sports-hoodie-hockey.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Heather gray pullover hoodie with large navy “YALE HOCKEY” text across the chest and a Yale Y emblem centered beneath it.",
+      "school_or_program": "Yale Hockey",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-sports-hoodie-soccer.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Heather gray pullover hoodie with navy 'YALE SOCCER' text and a large Yale Y emblem centered on the chest.",
+      "school_or_program": "Yale Soccer",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-sports-hoodie-swimming.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Heather gray pullover hoodie with large navy 'YALE' text and 'SWIMMING' text across the chest, plus a Yale Y logo below.",
+      "school_or_program": "Yale Swimming",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-sports-hoodie-tennis.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Heather gray pullover hoodie with navy “YALE TENNIS” text across the chest and a navy Yale Y logo below it.",
+      "school_or_program": "Yale Tennis",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-sports-t-shirt-field-hockey.jpg",
+      "source": "vision_model",
+      "merch_type": "t_shirt",
+      "description": "Heather gray short-sleeve crew-neck T-shirt with navy “YALE” and “FIELD HOCKEY” text centered on the chest, above a navy Yale Y logo.",
+      "school_or_program": "Yale Field Hockey",
+      "branding_style": "wordmark_and_logo",
+      "primary_colors": [
+        "heather gray",
+        "navy"
+      ]
+    },
+    {
+      "filename": "yale-uncle-hoodie.jpg",
+      "source": "vision_model",
+      "merch_type": "hoodie",
+      "description": "Navy pullover hoodie with a large white YALE wordmark across the chest and smaller “UNCLE” text beneath it.",
+      "school_or_program": "Yale Uncle",
+      "branding_style": "wordmark_only",
+      "primary_colors": [
+        "navy"
+      ]
+    }
+  ],
+  "skipped": []
+}

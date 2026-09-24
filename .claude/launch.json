@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "lecture07-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "lectures/lecture_07/frontend", "run", "dev"],
+      "port": 5173
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+[
+  {
+    "timestamp": "2026-09-15T15:08:13.078979+00:00",
+    "request": "elmo what car do you want to drive here",
+    "tool_events": [
+      {
+        "name": "Look at screen"
+      },
+      {
+        "name": "Look at screen"
+      }
+    ],
+    "last_shot": {
+      "captured_at": "2026-09-15T15:08:09.470735+00:00",
+      "region": "window"
+    }
+  },
+  {
+    "timestamp": "2026-09-15T15:11:53.480403+00:00",
+    "request": "elmo what do you think about efficiency",
+    "tool_events": [
+      {
+        "name": "Look at screen"
+      }
+    ],
+    "last_shot": {
+      "captured_at": "2026-09-15T15:11:49.540619+00:00",
+      "region": "window"
+    }
+  },
+  {
+    "timestamp": "2026-09-15T15:12:26.151890+00:00",
+    "request": "does elmo want the front seat or the back seat",
+    "tool_events": [
+      {
+        "name": "Look at screen"
+      }
+    ],
+    "last_shot": {
+      "captured_at": "2026-09-15T15:12:19.607062+00:00",
+      "region": "window"
+    }
+  },
+  {
+    "timestamp": "2026-09-15T15:13:14.711872+00:00",
+    "request": "what other car does this look like - give me 3 options",
+    "tool_events": [
+      {
+        "name": "Look at screen"
+      }
+    ],
+    "last_shot": {
+      "captured_at": "2026-09-15T15:13:09.747195+00:00",
+      "region": "window"
+    }
+  },
+  {
+    "timestamp": "2026-09-15T15:13:35.330240+00:00",
+    "request": "did you consider the XL1 at all? or old citroens?",
+    "tool_events": [
+      {
+        "name": "Look at screen"
+      }
+    ],
+    "last_shot": {
+      "captured_at": "2026-09-15T15:13:30.158480+00:00",
+      "region": "window"
+    }
+  },
+  {
+    "timestamp": "2026-09-15T15:16:39.802794+00:00",
+    "request": "elmo teach me about this car. what did it do that makes it special even today",
+    "tool_events": [
+      {
+        "name": "Look at screen"
+      }
+    ],
+    "last_shot": {
+      "captured_at": "2026-09-15T15:16:30.668140+00:00",
+      "region": "window"
+    }
+  },
+  {
+    "timestamp": "2026-09-15T15:18:25.172028+00:00",
+    "request": "how does this compare to other cars of the era, from a current day lens",
+    "tool_events": [
+      {
+        "name": "Look at screen"
+      }
+    ],
+    "last_shot": {
+      "captured_at": "2026-09-15T15:18:14.234029+00:00",
+      "region": "window"
+    }
+  }
+]

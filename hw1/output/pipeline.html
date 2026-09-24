@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HW1 Data Pipeline</title>
+<style>
+body{margin:0;background:#008080;color:#111;font:13px Tahoma,Arial,sans-serif}.window{max-width:1180px;margin:20px auto;background:#c0c0c0;border:3px outset #eee;padding:8px}.title{background:#000080;color:white;font-weight:bold;padding:7px 10px}.subtitle{padding:10px 2px 4px}.legend{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.tag{padding:4px 8px;border:2px outset #eee;background:#fff}.tag.luna{background:#fff2a8}.tag.python{background:#d8e8ff}.pipeline{background:#eee;border:2px inset white;padding:12px;overflow-x:auto}.row{display:flex;align-items:stretch;gap:8px;min-width:1080px}.block{width:145px;background:#fff;border:3px outset #eee;padding:8px;box-sizing:border-box}.block.input{background:#e4f1e4}.block.output{background:#e7e7ff}.block.luna{box-shadow:inset 0 0 0 3px #e0b400}.block h3{font-size:14px;margin:0 0 6px;color:#000080}.block p{margin:4px 0;line-height:1.25}.arrow{align-self:center;font-size:24px;font-weight:bold;color:#000080}.step{margin-top:14px;background:#eee;border:2px inset #fff;padding:10px}.step h3{margin:0 0 4px;color:#000080}.step p{margin:4px 0}.call{color:#7a5600;font-weight:bold}.note{font-size:12px;color:#333}.path{font-weight:bold;color:#000080}
+</style></head>
+<body><main class="window">
+<div class="title">SPOKE &amp; WRENCH — HW1 DATA PIPELINE</div>
+<div class="subtitle"><b>From document pack to <span class="path">income_statement.html</span></b><br>Problems 2–8 turn source documents into structured decisions, then into a human-readable report.</div>
+<div class="legend"><span class="tag luna">Luna / LLM call</span><span class="tag python">Plain Python</span><span class="tag">Input or output artifact</span></div>
+<section class="pipeline"><div class="row">
+<div class="block input"><h3>INPUT</h3><p><b>Document pack</b></p><p>PDFs: receipts, bank, card, lease, quote, IOU, eBay</p><p>Emails + voice memo</p></div><div class="arrow">→</div>
+<div class="block luna"><h3>P2</h3><p><b>read_receipts.py</b></p><p>Reads purchase receipt PDFs</p><p class="call">Calls Luna</p></div><div class="arrow">→</div>
+<div class="block output"><h3>OUTPUT</h3><p><b>receipts.json</b></p><p>One row per receipt</p></div><div class="arrow">→</div>
+<div class="block luna"><h3>P3</h3><p><b>read_bank.py</b></p><p>Reads January bank PDF</p><p class="call">Calls Luna</p></div><div class="arrow">→</div>
+<div class="block output"><h3>OUTPUT</h3><p><b>bank_transactions.json</b></p><p>One row per bank line</p></div>
+</div><div class="row" style="margin-top:12px">
+<div class="block output"><h3>INPUT</h3><p>receipts.json</p><p>bank_transactions.json</p></div><div class="arrow">→</div>
+<div class="block luna"><h3>P4</h3><p><b>read_card.py</b></p><p>Reads January credit-card PDF</p><p class="call">Calls Luna</p></div><div class="arrow">→</div>
+<div class="block output"><h3>OUTPUT</h3><p><b>credit_card_transactions.json</b></p><p>One row per charge</p></div><div class="arrow">→</div>
+<div class="block luna"><h3>P5</h3><p><b>reconcile.py</b></p><p>Reads the three JSON files plus supporting docs</p><p class="call">Calls Luna</p></div><div class="arrow">→</div>
+<div class="block output"><h3>OUTPUT</h3><p><b>reconciliation_log.json</b></p><p>One row per decision</p></div>
+</div><div class="row" style="margin-top:12px">
+<div class="block output"><h3>INPUT</h3><p>reconciliation_log.json</p></div><div class="arrow">→</div>
+<div class="block luna"><h3>P6</h3><p><b>Judgement review</b></p><p>Chooses top three uncertain rows</p><p class="call">AI-assisted, no script</p></div><div class="arrow">→</div>
+<div class="block output"><h3>OUTPUT</h3><p><b>judgment_calls.json</b></p><p>Three calls + confidence</p></div><div class="arrow">→</div>
+<div class="block python"><h3>P7</h3><p><b>income_statement.py</b></p><p>Reads reconciliation log</p><p>Plain Python math</p></div><div class="arrow">→</div>
+<div class="block output"><h3>OUTPUT</h3><p><b>income_statement_jan2026.json</b></p><p>Revenue, expenses, net income</p></div>
+</div><div class="row" style="margin-top:12px">
+<div class="block output"><h3>INPUT</h3><p>Income statement JSON</p><p>Reconciliation JSON</p><p>Judgement calls JSON</p></div><div class="arrow">→</div>
+<div class="block python"><h3>P8</h3><p><b>report.py</b></p><p>Reads JSON files</p><p>Builds one-page HTML</p></div><div class="arrow">→</div>
+<div class="block output"><h3>FINAL OUTPUT</h3><p><b>income_statement.html</b></p><p>Human-readable webpage</p></div>
+</div></section>
+<section class="step"><h3>P2 — Read receipts</h3><p><b>Reads:</b> receipt PDFs. <b>Writes:</b> <code>receipts.json</code>, with vendor, date, description, amount, category, and source file. <span class="call">Luna extracts facts; missing values are not invented.</span></p></section>
+<section class="step"><h3>P3 — Read bank statement</h3><p><b>Reads:</b> January bank PDF. <b>Writes:</b> <code>bank_transactions.json</code>, classifying each line as business/personal, credit/debit, and accounting label. <span class="call">Luna interprets statement lines.</span></p></section>
+<section class="step"><h3>P4 — Read credit card</h3><p><b>Reads:</b> January credit-card PDF. <b>Writes:</b> <code>credit_card_transactions.json</code>. <span class="call">Luna extracts charges and preliminary categories; personal rows keep a null category.</span></p></section>
+<section class="step"><h3>P5 — Reconcile</h3><p><b>Reads:</b> the three transaction JSON files plus relevant emails, memos, and supporting PDFs. <b>Writes:</b> <code>reconciliation_log.json</code>. <span class="call">Luna matches duplicates, separates mixed amounts, and explains the resolution.</span></p></section>
+<section class="step"><h3>P6 — Judgement calls</h3><p><b>Reads:</b> reconciliation decisions. <b>Writes:</b> <code>judgment_calls.json</code> containing the three uncertain calls, evidence, inclusion decision, amount used, and confidence. This is a review artifact rather than a Python script.</p></section>
+<section class="step"><h3>P7 — Income statement</h3><p><b>Reads:</b> <code>reconciliation_log.json</code>. <b>Writes:</b> <code>income_statement_jan2026.json</code>. Plain Python includes every <code>yes</code> row, separates revenue and expenses, and calculates net income without hardcoded amounts.</p></section>
+<section class="step"><h3>P8 — Webpage</h3><p><b>Reads:</b> the income statement, reconciliation log, and judgement-call JSON files. <b>Writes:</b> <code>income_statement.html</code>, a one-page human-readable summary with totals, excluded rows, and judgment calls.</p></section>
+<p class="note"><b>Important:</b> Luna is used for extraction and interpretation in P2–P5. P7 and P8 are deterministic Python transformations, so their displayed totals come from the saved JSON artifacts.</p>
+</main></body></html>

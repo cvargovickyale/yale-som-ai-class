@@ -1,0 +1,424 @@
+[
+  {
+    "id": "rent-crown-street",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 1800.0
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 1800.0,
+    "resolution": "Business rent payment by check; included as a January rent expense."
+  },
+  {
+    "id": "square-walkin-tuneups-jan3",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 420.0
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 420.0,
+    "resolution": "Business Square deposit for walk-in tune-ups; included as January revenue."
+  },
+  {
+    "id": "yale-health-bike-service",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 1150.0
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 1150.0,
+    "resolution": "Business ACH deposit for Yale Health employee bike service; included as January revenue."
+  },
+  {
+    "id": "amazon-headphones",
+    "sources": [
+      "pdfs\\receipt_amazon_headphones.pdf",
+      "pdfs\\credit_card_jan2026.pdf",
+      "emails\\email_owner_voice_memo.txt"
+    ],
+    "amounts_seen": {
+      "pdfs\\receipt_amazon_headphones.pdf": 89.99,
+      "pdfs\\credit_card_jan2026.pdf": 89.99
+    },
+    "included_in_income_statement": "no",
+    "amount_used_in_income_statement": 0,
+    "resolution": "The receipt and January 4 Amazon card charge match, so they represent one purchase. The voice memo identifies the headphones as personal commute headphones; excluded from business expenses."
+  },
+  {
+    "id": "eversource-electric",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 186.42
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 186.42,
+    "resolution": "Business electric utility payment; included as a January utilities expense."
+  },
+  {
+    "id": "square-brake-jobs-chains",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 315.0
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 315.0,
+    "resolution": "Business Square deposit for brake and chain jobs; included as January revenue."
+  },
+  {
+    "id": "park-tool-receipt-card",
+    "sources": [
+      "pdfs\\receipt_park_tool.pdf",
+      "pdfs\\credit_card_jan2026.pdf",
+      "emails\\email_owner_voice_memo.txt"
+    ],
+    "amounts_seen": {
+      "pdfs\\receipt_park_tool.pdf": 88.7,
+      "pdfs\\credit_card_jan2026.pdf": 127.4
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 127.4,
+    "resolution": "The January 6 Park Tool receipt is part of the $127.40 Park Tool card charge; the memo says the remaining items shipped later. Use the full confirmed card charge once, not the receipt plus the card charge."
+  },
+  {
+    "id": "instacart-whole-foods",
+    "sources": [
+      "pdfs\\credit_card_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\credit_card_jan2026.pdf": 64.22
+    },
+    "included_in_income_statement": "no",
+    "amount_used_in_income_statement": 0,
+    "resolution": "The card statement classifies this grocery purchase as personal; excluded."
+  },
+  {
+    "id": "staples-office-supplies",
+    "sources": [
+      "pdfs\\credit_card_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\credit_card_jan2026.pdf": 43.17
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 43.17,
+    "resolution": "Business Staples purchase classified as office supplies; included once as a January expense."
+  },
+  {
+    "id": "ebay-park-tool-stand",
+    "sources": [
+      "pdfs\\credit_card_jan2026.pdf",
+      "pdfs\\ebay_repair_stand.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\credit_card_jan2026.pdf": 425.0,
+      "pdfs\\ebay_repair_stand.pdf": 425.0
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 425.0,
+    "resolution": "The eBay confirmation and January 13 card charge match exactly for a used Park Tool repair stand retained for shop asset records; included once as a business equipment expense."
+  },
+  {
+    "id": "rei-jacket",
+    "sources": [
+      "pdfs\\credit_card_jan2026.pdf",
+      "emails\\email_owner_voice_memo.txt"
+    ],
+    "amounts_seen": {
+      "pdfs\\credit_card_jan2026.pdf": 156.0
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 156.0,
+    "resolution": "Although the card statement labels the purchase personal, the owner's memo states the jacket was required high-visibility outerwear for Yale Health on-site fleet work. Treat as a business expense and include once."
+  },
+  {
+    "id": "netflix",
+    "sources": [
+      "pdfs\\credit_card_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\credit_card_jan2026.pdf": 15.49
+    },
+    "included_in_income_statement": "no",
+    "amount_used_in_income_statement": 0,
+    "resolution": "The card statement classifies Netflix as personal; excluded."
+  },
+  {
+    "id": "speedy-courier",
+    "sources": [
+      "pdfs\\receipt_courier.pdf",
+      "pdfs\\credit_card_jan2026.pdf",
+      "emails\\email_owner_voice_memo.txt"
+    ],
+    "amounts_seen": {
+      "pdfs\\receipt_courier.pdf": 28.0,
+      "pdfs\\credit_card_jan2026.pdf": 28.0
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 28.0,
+    "resolution": "The courier receipt and January 17 card charge match, and the memo confirms they are the same emergency business delivery. Included once as shipping expense."
+  },
+  {
+    "id": "home-depot-shop-supplies",
+    "sources": [
+      "pdfs\\receipt_home_depot.pdf",
+      "pdfs\\credit_card_jan2026.pdf",
+      "emails\\email_owner_voice_memo.txt"
+    ],
+    "amounts_seen": {
+      "pdfs\\receipt_home_depot.pdf": 67.12,
+      "pdfs\\credit_card_jan2026.pdf": 67.12
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 67.12,
+    "resolution": "The receipt and January 19 Home Depot card charge match. The memo confirms the bins and cleaning items were for the shop, despite the card also being used for groceries; included once as a business expense."
+  },
+  {
+    "id": "nhbp-counter-invoice",
+    "sources": [
+      "pdfs\\receipt_nhbp_parts.pdf",
+      "pdfs\\credit_card_jan2026.pdf",
+      "emails\\email_owner_voice_memo.txt"
+    ],
+    "amounts_seen": {
+      "pdfs\\receipt_nhbp_parts.pdf": 218.4,
+      "pdfs\\credit_card_jan2026.pdf": 218.4
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 218.4,
+    "resolution": "The New Haven Bike Parts receipt and January 25 card charge match for a counter invoice. The memo says this is separate from the $742.18 check, so include this purchase once and do not combine it with the check."
+  },
+  {
+    "id": "aws-service",
+    "sources": [
+      "pdfs\\credit_card_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\credit_card_jan2026.pdf": 19.99
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 19.99,
+    "resolution": "Business Amazon Web Services charge classified as utilities; included as a January expense."
+  },
+  {
+    "id": "owner-draw-savings",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 900.0
+    },
+    "included_in_income_statement": "no",
+    "amount_used_in_income_statement": 0,
+    "resolution": "The bank statement identifies this transfer to savings as a personal owner draw, not an income-statement expense."
+  },
+  {
+    "id": "city-nh-fleet-maintenance",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 2400.0
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 2400.0,
+    "resolution": "Business ACH deposit for City of New Haven fleet maintenance invoice 884; included as January revenue."
+  },
+  {
+    "id": "comcast-business-internet",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 89.99
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 89.99,
+    "resolution": "Business internet payment; included as a January utilities expense."
+  },
+  {
+    "id": "square-deposit-mixed-personal",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf",
+      "emails\\email_owner_voice_memo.txt"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 560.0,
+      "emails\\email_owner_voice_memo.txt": 95.0
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 465.0,
+    "resolution": "The January 15 Square deposit was $560, but the memo identifies $95 as the roommate's personal tune-up. Include only the business portion, $465, as revenue."
+  },
+  {
+    "id": "nhbp-wholesale-restock",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf",
+      "emails\\email_owner_voice_memo.txt"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 742.18
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 742.18,
+    "resolution": "The January 18 check is a separate New Haven Bike Parts restock order, as confirmed by the memo. Include as a separate COGS/parts expense, not combined with the $218.40 counter invoice."
+  },
+  {
+    "id": "st-raphael-custom-build",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 1850.0
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 1850.0,
+    "resolution": "Business ACH deposit identified as the final payment for the St. Raphael custom build; included as January revenue."
+  },
+  {
+    "id": "jordan-lee-atm-cash",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 200.0
+    },
+    "included_in_income_statement": "no",
+    "amount_used_in_income_statement": 0,
+    "resolution": "The bank statement identifies this ATM withdrawal as personal cash and an owner draw; excluded."
+  },
+  {
+    "id": "square-weekend-rush",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 980.0
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 980.0,
+    "resolution": "Business Square deposit for weekend rush jobs; included as January revenue."
+  },
+  {
+    "id": "state-farm-liability",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 214.0
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 214.0,
+    "resolution": "Business liability insurance premium; included as a January insurance expense."
+  },
+  {
+    "id": "westville-pto-event",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 570.0
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 570.0,
+    "resolution": "Business ACH deposit for the Westville PTO bike safety event; included as January revenue."
+  },
+  {
+    "id": "monthly-bank-service-fee",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 15.0
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 15.0,
+    "resolution": "Business monthly bank service fee; included as an other January expense."
+  },
+  {
+    "id": "park-tool-vendor-portal",
+    "sources": [
+      "pdfs\\bank_statement_jan2026.pdf",
+      "emails\\email_owner_voice_memo.txt"
+    ],
+    "amounts_seen": {
+      "pdfs\\bank_statement_jan2026.pdf": 344.55
+    },
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 344.55,
+    "resolution": "Separate January 31 debit-card purchase at the Park Tool vendor portal. The memo distinguishes the partial $88.70 receipt/card transaction from later shipments, so this bank charge is included separately."
+  },
+  {
+    "id": "shell-oil",
+    "sources": [
+      "pdfs\\credit_card_jan2026.pdf"
+    ],
+    "amounts_seen": {
+      "pdfs\\credit_card_jan2026.pdf": 52.1
+    },
+    "included_in_income_statement": "no",
+    "amount_used_in_income_statement": 0,
+    "resolution": "The Shell charge has no classification or supporting business explanation in the supplied evidence. It remains unresolved and is excluded pending documentation."
+  },
+  {
+    "id": "hartford-mutual-future-contract",
+    "sources": [
+      "emails\\email_fleet_wellness.txt",
+      "pdfs\\quote_hartford_mutual_fleet.pdf"
+    ],
+    "amounts_seen": {
+      "emails\\email_fleet_wellness.txt": 6800.0,
+      "pdfs\\quote_hartford_mutual_fleet.pdf": 6593.7
+    },
+    "included_in_income_statement": "no",
+    "amount_used_in_income_statement": 0,
+    "resolution": "The email records an approved $6,800 budget, while the quote totals $6,593.70 including tax. Both documents state the work and payment are future and do not create January revenue; excluded."
+  },
+  {
+    "id": "mike-smith-io u",
+    "sources": [
+      "pdfs\\iou_mike_smith.pdf",
+      "emails\\email_owner_voice_memo.txt"
+    ],
+    "amounts_seen": {
+      "pdfs\\iou_mike_smith.pdf": 180.0,
+      "emails\\email_owner_voice_memo.txt": 180.0
+    },
+    "included_in_income_statement": "no",
+    "amount_used_in_income_statement": 0,
+    "resolution": "The IOU documents an unpaid $180 customer receivable. The memo confirms it was not yet in the bank, so it is not included as January cash revenue."
+  },
+  {
+    "id": "wedding-ebike-proposal",
+    "sources": [
+      "emails\\email_wedding_ebikes.txt"
+    ],
+    "amounts_seen": {
+      "emails\\email_wedding_ebikes.txt": 5600.0
+    },
+    "included_in_income_statement": "no",
+    "amount_used_in_income_statement": 0,
+    "resolution": "This is a June proposal with no deposit received; the email expressly states it does not hit January revenue."
+  },
+  {
+    "id": "yale-cycling-club-proposal",
+    "sources": [
+      "emails\\email_yale_cycling_club.txt"
+    ],
+    "amounts_seen": {
+      "emails\\email_yale_cycling_club.txt": 2400.0
+    },
+    "included_in_income_statement": "no",
+    "amount_used_in_income_statement": 0,
+    "resolution": "This is a proposed February service with no January deposit. The email expressly excludes it from the January books."
+  }
+]

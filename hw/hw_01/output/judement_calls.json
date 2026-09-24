@@ -1,0 +1,33 @@
+[
+  {
+    "transaction_id": "rei-jacket",
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 156.0,
+    "evidence_for": [
+      "- pdfs\\credit_card_jan2026.pdf",
+      "- emails\\email_owner_voice_memo.txt"
+    ],
+    "confidence": "low"
+  },
+  {
+    "transaction_id": "square-deposit-mixed-personal",
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 465.0,
+    "evidence_for": [
+      "- pdfs\\bank_statement_jan2026.pdf",
+      "- emails\\email_owner_voice_memo.txt"
+    ],
+    "confidence": "medium"
+  },
+  {
+    "transaction_id": "home-depot-shop-supplies",
+    "included_in_income_statement": "yes",
+    "amount_used_in_income_statement": 67.12,
+    "evidence_for": [
+      "- pdfs\\receipt_home_depot.pdf",
+      "- pdfs\\credit_card_jan2026.pdf",
+      "- emails\\email_owner_voice_memo.txt"
+    ],
+    "confidence": "high"
+  }
+]

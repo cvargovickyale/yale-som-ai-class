@@ -1,0 +1,47 @@
+[
+  {
+    "vendor": "Amazon.com",
+    "date": "January 4, 2026",
+    "description": "Sony WH-CH520 Wireless Headphones \u2014 Black",
+    "amount_usd": 89.99,
+    "category": "tools_equipment",
+    "source_file": "pdfs\\receipt_amazon_headphones.pdf",
+    "fields_not_found": []
+  },
+  {
+    "vendor": "SPEEDY COURIER \u2014 New Haven",
+    "date": "01/17/2026",
+    "description": "Same-day delivery of emergency tubes from New Haven Bike Parts to Spoke & Wrench",
+    "amount_usd": 28.0,
+    "category": "shipping",
+    "source_file": "pdfs\\receipt_courier.pdf",
+    "fields_not_found": []
+  },
+  {
+    "vendor": "THE HOME DEPOT",
+    "date": "01/19/2026 6:42 PM",
+    "description": "Rubbermaid 18-gallon bins (2), push broom, and dust pan",
+    "amount_usd": 67.12,
+    "category": "tools_equipment",
+    "source_file": "pdfs\\receipt_home_depot.pdf",
+    "fields_not_found": []
+  },
+  {
+    "vendor": "NEW HAVEN BIKE PARTS \u2014 Wholesale Counter",
+    "date": "January 19, 2026",
+    "description": "Continental GP5000 tires x4, Presta tubes box (26x), and Shimano HG chains x2",
+    "amount_usd": 218.4,
+    "category": "cogs_parts",
+    "source_file": "pdfs\\receipt_nhbp_parts.pdf",
+    "fields_not_found": []
+  },
+  {
+    "vendor": "PARK TOOL COMPANY",
+    "date": "01/06/2026",
+    "description": "Chain whip SR-12.2, cassette lock tool FR-5.2, and blue shop apron",
+    "amount_usd": 88.7,
+    "category": "tools_equipment",
+    "source_file": "pdfs\\receipt_park_tool.pdf",
+    "fields_not_found": []
+  }
+]

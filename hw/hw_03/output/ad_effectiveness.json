@@ -1,0 +1,31 @@
+[
+  {
+    "video_path": "data/videos/ad_humble.mp4",
+    "customer_name": "David Chen",
+    "ad_themes": [
+      "social_belonging",
+      "confidence_swagger",
+      "school_pride"
+    ],
+    "matched_categories": [
+      "social_belonging"
+    ],
+    "effectiveness": "medium",
+    "reasoning": "The sampled frames show a group of people wearing Yale apparel together under an overpass, with a central performer delivering an assertive, swagger-focused presentation. This supports social belonging, confidence_swagger, and school_pride, but does not visibly communicate tradition_heritage or purpose_impact. David responds to social belonging, so the group setting offers some appeal, but his preference is for classic, understated Yale SOM clothing for family and program occasions, whereas the ad emphasizes bold streetwear styling and an urban performance tone. The single meaningful interest overlap makes this a limited, medium-strength fit rather than a highly persuasive ad."
+  },
+  {
+    "video_path": "data/videos/ad_humble.mp4",
+    "customer_name": "Maya Chen",
+    "ad_themes": [
+      "school_pride",
+      "social_belonging",
+      "confidence_swagger"
+    ],
+    "matched_categories": [
+      "social_belonging",
+      "confidence_swagger"
+    ],
+    "effectiveness": "medium",
+    "reasoning": "The ad centers on a performer in a navy Yale hoodie speaking assertively to camera, surrounded by a coordinated group wearing Yale and other collegiate-branded sweatshirts. The setting and group presentation emphasize Yale school pride, social belonging, and a confident, swagger-forward tone; the frames do not support a purpose-impact or mission-driven theme. Maya responds to social belonging and confidence, so those are meaningful overlaps, but her preference is polished professional-casual clothing with subtle branding for networking, recruiting, and case-competition settings. The ad's casual, oversized graphic-hoodie styling and performance-heavy tone are less aligned with how she wants to wear merch, making the ad moderately\u2014not highly\u2014persuasive."
+  }
+]

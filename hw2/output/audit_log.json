@@ -1,0 +1,1317 @@
+{
+  "runs": [
+    {
+      "run_started_at": "2026-09-15T19:13:13.803069+00:00",
+      "query": "Build a profile of this company.",
+      "input_url": "https://sanhaw.com",
+      "model": "gpt-5.6-luna",
+      "max_pages": 8,
+      "timeout_seconds": 55,
+      "iterations": [
+        {
+          "iteration": 1,
+          "timestamp": "2026-09-15T19:13:13.805534+00:00",
+          "event": "agent_run_started",
+          "decision_summary": "Agent received the human query and URL; it may crawl the site before producing the structured profile."
+        },
+        {
+          "iteration": 2,
+          "timestamp": "2026-09-15T19:13:23.847427+00:00",
+          "event": "agent_run_completed",
+          "decision_summary": "Structured profile returned and written to assets/company_profile.json."
+        }
+      ],
+      "status": "completed",
+      "output_path": "assets/company_profile.json",
+      "crawled_urls": [],
+      "tool_calls": [],
+      "run_finished_at": "2026-09-15T19:13:23.847464+00:00",
+      "elapsed_seconds": 10.044
+    },
+    {
+      "run_started_at": "2026-09-15T19:13:49.489176+00:00",
+      "query": "Build a profile of this company.",
+      "input_url": "https://sanhaw.com",
+      "model": "gpt-5.6-luna",
+      "max_pages": 8,
+      "timeout_seconds": 55,
+      "iterations": [
+        {
+          "iteration": 1,
+          "timestamp": "2026-09-15T19:13:49.691900+00:00",
+          "event": "agent_run_started",
+          "decision_summary": "Agent received the human query and URL; it may crawl the site before producing the structured profile."
+        },
+        {
+          "iteration": 2,
+          "timestamp": "2026-09-15T19:14:21.573139+00:00",
+          "event": "agent_run_completed",
+          "decision_summary": "Structured profile returned and written to assets/company_profile.json."
+        }
+      ],
+      "status": "completed",
+      "output_path": "assets/company_profile.json",
+      "crawled_urls": [
+        "https://sanhaw.com/awards",
+        "https://sanhaw.com/about",
+        "https://sanhaw.com/events",
+        "https://sanhaw.com/locations",
+        "https://sanhaw.com",
+        "https://sanhaw.com/industry-links",
+        "https://sanhaw.com/community",
+        "https://sanhaw.com/offers"
+      ],
+      "tool_calls": [
+        {
+          "timestamp": "2026-09-15T19:13:57.775936+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://sanhaw.com",
+            "max_pages": 8
+          },
+          "result_summary": "Read 8 pages; collected 17185 characters"
+        }
+      ],
+      "run_finished_at": "2026-09-15T19:14:21.573243+00:00",
+      "elapsed_seconds": 32.084
+    },
+    {
+      "run_started_at": "2026-09-15T19:28:28.676692+00:00",
+      "query": "Find 3 good customer targets for this company and draft outreach emails.",
+      "input_url": "/Users/cvargovick/Documents/Yale SOM/AI Class/00 Workspace/hw/hw_02/assets/company_profile.json",
+      "model": "gpt-5.6-luna",
+      "max_pages": 8,
+      "timeout_seconds": 55,
+      "iterations": [
+        {
+          "iteration": 1,
+          "timestamp": "2026-09-15T19:28:28.891647+00:00",
+          "event": "agent_run_started",
+          "decision_summary": "Agent received the human query and URL; it may crawl the site before producing the structured profile."
+        }
+      ],
+      "status": "stopped_timeout",
+      "stop_reason": "Run exceeded 55 seconds. No further model or crawl work was attempted.",
+      "tool_calls": [
+        {
+          "timestamp": "2026-09-15T19:28:32.688122+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "Connecticut western Massachusetts residential commercial general contractors custom home builders renovation companies lumber millwork windows service area Sanford Hawley",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:28:36.477229+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "site:.com western Massachusetts general contractor custom homes remodeling Springfield West Springfield Northampton",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:28:36.629237+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "Connecticut commercial general contractor design build website Hartford Farmington Valley",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:28:36.636821+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "site:.com Connecticut custom home builder remodeling contractor Farmington Valley Avon Simsbury Canton Burlington",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:28:36.638879+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "Connecticut kitchen remodeling design build contractor website Avon West Hartford",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:28:40.757998+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "western Massachusetts custom home builder official website Springfield",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:28:41.065410+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "D. Amato Builders Connecticut official website",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:28:41.074255+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "Lovley Development Connecticut official website custom builder",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:28:41.224299+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "KBE Building Corporation Connecticut official website",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:28:44.771841+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.damatobuilders.com",
+            "max_pages": 8
+          },
+          "result_summary": "Read 1 pages; collected 0 characters; 1 page issues"
+        },
+        {
+          "timestamp": "2026-09-15T19:28:45.076713+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://kbecorp.com",
+            "max_pages": 8
+          },
+          "result_summary": "Read 1 pages; collected 258 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:28:45.632769+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.tmbuilding.com",
+            "max_pages": 8
+          },
+          "result_summary": "Read 1 pages; collected 471 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:28:52.716265+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.lovleydevelopment.com",
+            "max_pages": 8
+          },
+          "result_summary": "Read 1 pages; collected 0 characters; 1 page issues"
+        },
+        {
+          "timestamp": "2026-09-15T19:28:57.020942+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.ahbhome.com",
+            "max_pages": 8
+          },
+          "result_summary": "Read 1 pages; collected 0 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:28:59.990253+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.bearmountainbuilders.com",
+            "max_pages": 8
+          },
+          "result_summary": "Read 8 pages; collected 5689 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:29:03.960600+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.fdrich.com",
+            "max_pages": 8
+          },
+          "result_summary": "Read 8 pages; collected 15758 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:29:04.279968+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.dimeo.com",
+            "max_pages": 8
+          },
+          "result_summary": "Read 8 pages; collected 9930 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:29:09.234327+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "Connecticut multifamily developer construction company official website Hartford",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:29:09.542566+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "Massachusetts general contractor Springfield commercial construction official website",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:29:10.211988+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "West Hartford CT design build contractor official website",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:29:10.472492+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "Connecticut home builder custom homes remodeling company official site Hartford county",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:29:14.054479+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.benach.com",
+            "max_pages": 8
+          },
+          "result_summary": "Read 1 pages; collected 0 characters; 1 page issues"
+        },
+        {
+          "timestamp": "2026-09-15T19:29:14.256358+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.sjmiles.com",
+            "max_pages": 8
+          },
+          "result_summary": "Read 1 pages; collected 0 characters; 1 page issues"
+        },
+        {
+          "timestamp": "2026-09-15T19:29:18.317677+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://consigli.com",
+            "max_pages": 8
+          },
+          "result_summary": "Read 9 pages; collected 24183 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:29:19.033206+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.walshgroup.com",
+            "max_pages": 8
+          },
+          "result_summary": "Read 8 pages; collected 55828 characters"
+        }
+      ],
+      "run_finished_at": "2026-09-15T19:29:23.896274+00:00",
+      "elapsed_seconds": 55.219
+    },
+    {
+      "run_started_at": "2026-09-15T19:30:17.848368+00:00",
+      "query": "Find 3 good customer targets for this company and draft outreach emails.",
+      "input_url": null,
+      "input_profile": "/Users/cvargovick/Documents/Yale SOM/AI Class/00 Workspace/hw/hw_02/assets/company_profile.json",
+      "model": "gpt-5.6-luna",
+      "max_pages": 8,
+      "timeout_seconds": 55,
+      "iterations": [
+        {
+          "iteration": 1,
+          "timestamp": "2026-09-15T19:30:18.046854+00:00",
+          "event": "agent_run_started",
+          "decision_summary": "Agent received the human query and URL; it may crawl the site before producing the structured profile."
+        },
+        {
+          "iteration": 2,
+          "timestamp": "2026-09-15T19:31:07.842227+00:00",
+          "event": "agent_run_completed",
+          "decision_summary": "Structured profile returned and written to assets/company_profile.json."
+        }
+      ],
+      "output_paths": [
+        "output/targets.json",
+        "output/emails.json"
+      ],
+      "status": "completed",
+      "output_path": "assets/company_profile.json",
+      "crawled_urls": [
+        "https://www.wjbassett.com",
+        "https://www.legacyconstructionne.com",
+        "https://finehomecontracting.com/service",
+        "https://finehomecontracting.com/contact-us",
+        "https://finehomecontracting.com",
+        "https://finehomecontracting.com/additions",
+        "https://www.jmconstructionct.com",
+        "https://www.bmdesignbuild.com",
+        "https://www.woodlandbuilders.com",
+        "https://www.woodlandbuilders.com/contact",
+        "https://www.woodlandbuilders.com/remodeling-projects",
+        "https://www.woodlandbuilders.com/remodeling-projects/whole-homes"
+      ],
+      "tool_calls": [
+        {
+          "timestamp": "2026-09-15T19:30:21.738110+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "Connecticut western Massachusetts residential commercial general contractors remodeling builders company website projects locations",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:30:24.747740+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "Hartford CT builders remodeling contractors custom homes kitchens additions official website OR West Hartford Avon Farmington Simsbury Springfield MA general contractor",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:30:28.808246+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.wjbassett.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 1 pages; collected 0 characters; 1 page issues"
+        },
+        {
+          "timestamp": "2026-09-15T19:30:29.077897+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.legacyconstructionne.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 1 pages; collected 155 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:30:32.797253+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://finehomecontracting.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 13434 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:30:36.687311+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.jmconstructionct.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 1 pages; collected 0 characters; 1 page issues"
+        },
+        {
+          "timestamp": "2026-09-15T19:30:36.787745+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.bmdesignbuild.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 1 pages; collected 0 characters; 1 page issues"
+        },
+        {
+          "timestamp": "2026-09-15T19:30:42.269964+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.woodlandbuilders.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 10437 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:30:48.617494+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.fournierconstruction.com",
+            "max_pages": 0
+          },
+          "result_summary": "Candidate crawl budget exhausted; no crawl performed"
+        },
+        {
+          "timestamp": "2026-09-15T19:30:48.617690+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.pioneervalleybuilders.com",
+            "max_pages": 0
+          },
+          "result_summary": "Candidate crawl budget exhausted; no crawl performed"
+        },
+        {
+          "timestamp": "2026-09-15T19:30:48.617825+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.ctcustomconstruction.com",
+            "max_pages": 0
+          },
+          "result_summary": "Candidate crawl budget exhausted; no crawl performed"
+        }
+      ],
+      "run_finished_at": "2026-09-15T19:31:07.842287+00:00",
+      "elapsed_seconds": 49.994
+    },
+    {
+      "run_started_at": "2026-09-15T19:31:29.428243+00:00",
+      "query": "Find 3 good customer targets for this company and draft outreach emails.",
+      "input_url": null,
+      "input_profile": "/Users/cvargovick/Documents/Yale SOM/AI Class/00 Workspace/hw/hw_02/assets/company_profile.json",
+      "model": "gpt-5.6-luna",
+      "max_pages": 2,
+      "timeout_seconds": 55,
+      "iterations": [
+        {
+          "iteration": 1,
+          "timestamp": "2026-09-15T19:31:29.626193+00:00",
+          "event": "agent_run_started",
+          "decision_summary": "Agent received the human query and URL; it may crawl the site before producing the structured profile."
+        },
+        {
+          "iteration": 2,
+          "timestamp": "2026-09-15T19:31:56.203050+00:00",
+          "event": "agent_run_completed",
+          "decision_summary": "Structured profile returned and written to assets/company_profile.json."
+        }
+      ],
+      "output_paths": [
+        "output/targets.json",
+        "output/emails.json"
+      ],
+      "status": "completed",
+      "output_path": "assets/company_profile.json",
+      "crawled_urls": [
+        "https://kbe.build",
+        "https://www.sweeneydesignremodel.com",
+        "https://www.carrierconstruction.com",
+        "https://www.dmhomes.com",
+        "https://www.bobbittconstruction.com",
+        "https://bobbittconstruction.com"
+      ],
+      "tool_calls": [
+        {
+          "timestamp": "2026-09-15T19:31:30.986662+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "Connecticut western Massachusetts residential commercial general contractors remodeling builders company website projects locations",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:31:33.848897+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "site:.com Connecticut \"custom home builder\" \"Hartford\" remodeling contractor projects",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:31:38.773888+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://kbe.build/",
+            "max_pages": 2
+          },
+          "result_summary": "Read 1 pages; collected 0 characters; 1 page issues"
+        },
+        {
+          "timestamp": "2026-09-15T19:31:38.790576+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.sweeneydesignremodel.com/",
+            "max_pages": 2
+          },
+          "result_summary": "Read 1 pages; collected 0 characters; 1 page issues"
+        },
+        {
+          "timestamp": "2026-09-15T19:31:39.109356+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.carrierconstruction.com/",
+            "max_pages": 2
+          },
+          "result_summary": "Read 1 pages; collected 340 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:31:39.125851+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.dmhomes.com/",
+            "max_pages": 2
+          },
+          "result_summary": "Read 1 pages; collected 131 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:31:45.145788+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.mccormickconstruction.com",
+            "max_pages": 0
+          },
+          "result_summary": "Candidate crawl budget exhausted; no crawl performed"
+        },
+        {
+          "timestamp": "2026-09-15T19:31:45.146007+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.mackenzieconstruction.com",
+            "max_pages": 0
+          },
+          "result_summary": "Candidate crawl budget exhausted; no crawl performed"
+        },
+        {
+          "timestamp": "2026-09-15T19:31:45.146184+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.hoffmanarchitects.com",
+            "max_pages": 0
+          },
+          "result_summary": "Candidate crawl budget exhausted; no crawl performed"
+        },
+        {
+          "timestamp": "2026-09-15T19:31:45.146359+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.barnesbuilding.com",
+            "max_pages": 0
+          },
+          "result_summary": "Candidate crawl budget exhausted; no crawl performed"
+        },
+        {
+          "timestamp": "2026-09-15T19:31:45.469894+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.sweeneydesignremodel.com",
+            "max_pages": 2
+          },
+          "result_summary": "Read 1 pages; collected 0 characters; 1 page issues"
+        },
+        {
+          "timestamp": "2026-09-15T19:31:47.650856+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.bobbittconstruction.com",
+            "max_pages": 2
+          },
+          "result_summary": "Read 2 pages; collected 5376 characters"
+        }
+      ],
+      "run_finished_at": "2026-09-15T19:31:56.203115+00:00",
+      "elapsed_seconds": 26.775
+    },
+    {
+      "run_started_at": "2026-09-15T19:32:26.383992+00:00",
+      "query": "Find 3 good customer targets for this company and draft outreach emails.",
+      "input_url": null,
+      "input_profile": "/Users/cvargovick/Documents/Yale SOM/AI Class/00 Workspace/hw/hw_02/assets/company_profile.json",
+      "model": "gpt-5.6-luna",
+      "max_pages": 8,
+      "timeout_seconds": 55,
+      "iterations": [
+        {
+          "iteration": 1,
+          "timestamp": "2026-09-15T19:32:26.580164+00:00",
+          "event": "agent_run_started",
+          "decision_summary": "Agent received the human query and URL; it may crawl the site before producing the structured profile."
+        }
+      ],
+      "status": "stopped_timeout",
+      "stop_reason": "Run exceeded 55 seconds. No further model or crawl work was attempted.",
+      "tool_calls": [
+        {
+          "timestamp": "2026-09-15T19:32:27.639668+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "Connecticut western Massachusetts residential commercial general contractors remodeling builders company website projects locations",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:32:31.082508+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "site:.com Connecticut builder remodeling \"projects\" Hartford Avon Farmington West Hartford company",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:32:36.488184+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.piorobuilders.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 1 pages; collected 0 characters; 1 page issues"
+        },
+        {
+          "timestamp": "2026-09-15T19:32:36.842515+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.braunconstruction.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 1 pages; collected 334 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:32:37.858802+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.greenwoodindustries.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 4285 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:32:38.129751+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.dimeo.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 5623 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:32:41.037472+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.bondbrothers.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 5181 characters"
+        }
+      ],
+      "run_finished_at": "2026-09-15T19:33:21.583670+00:00",
+      "elapsed_seconds": 55.2
+    },
+    {
+      "run_started_at": "2026-09-15T19:33:36.114597+00:00",
+      "query": "Find 3 good customer targets for this company and draft outreach emails. Return only targets with verified public website evidence and public business contact information; if fewer than 3 qualify, return fewer.",
+      "input_url": null,
+      "input_profile": "/Users/cvargovick/Documents/Yale SOM/AI Class/00 Workspace/hw/hw_02/assets/company_profile.json",
+      "model": "gpt-5.6-luna",
+      "max_pages": 4,
+      "timeout_seconds": 60,
+      "iterations": [
+        {
+          "iteration": 1,
+          "timestamp": "2026-09-15T19:33:36.314063+00:00",
+          "event": "agent_run_started",
+          "decision_summary": "Agent received the human query and URL; it may crawl the site before producing the structured profile."
+        },
+        {
+          "iteration": 2,
+          "timestamp": "2026-09-15T19:34:30.785249+00:00",
+          "event": "agent_run_completed",
+          "decision_summary": "Structured profile returned and written to assets/company_profile.json."
+        }
+      ],
+      "output_paths": [
+        "output/targets.json",
+        "output/emails.json"
+      ],
+      "status": "completed",
+      "crawled_urls": [
+        "https://www.sweeneyremodeling.com",
+        "https://www.litchfieldbuilders.com/new-haven-county-residential-remodeling",
+        "https://www.litchfieldbuilders.com/residential-construction/new-haven-county-bathrooms",
+        "https://www.litchfieldbuilders.com",
+        "https://www.litchfieldbuilders.com/residential-construction/additions",
+        "https://www.jpcarroll.com/radiator-repairs-Boston-Lexington-Belmont-Waltham-MA",
+        "https://www.jpcarroll.com/auto-parts-used-auto-parts-Boston-Lexington-Belmont-Burlington-Waltham-MA",
+        "https://www.jpcarroll.com/junk-cars-Boston-Lexington-Belmont-Burlington-Waltham-MA",
+        "https://www.jpcarroll.com",
+        "https://www.fiderio.com/about-us",
+        "https://www.fiderio.com/blog",
+        "https://www.fiderio.com/reviews",
+        "https://www.fiderio.com",
+        "https://www.brombuilders.com/begin-here",
+        "https://www.brombuilders.com/openhouse",
+        "https://brombuilders.com/begin-here",
+        "https://www.brombuilders.com"
+      ],
+      "tool_calls": [
+        {
+          "timestamp": "2026-09-15T19:33:39.380654+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "Connecticut western Massachusetts commercial general contractors residential builders remodeling company projects contact email lumber millwork windows kitchens service area",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:33:43.536569+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "site:*.com Connecticut remodeling contractor \"contact\" kitchen windows builder Hartford Avon Farmington Manchester OR western Massachusetts general contractor projects",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:33:48.505172+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.sweeneyremodeling.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 1 pages; collected 0 characters; 1 page issues"
+        },
+        {
+          "timestamp": "2026-09-15T19:33:50.698563+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.litchfieldbuilders.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 15832 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:33:50.990141+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.jpcarroll.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 8169 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:33:51.526228+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.fiderio.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 27366 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:33:55.796558+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.brombuilders.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 8841 characters"
+        }
+      ],
+      "run_finished_at": "2026-09-15T19:34:30.785273+00:00",
+      "elapsed_seconds": 54.671
+    },
+    {
+      "run_started_at": "2026-09-15T19:37:28.674753+00:00",
+      "query": "Find up to 20 plausible Sanford & Hawley customer candidates in Connecticut and western Massachusetts.",
+      "input_url": null,
+      "input_profile": "/Users/cvargovick/Documents/Yale SOM/AI Class/00 Workspace/hw/hw_02/assets/company_profile.json",
+      "model": "gpt-5.6-luna",
+      "max_pages": 8,
+      "timeout_seconds": 90,
+      "iterations": [
+        {
+          "iteration": 1,
+          "timestamp": "2026-09-15T19:37:28.887424+00:00",
+          "event": "agent_run_started",
+          "decision_summary": "Agent received the human query and URL; it may crawl the site before producing the structured profile."
+        },
+        {
+          "iteration": 2,
+          "timestamp": "2026-09-15T19:37:38.092430+00:00",
+          "event": "agent_run_completed",
+          "decision_summary": "Structured profile returned and written to assets/company_profile.json."
+        }
+      ],
+      "output_paths": [
+        "output/candidate_list.json"
+      ],
+      "status": "completed",
+      "crawled_urls": [],
+      "tool_calls": [
+        {
+          "timestamp": "2026-09-15T19:37:33.410902+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "Connecticut residential general contractors custom home builders remodeling companies lumber millwork service area",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:37:33.463083+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "Connecticut kitchen bathroom remodeling window installation contractors custom builders",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:37:33.473740+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "western Massachusetts home builders remodeling contractors construction companies lumber materials",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        },
+        {
+          "timestamp": "2026-09-15T19:37:33.473931+00:00",
+          "name": "search_for_prospective_companies",
+          "arguments": {
+            "query": "Connecticut commercial general contractors construction companies building materials lumber project work",
+            "max_results": 10
+          },
+          "result_summary": "Returned 10 public search results"
+        }
+      ],
+      "run_finished_at": "2026-09-15T19:37:38.092457+00:00",
+      "elapsed_seconds": 9.418
+    },
+    {
+      "run_started_at": "2026-09-15T19:42:11.437618+00:00",
+      "query": "Find 3 good customer targets for this company and draft outreach emails from the candidate list. Return fewer if fewer qualify.",
+      "input_url": null,
+      "input_profile": "/Users/cvargovick/Documents/Yale SOM/AI Class/00 Workspace/hw/hw_02/assets/company_profile.json",
+      "model": "gpt-5.6-luna",
+      "max_pages": 8,
+      "timeout_seconds": 90,
+      "iterations": [
+        {
+          "iteration": 1,
+          "timestamp": "2026-09-15T19:42:11.656527+00:00",
+          "event": "agent_run_started",
+          "decision_summary": "Agent received the human query and URL; it may crawl the site before producing the structured profile."
+        },
+        {
+          "iteration": 2,
+          "timestamp": "2026-09-15T19:43:17.495367+00:00",
+          "event": "agent_run_completed",
+          "decision_summary": "Structured profile returned and written to assets/company_profile.json."
+        }
+      ],
+      "output_paths": [
+        "output/targets.json",
+        "output/emails.json"
+      ],
+      "status": "completed",
+      "crawled_urls": [
+        "https://www.bearmountainbuilders.com",
+        "https://bearmountainbuilders.com/contact",
+        "https://bearmountainbuilders.com",
+        "https://bearmountainbuilders.com/our-work",
+        "https://dimeo.com/about",
+        "https://dimeo.com",
+        "https://www.dimeo.com",
+        "https://dimeo.com/portfolio/rhode-island-state-health-lab",
+        "https://fdrich.com/about-us",
+        "http://fdrich.com",
+        "https://fdrich.com",
+        "https://www.fdrich.com",
+        "https://www.litchfieldbuilders.com/new-haven-county-residential-remodeling",
+        "https://www.litchfieldbuilders.com",
+        "https://www.litchfieldbuilders.com/cs/c/?cta_guid=5af0bf8b-cacf-4729-b082-c58be47f72ce&signature=AAH58kFhy0k6Ut_6jipzl5_BXG2oXzfigQ&portal_id=294410&pageId=5288759941&placement_guid=d7814dc1-00f5-4d48-842d-f1e3fe1f4fab&click=b9d1d34e-bcbf-4844-b998-d171a7fbd594&redirect_url=APefjpEfpvvgujg8A3AAwxN8otxXuyfrXnx42CQa-iikP30HUIexN3FkV8dvDPG_7WFKG1VNBIOfsPCFo66FdRF68xEO7y8ZuKRoRiaz9xLXo72fPR8neTbyERlm7fkIOEX1618ofG6jymuW6L-zlwxkI_vjge7FWA&hsutk=&canon=https%3A%2F%2Fwww.litchfieldbuilders.com%2F&ts=1789501338861",
+        "https://www.litchfieldbuilders.com/residential-construction/additions",
+        "https://www.fiderio.com/blog",
+        "https://www.fiderio.com/reviews",
+        "https://www.fiderio.com/about-us",
+        "https://www.fiderio.com",
+        "https://www.woodlandbuilders.com/remodeling-projects",
+        "https://www.woodlandbuilders.com/remodeling-projects/whole-homes",
+        "https://www.woodlandbuilders.com",
+        "https://www.woodlandbuilders.com/contact",
+        "https://finehomecontracting.com",
+        "https://finehomecontracting.com/service",
+        "https://finehomecontracting.com/contact-us",
+        "https://www.finehomecontracting.com",
+        "https://www.brombuilders.com/begin-here",
+        "https://www.brombuilders.com",
+        "https://www.brombuilders.com/openhouse",
+        "https://brombuilders.com/begin-here"
+      ],
+      "tool_calls": [
+        {
+          "timestamp": "2026-09-15T19:42:16.310138+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://consigli.com",
+            "max_pages": 0
+          },
+          "result_summary": "Candidate crawl budget exhausted; no crawl performed"
+        },
+        {
+          "timestamp": "2026-09-15T19:42:16.310260+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.walshgroup.com",
+            "max_pages": 0
+          },
+          "result_summary": "Candidate crawl budget exhausted; no crawl performed"
+        },
+        {
+          "timestamp": "2026-09-15T19:42:16.310326+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.mccormickconstruction.com",
+            "max_pages": 0
+          },
+          "result_summary": "Candidate crawl budget exhausted; no crawl performed"
+        },
+        {
+          "timestamp": "2026-09-15T19:42:16.310386+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.mackenzieconstruction.com",
+            "max_pages": 0
+          },
+          "result_summary": "Candidate crawl budget exhausted; no crawl performed"
+        },
+        {
+          "timestamp": "2026-09-15T19:42:20.763205+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.bearmountainbuilders.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 3903 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:42:22.251374+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.dimeo.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 6337 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:42:22.252164+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.fdrich.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 5244 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:42:22.566414+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.litchfieldbuilders.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 13377 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:42:22.664438+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.fiderio.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 28774 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:42:23.318864+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.woodlandbuilders.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 11779 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:42:26.504688+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.finehomecontracting.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 13649 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:42:26.821470+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.brombuilders.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 8841 characters"
+        }
+      ],
+      "run_finished_at": "2026-09-15T19:43:17.495417+00:00",
+      "elapsed_seconds": 66.058
+    },
+    {
+      "run_started_at": "2026-09-15T19:44:08.707245+00:00",
+      "query": "Find 3 good customer targets for this company and draft outreach emails from the candidate list. Return fewer if fewer qualify.",
+      "input_url": null,
+      "input_profile": "/Users/cvargovick/Documents/Yale SOM/AI Class/00 Workspace/hw/hw_02/assets/company_profile.json",
+      "model": "gpt-5.6-luna",
+      "max_pages": 8,
+      "timeout_seconds": 90,
+      "iterations": [
+        {
+          "iteration": 1,
+          "timestamp": "2026-09-15T19:44:08.921437+00:00",
+          "event": "agent_run_started",
+          "decision_summary": "Agent received the human query and URL; it may crawl the site before producing the structured profile."
+        },
+        {
+          "iteration": 2,
+          "timestamp": "2026-09-15T19:45:06.939289+00:00",
+          "event": "agent_run_completed",
+          "decision_summary": "Structured profile returned and written to assets/company_profile.json."
+        }
+      ],
+      "output_paths": [
+        "output/targets.json",
+        "output/emails.json"
+      ],
+      "status": "completed",
+      "crawled_urls": [
+        "https://www.bearmountainbuilders.com",
+        "https://bearmountainbuilders.com/our-work",
+        "https://bearmountainbuilders.com/contact",
+        "https://bearmountainbuilders.com",
+        "https://www.woodlandbuilders.com/remodeling-projects",
+        "https://www.woodlandbuilders.com/remodeling-projects/whole-homes",
+        "https://www.woodlandbuilders.com",
+        "https://www.woodlandbuilders.com/contact",
+        "https://www.litchfieldbuilders.com/residential-construction/additions",
+        "https://www.litchfieldbuilders.com/cs/c/?cta_guid=5af0bf8b-cacf-4729-b082-c58be47f72ce&signature=AAH58kH2VjGO0qAcHiIetNBcHXuNmDnITA&portal_id=294410&pageId=5288759941&placement_guid=d7814dc1-00f5-4d48-842d-f1e3fe1f4fab&click=ba5f6f1a-3878-4fd3-a943-f63f397b7703&redirect_url=APefjpHjsOB1FgcNcP8yzItEtHRUaaxAq3tAYkhZhJdOBlGC_5c54x03Cx1hDF0CEXc-vmoAHI3DA5K9F5poum1j7qUjnnUGOBDrUbEH_V7eG2olbKghH-RC0sEEW3sBMMSgNMvwWPf1rriYKmXb7hwWpyBdENhqog&hsutk=&canon=https%3A%2F%2Fwww.litchfieldbuilders.com%2F&ts=1789501451105",
+        "https://www.litchfieldbuilders.com/new-haven-county-residential-remodeling",
+        "https://www.litchfieldbuilders.com",
+        "https://www.dimeo.com",
+        "https://dimeo.com",
+        "https://dimeo.com/portfolio/rhode-island-state-health-lab",
+        "https://dimeo.com/about",
+        "https://fdrich.com/about-us",
+        "https://fdrich.com",
+        "http://fdrich.com",
+        "https://www.fdrich.com",
+        "https://www.fiderio.com",
+        "https://www.fiderio.com/blog",
+        "https://www.fiderio.com/about-us",
+        "https://www.fiderio.com/reviews",
+        "https://finehomecontracting.com",
+        "https://finehomecontracting.com/contact-us",
+        "https://finehomecontracting.com/service",
+        "https://www.finehomecontracting.com",
+        "https://brombuilders.com/begin-here",
+        "https://www.brombuilders.com",
+        "https://www.brombuilders.com/openhouse",
+        "https://www.brombuilders.com/begin-here"
+      ],
+      "tool_calls": [
+        {
+          "timestamp": "2026-09-15T19:44:09.382457+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://consigli.com",
+            "max_pages": 0
+          },
+          "result_summary": "Candidate crawl budget exhausted; no crawl performed"
+        },
+        {
+          "timestamp": "2026-09-15T19:44:09.382559+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.walshgroup.com",
+            "max_pages": 0
+          },
+          "result_summary": "Candidate crawl budget exhausted; no crawl performed"
+        },
+        {
+          "timestamp": "2026-09-15T19:44:09.382623+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.mccormickconstruction.com",
+            "max_pages": 0
+          },
+          "result_summary": "Candidate crawl budget exhausted; no crawl performed"
+        },
+        {
+          "timestamp": "2026-09-15T19:44:09.382682+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.mackenzieconstruction.com",
+            "max_pages": 0
+          },
+          "result_summary": "Candidate crawl budget exhausted; no crawl performed"
+        },
+        {
+          "timestamp": "2026-09-15T19:44:13.242536+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.bearmountainbuilders.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 3903 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:44:13.243306+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.woodlandbuilders.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 13006 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:44:13.761379+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.litchfieldbuilders.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 13001 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:44:13.868617+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.dimeo.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 6113 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:44:14.164905+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.fdrich.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 5244 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:44:14.418326+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.fiderio.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 28774 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:44:18.493606+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.finehomecontracting.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 13649 characters"
+        },
+        {
+          "timestamp": "2026-09-15T19:44:18.504061+00:00",
+          "name": "crawl_company_website",
+          "arguments": {
+            "url": "https://www.brombuilders.com",
+            "max_pages": 4
+          },
+          "result_summary": "Read 4 pages; collected 8881 characters"
+        }
+      ],
+      "run_finished_at": "2026-09-15T19:45:06.939312+00:00",
+      "elapsed_seconds": 58.235
+    }
+  ],
+  "unique_input_urls": [
+    "https://sanhaw.com",
+    "/Users/cvargovick/Documents/Yale SOM/AI Class/00 Workspace/hw/hw_02/assets/company_profile.json"
+  ],
+  "unique_urls_seen": [
+    "https://www.damatobuilders.com",
+    "https://kbecorp.com",
+    "https://www.tmbuilding.com",
+    "https://www.lovleydevelopment.com",
+    "https://www.ahbhome.com",
+    "https://www.bearmountainbuilders.com",
+    "https://www.fdrich.com",
+    "https://www.dimeo.com",
+    "https://www.benach.com",
+    "https://www.sjmiles.com",
+    "https://consigli.com",
+    "https://www.walshgroup.com",
+    "https://www.wjbassett.com",
+    "https://www.legacyconstructionne.com",
+    "https://finehomecontracting.com/service",
+    "https://finehomecontracting.com/contact-us",
+    "https://finehomecontracting.com",
+    "https://finehomecontracting.com/additions",
+    "https://www.jmconstructionct.com",
+    "https://www.bmdesignbuild.com",
+    "https://www.woodlandbuilders.com",
+    "https://www.woodlandbuilders.com/contact",
+    "https://www.woodlandbuilders.com/remodeling-projects",
+    "https://www.woodlandbuilders.com/remodeling-projects/whole-homes",
+    "https://www.fournierconstruction.com",
+    "https://www.pioneervalleybuilders.com",
+    "https://www.ctcustomconstruction.com",
+    "https://kbe.build",
+    "https://www.sweeneydesignremodel.com",
+    "https://www.carrierconstruction.com",
+    "https://www.dmhomes.com",
+    "https://www.bobbittconstruction.com",
+    "https://bobbittconstruction.com",
+    "https://kbe.build/",
+    "https://www.sweeneydesignremodel.com/",
+    "https://www.carrierconstruction.com/",
+    "https://www.dmhomes.com/",
+    "https://www.mccormickconstruction.com",
+    "https://www.mackenzieconstruction.com",
+    "https://www.hoffmanarchitects.com",
+    "https://www.barnesbuilding.com",
+    "https://www.piorobuilders.com",
+    "https://www.braunconstruction.com",
+    "https://www.greenwoodindustries.com",
+    "https://www.bondbrothers.com",
+    "https://www.sweeneyremodeling.com",
+    "https://www.litchfieldbuilders.com/new-haven-county-residential-remodeling",
+    "https://www.litchfieldbuilders.com/residential-construction/new-haven-county-bathrooms",
+    "https://www.litchfieldbuilders.com",
+    "https://www.litchfieldbuilders.com/residential-construction/additions",
+    "https://www.jpcarroll.com/radiator-repairs-Boston-Lexington-Belmont-Waltham-MA",
+    "https://www.jpcarroll.com/auto-parts-used-auto-parts-Boston-Lexington-Belmont-Burlington-Waltham-MA",
+    "https://www.jpcarroll.com/junk-cars-Boston-Lexington-Belmont-Burlington-Waltham-MA",
+    "https://www.jpcarroll.com",
+    "https://www.fiderio.com/about-us",
+    "https://www.fiderio.com/blog",
+    "https://www.fiderio.com/reviews",
+    "https://www.fiderio.com",
+    "https://www.brombuilders.com/begin-here",
+    "https://www.brombuilders.com/openhouse",
+    "https://brombuilders.com/begin-here",
+    "https://www.brombuilders.com",
+    "https://bearmountainbuilders.com/contact",
+    "https://bearmountainbuilders.com",
+    "https://bearmountainbuilders.com/our-work",
+    "https://dimeo.com/about",
+    "https://dimeo.com",
+    "https://dimeo.com/portfolio/rhode-island-state-health-lab",
+    "https://fdrich.com/about-us",
+    "http://fdrich.com",
+    "https://fdrich.com",
+    "https://www.litchfieldbuilders.com/cs/c/?cta_guid=5af0bf8b-cacf-4729-b082-c58be47f72ce&signature=AAH58kFhy0k6Ut_6jipzl5_BXG2oXzfigQ&portal_id=294410&pageId=5288759941&placement_guid=d7814dc1-00f5-4d48-842d-f1e3fe1f4fab&click=b9d1d34e-bcbf-4844-b998-d171a7fbd594&redirect_url=APefjpEfpvvgujg8A3AAwxN8otxXuyfrXnx42CQa-iikP30HUIexN3FkV8dvDPG_7WFKG1VNBIOfsPCFo66FdRF68xEO7y8ZuKRoRiaz9xLXo72fPR8neTbyERlm7fkIOEX1618ofG6jymuW6L-zlwxkI_vjge7FWA&hsutk=&canon=https%3A%2F%2Fwww.litchfieldbuilders.com%2F&ts=1789501338861",
+    "https://www.finehomecontracting.com",
+    "https://www.litchfieldbuilders.com/cs/c/?cta_guid=5af0bf8b-cacf-4729-b082-c58be47f72ce&signature=AAH58kH2VjGO0qAcHiIetNBcHXuNmDnITA&portal_id=294410&pageId=5288759941&placement_guid=d7814dc1-00f5-4d48-842d-f1e3fe1f4fab&click=ba5f6f1a-3878-4fd3-a943-f63f397b7703&redirect_url=APefjpHjsOB1FgcNcP8yzItEtHRUaaxAq3tAYkhZhJdOBlGC_5c54x03Cx1hDF0CEXc-vmoAHI3DA5K9F5poum1j7qUjnnUGOBDrUbEH_V7eG2olbKghH-RC0sEEW3sBMMSgNMvwWPf1rriYKmXb7hwWpyBdENhqog&hsutk=&canon=https%3A%2F%2Fwww.litchfieldbuilders.com%2F&ts=1789501451105"
+  ]
+}

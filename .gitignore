@@ -1,0 +1,21 @@
+.env
+.env.local
+
+# one venv per project folder, everywhere in this workspace
+.venv/
+**/.venv/
+venv/
+**/venv/
+
+# node deps (lecture_07 frontend)
+node_modules/
+**/node_modules/
+
+# python/OS junk
+__pycache__/
+**/__pycache__/
+*.pyc
+.DS_Store
+**/.DS_Store
+
+lectures/lecture_02/leases.json

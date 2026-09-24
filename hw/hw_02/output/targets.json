@@ -1,0 +1,328 @@
+[
+  {
+    "company_name": "Litchfield Builders",
+    "website_url": "https://www.litchfieldbuilders.com",
+    "company_type": "Residential and commercial remodeling/construction contractor",
+    "ownership_structure": "unknown",
+    "year_founded": null,
+    "evidence_sources": [
+      {
+        "claim": "Litchfield Builders is based at 2199 State Street, Hamden, CT and serves the New Haven area.",
+        "url": "https://www.litchfieldbuilders.com"
+      },
+      {
+        "claim": "The company states it has been in business for more than 20 years and serves residential and commercial clients.",
+        "url": "https://www.litchfieldbuilders.com"
+      },
+      {
+        "claim": "Services include additions, renovations, new construction, kitchens, baths, exteriors, millwork, and trim.",
+        "url": "https://www.litchfieldbuilders.com/new-haven-county-residential-remodeling"
+      },
+      {
+        "claim": "The company presents itself as a small company able to take on large projects and publishes Connecticut construction project estimating tools.",
+        "url": "https://www.litchfieldbuilders.com"
+      },
+      {
+        "claim": "Public business phone is 203-772-2453.",
+        "url": "https://www.litchfieldbuilders.com"
+      }
+    ],
+    "headquarters_location": "2199 State Street, Hamden, CT 06517",
+    "project_locations": [
+      "New Haven area and surrounding Connecticut locations; specific project examples include Hamden, New Haven, Milford, Wallingford, and North Haven."
+    ],
+    "distance_to_nearest_sanhaw_location": "Approximately 25-30 miles by road from Sanford & Hawley's Unionville location; exact route distance not independently calculated.",
+    "service_area_fit": "Strong. Hamden/New Haven County is within Connecticut and is a practical regional delivery and contractor-service market for Sanford & Hawley.",
+    "delivery_or_pickup_feasibility": "Likely feasible by regional delivery or contractor pickup, subject to Sanford & Hawley delivery territory, order size, and route confirmation.",
+    "local_market": "New Haven County residential remodeling and commercial construction.",
+    "employee_count": null,
+    "revenue_or_size_band": null,
+    "annual_project_volume": null,
+    "residential_vs_commercial_mix": "Both residential and commercial work are explicitly advertised; percentage mix is unknown.",
+    "contractor_specialty": "Design-build remodeling, additions, renovations, new construction, kitchens, baths, exteriors, and custom millwork/trim.",
+    "project_types": [
+      "Home additions",
+      "Residential renovations",
+      "New home construction",
+      "Kitchen and bathroom remodeling",
+      "Exterior renovations",
+      "Commercial additions, renovations, and new construction",
+      "Millwork and trim"
+    ],
+    "estimated_material_intensity": "High assessment. The company undertakes additions, new construction, kitchens, exteriors, and commercial work, all of which can require recurring lumber, millwork, windows, and jobsite materials. No spend data is disclosed.",
+    "growth_or_hiring_signal": null,
+    "independent_or_network_affiliation": "unknown",
+    "likely_products_needed": [
+      "Framing and dimensional lumber",
+      "Sheet goods and structural building materials",
+      "Mouldings and trim",
+      "Windows and doors",
+      "Kitchen and bath project materials",
+      "Jobsite delivery supplies"
+    ],
+    "fit_with_sanhaw_products": "Strong assessment based on the contractor's broad residential/commercial scope and explicit millwork and trim work. Sanford & Hawley publicly offers lumber, millwork, kitchens, windows, and related building materials. No current customer relationship is verified.",
+    "fit_with_sanhaw_services": "Strong assessment. Delivery, millwork/shop support, field service, and contractor-oriented ordering could be relevant to this multi-project builder. The prospect's actual supplier requirements are unknown.",
+    "repeat_purchase_potential": "High assessment because the company describes ongoing residential and commercial project activity and has operated for more than 20 years.",
+    "commercial_account_potential": "Potentially high because commercial construction is explicitly marketed, although account size and purchasing authority are unknown.",
+    "delivery_need": "High assessment for additions, new construction, and commercial projects; no specific delivery practices are disclosed.",
+    "millwork_or_field_service_need": "High assessment because millwork and trim are explicitly listed as a service, and custom material coordination may be relevant.",
+    "differentiation_or_pain_point": "The company positions itself as a local 'Big Small Company' able to handle large projects. A relevant outreach angle is responsive regional supply, millwork coordination, and delivery support without assuming a disclosed pain point.",
+    "decision_maker_name": null,
+    "decision_maker_title": null,
+    "business_email": null,
+    "phone": "203-772-2453",
+    "contact_source_url": "https://www.litchfieldbuilders.com",
+    "preferred_contact_channel": "Phone or website contact form; no public business email was visible in the inspected pages.",
+    "recent_trigger": "No clearly dated expansion, hiring, or new-project trigger identified. The site does promote a project pricing estimator and current portfolio content.",
+    "personalization_evidence": [
+      "The company serves the New Haven area from Hamden.",
+      "It advertises both residential and commercial work.",
+      "Its listed services include millwork and trim, kitchens, additions, renovations, and new construction.",
+      "The company describes itself as a small local company capable of taking on large projects."
+    ],
+    "contact_confidence": "Medium for the public business phone; low for identifying the purchasing decision maker.",
+    "target_score": 89,
+    "fit_reasons": [
+      "Strong Connecticut geographic overlap with Sanford & Hawley.",
+      "High material intensity across additions, new construction, kitchens, exteriors, and commercial work.",
+      "Explicit millwork and trim capability aligns with Sanford & Hawley's millwork offering.",
+      "Public phone and a usable company website are available."
+    ],
+    "risks_or_disqualifiers": [
+      "No verified purchasing contact or public business email was found.",
+      "Exact delivery distance and service economics are not confirmed.",
+      "Current supplier relationships and buying volume are unknown."
+    ],
+    "unknowns": [
+      "Ownership structure",
+      "Year founded",
+      "Employee count",
+      "Revenue or size band",
+      "Annual project volume",
+      "Decision maker and purchasing authority",
+      "Current suppliers",
+      "Exact delivery requirements"
+    ],
+    "research_date": "2026-09-15",
+    "source_quality": "High for location, services, project categories, and phone; medium for operating scale because most firmographic metrics are undisclosed.",
+    "recommended_next_step": "Call 203-772-2453 and ask who manages building-material purchasing for residential and commercial projects. Lead with regional lumber, millwork, and delivery support.",
+    "email_status": "draft ready"
+  },
+  {
+    "company_name": "Fiderio & Sons",
+    "website_url": "https://www.fiderio.com",
+    "company_type": "Residential design-build remodeling contractor",
+    "ownership_structure": "family-owned",
+    "year_founded": 1984,
+    "evidence_sources": [
+      {
+        "claim": "Fiderio & Sons is family-owned and operated, founded in 1984.",
+        "url": "https://www.fiderio.com/about-us"
+      },
+      {
+        "claim": "The company is based at 687 Broad Street, Meriden, CT 06450.",
+        "url": "https://www.fiderio.com"
+      },
+      {
+        "claim": "Services include kitchens, bathrooms, windows and doors, interior services, exterior services, roofing, siding, and additions.",
+        "url": "https://www.fiderio.com"
+      },
+      {
+        "claim": "The company identifies John Fiderio as Founder, President & CEO and Jonathan Fiderio as Design & Remodeling Consultant.",
+        "url": "https://www.fiderio.com/about-us"
+      },
+      {
+        "claim": "Public business email sales@fiderio.com and phone 203-350-7526 are provided for project inquiries.",
+        "url": "https://www.fiderio.com"
+      }
+    ],
+    "headquarters_location": "687 Broad Street, Meriden, CT 06450",
+    "project_locations": [
+      "Meriden and surrounding Connecticut communities, including Wallingford, Cheshire, Middletown, Southington, and other areas across Connecticut."
+    ],
+    "distance_to_nearest_sanhaw_location": "Approximately 25-30 miles by road from Sanford & Hawley's Manchester location; exact route distance not independently calculated.",
+    "service_area_fit": "Strong. Meriden is within Sanford & Hawley's Connecticut footprint and is a practical delivery/pickup market.",
+    "delivery_or_pickup_feasibility": "Likely feasible through Sanford & Hawley regional delivery or contractor pickup, subject to route and order requirements.",
+    "local_market": "Central Connecticut residential remodeling market.",
+    "employee_count": null,
+    "revenue_or_size_band": null,
+    "annual_project_volume": null,
+    "residential_vs_commercial_mix": "The inspected site presents the company as residential-focused; no commercial percentage is disclosed.",
+    "contractor_specialty": "Family-owned full-service design-build remodeling, custom carpentry, millwork, kitchens, baths, windows and doors, roofing, siding, exterior work, and additions.",
+    "project_types": [
+      "Kitchen remodeling",
+      "Bathroom remodeling",
+      "Window and door replacement",
+      "Interior remodeling and custom carpentry",
+      "Exterior remodeling",
+      "Roofing and siding",
+      "Home additions",
+      "Decks, porches, sunrooms, and three-season rooms"
+    ],
+    "estimated_material_intensity": "High assessment. The company offers multiple material-intensive remodeling categories, including kitchens, windows and doors, additions, roofing, siding, and custom carpentry.",
+    "growth_or_hiring_signal": "The About page describes a second-generation team, customer-experience investment, and team expansion historically; no current hiring or expansion announcement was verified.",
+    "independent_or_network_affiliation": "The company is family-owned; no franchise or network affiliation was identified on the inspected pages.",
+    "likely_products_needed": [
+      "Lumber and framing materials",
+      "Mouldings and interior millwork",
+      "Cabinetry and kitchen materials",
+      "Windows and doors",
+      "Siding, roofing, and exterior materials",
+      "Deck and porch materials",
+      "Jobsite delivery supplies"
+    ],
+    "fit_with_sanhaw_products": "Strong assessment. Fiderio's listed services overlap directly with Sanford & Hawley's lumber, millwork, kitchens, windows, and building-material categories. No current Sanford & Hawley relationship is claimed.",
+    "fit_with_sanhaw_services": "Strong assessment for delivery and possible millwork/shop coordination. The prospect manages design, permits, construction, and installation, so dependable material staging could be relevant; actual need is unverified.",
+    "repeat_purchase_potential": "High assessment based on its full-service remodeling model, broad service menu, and stated 40-plus-year operating history.",
+    "commercial_account_potential": "Moderate assessment. The site is primarily residential, but recurring contractor purchasing potential appears plausible.",
+    "delivery_need": "High assessment for kitchens, additions, windows, roofing, siding, and exterior projects; the site does not disclose current delivery arrangements.",
+    "millwork_or_field_service_need": "High assessment because custom carpentry and millwork are explicitly offered. Sanford & Hawley shop/millwork capabilities could be relevant.",
+    "differentiation_or_pain_point": "The company emphasizes family ownership, two generations, design-build coordination, showroom selections, and project management. Outreach should focus on simplifying material coordination while preserving its consultative customer experience.",
+    "decision_maker_name": "John Fiderio",
+    "decision_maker_title": "Founder, President & CEO",
+    "business_email": "sales@fiderio.com",
+    "phone": "203-350-7526",
+    "contact_source_url": "https://www.fiderio.com/about-us",
+    "preferred_contact_channel": "Public business email, with phone follow-up if appropriate.",
+    "recent_trigger": "The site currently features project-planning content about exterior sequencing and remodeling costs; no specific new project, hiring, or expansion trigger was verified.",
+    "personalization_evidence": [
+      "Fiderio & Sons has been family-owned and operated since 1984.",
+      "The company manages design-build remodeling across Connecticut.",
+      "Its services include kitchens, windows and doors, additions, roofing, siding, and custom carpentry/millwork.",
+      "The company operates a Meriden showroom and publishes a public project-inquiry email."
+    ],
+    "contact_confidence": "High for the public business email and phone; high for John Fiderio's public executive title, though purchasing authority should still be confirmed.",
+    "target_score": 94,
+    "fit_reasons": [
+      "Excellent central Connecticut geography.",
+      "Direct product overlap across kitchens, windows, doors, lumber-adjacent remodeling, and millwork.",
+      "Family-owned contractor profile may align well with Sanford & Hawley's relationship-oriented service model.",
+      "Public business email and named executive are available."
+    ],
+    "risks_or_disqualifiers": [
+      "Residential focus may limit commercial-account scale.",
+      "Current supplier relationships and purchase volumes are unknown.",
+      "The public email is a general sales inbox rather than a verified purchasing address."
+    ],
+    "unknowns": [
+      "Employee count",
+      "Revenue or size band",
+      "Annual project volume",
+      "Residential project count",
+      "Current suppliers",
+      "Specific delivery requirements",
+      "Purchasing contact separate from executive leadership"
+    ],
+    "research_date": "2026-09-15",
+    "source_quality": "High for ownership, founding year, location, services, leadership, and contact information; medium for scale and buying potential.",
+    "recommended_next_step": "Email sales@fiderio.com and ask whether John Fiderio, operations, or a purchasing lead handles supplier relationships. Offer a short conversation about recurring lumber, millwork, window/door, and delivery needs.",
+    "email_status": "draft ready"
+  },
+  {
+    "company_name": "Fine Home Contracting",
+    "website_url": "https://www.finehomecontracting.com",
+    "company_type": "Connecticut design-build remodeling contractor",
+    "ownership_structure": "unknown",
+    "year_founded": null,
+    "evidence_sources": [
+      {
+        "claim": "Fine Home Contracting is based at 70 Spruce Brook Road, Plymouth, CT 06782 and serves Connecticut.",
+        "url": "https://www.finehomecontracting.com"
+      },
+      {
+        "claim": "The company focuses on full-home remodels, large-scale additions, and kitchens and bathrooms within larger projects.",
+        "url": "https://www.finehomecontracting.com/service"
+      },
+      {
+        "claim": "The company manages design, selections, permitting, construction, vendors, and project scheduling as one team.",
+        "url": "https://www.finehomecontracting.com"
+      },
+      {
+        "claim": "The contact page states that before construction, the company finalizes designs and selections, places special orders, and creates a build schedule.",
+        "url": "https://finehomecontracting.com/contact-us"
+      },
+      {
+        "claim": "Public contact information includes david@finehomecontracting.com and 860-733-2080.",
+        "url": "https://www.finehomecontracting.com"
+      }
+    ],
+    "headquarters_location": "70 Spruce Brook Road, Plymouth, CT 06782",
+    "project_locations": [
+      "Connecticut communities including Avon, Bethlehem, Bridgewater, Burlington, Canton, Cheshire, Farmington, Glastonbury, Goshen, Kent, Litchfield, Middlebury, Newtown, New Preston, Roxbury, Simsbury, Southbury, Warren, Washington, Watertown, West Hartford, and Woodbury."
+    ],
+    "distance_to_nearest_sanhaw_location": "Approximately 20-25 miles by road from Sanford & Hawley's Unionville location; exact route distance not independently calculated.",
+    "service_area_fit": "Strong. The company explicitly serves Avon, Farmington, Canton, and other communities near Sanford & Hawley's Connecticut locations.",
+    "delivery_or_pickup_feasibility": "Likely highly feasible for regional delivery or pickup, subject to Sanford & Hawley route and order-size confirmation.",
+    "local_market": "Connecticut high-end residential design-build remodeling.",
+    "employee_count": null,
+    "revenue_or_size_band": null,
+    "annual_project_volume": null,
+    "residential_vs_commercial_mix": "The site presents a residential-only or primarily residential model; no quantified mix is disclosed.",
+    "contractor_specialty": "Design-build remodeling with interior design, architectural plans and 3D renderings, full-home transformations, large-scale additions, kitchens, and bathrooms.",
+    "project_types": [
+      "Full-home remodels",
+      "Large-scale additions",
+      "Kitchen and bathroom projects within broader renovations",
+      "Interior design and finish-selection projects",
+      "Projects requiring permitting, vendor coordination, and special orders"
+    ],
+    "estimated_material_intensity": "High assessment. The company emphasizes comprehensive remodels and additions, and specifically states that it places special orders before construction.",
+    "growth_or_hiring_signal": null,
+    "independent_or_network_affiliation": "unknown",
+    "likely_products_needed": [
+      "Lumber and structural materials for additions",
+      "Cabinetry and kitchen materials",
+      "Windows and doors",
+      "Mouldings and finish millwork",
+      "Interior finishes and jobsite supplies",
+      "Coordinated special-order materials"
+    ],
+    "fit_with_sanhaw_products": "Strong assessment based on the company's large-scale additions, whole-home remodels, kitchen/bath work, and special-order process. These categories align with Sanford & Hawley's lumber, kitchens, windows, millwork, and building-material offerings. No current relationship is verified.",
+    "fit_with_sanhaw_services": "Strong assessment for delivery and material coordination. The company explicitly manages vendors, schedules, selections, and special orders, making dependable regional fulfillment potentially relevant.",
+    "repeat_purchase_potential": "Moderate to high assessment. A design-build firm with multiple comprehensive projects may have recurring project-based needs, although project volume is undisclosed.",
+    "commercial_account_potential": "Moderate assessment because the public positioning is residential; a contractor account could still be relevant even without commercial work.",
+    "delivery_need": "High assessment for large additions and whole-home remodels, especially where special orders and coordinated scheduling are involved.",
+    "millwork_or_field_service_need": "Moderate to high assessment. The company offers detailed design and finish selections, but does not explicitly advertise an in-house millwork shop or field-service operation.",
+    "differentiation_or_pain_point": "The company differentiates through one-team design-build delivery, 3D plans/renderings, dedicated interior design, and coordinated scheduling. A useful outreach angle is reducing material and special-order friction while supporting finish coordination.",
+    "decision_maker_name": null,
+    "decision_maker_title": null,
+    "business_email": "david@finehomecontracting.com",
+    "phone": "860-733-2080",
+    "contact_source_url": "https://finehomecontracting.com/contact-us",
+    "preferred_contact_channel": "Public business email, with phone follow-up if needed.",
+    "recent_trigger": "The website is dated 2025 in the footer and features recent portfolio projects including Burlington, Stamford, and Fairfield; no specific active procurement trigger was verified.",
+    "personalization_evidence": [
+      "Fine Home Contracting focuses on whole-home transformations and large-scale additions.",
+      "Its process includes design, selections, permitting, construction, vendor coordination, and special orders.",
+      "The company serves communities including Avon, Farmington, Canton, and West Hartford, close to Sanford & Hawley locations.",
+      "The site promotes architectural plans, 3D renderings, and a dedicated interior designer."
+    ],
+    "contact_confidence": "Medium-high for the public business email and phone; low for identifying the purchasing decision maker.",
+    "target_score": 92,
+    "fit_reasons": [
+      "Very strong geographic overlap with Sanford & Hawley's Unionville/Avon market.",
+      "High material intensity from additions and whole-home remodels.",
+      "Explicit special-order and vendor-coordination process creates a plausible supplier-service need.",
+      "Public business email, phone, service area, and process information are available."
+    ],
+    "risks_or_disqualifiers": [
+      "The company appears primarily residential, limiting commercial-account potential.",
+      "No employee count, revenue, project volume, or supplier information is disclosed.",
+      "The public email is not confirmed as a purchasing contact."
+    ],
+    "unknowns": [
+      "Ownership structure",
+      "Year founded",
+      "Employee count",
+      "Revenue or size band",
+      "Annual project volume",
+      "Current supplier relationships",
+      "Purchasing decision maker",
+      "Exact delivery frequency and material categories"
+    ],
+    "research_date": "2026-09-15",
+    "source_quality": "High for location, service area, project types, process, and contact details; medium for scale and purchasing assessment.",
+    "recommended_next_step": "Email david@finehomecontracting.com with a concise note about regional delivery, special-order coordination, lumber, windows, kitchens, and millwork. Ask who manages material sourcing for upcoming additions and whole-home projects.",
+    "email_status": "draft ready"
+  }
+]

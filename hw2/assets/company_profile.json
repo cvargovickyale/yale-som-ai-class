@@ -1,0 +1,116 @@
+{
+  "company_name": "Sanford & Hawley, Inc.",
+  "website_url": "https://sanhaw.com",
+  "company_type": "Building-materials and lumber-yard retailer serving contractors and DIY/homeowner customers; the site promotes lumber, millwork, kitchens, windows, delivery, field service, and installed sales.",
+  "ownership_structure": "family-owned",
+  "year_founded": 1884,
+  "evidence_sources": [
+    {
+      "claim": "Founded in 1884 and family-owned at the same Unionville location; operated by Frank, Bob, Ted, and Bobby Sanford.",
+      "url": "https://sanhaw.com/about"
+    },
+    {
+      "claim": "Four listed locations in Connecticut and western Massachusetts, with addresses, phones, and public business email.",
+      "url": "https://sanhaw.com/locations"
+    },
+    {
+      "claim": "Services include delivery, millwork, shop, field service, drive-through lumber yard, and installed sales.",
+      "url": "https://sanhaw.com"
+    },
+    {
+      "claim": "Company history identifies employment as having grown to nearly fifty.",
+      "url": "https://sanhaw.com/about"
+    },
+    {
+      "claim": "The site has a contractor/DIY-homeowner signup distinction and promotes products, kitchens, windows, and estimates.",
+      "url": "https://sanhaw.com"
+    }
+  ],
+  "headquarters_location": "Unionville, Connecticut, at 1790 Farmington Ave; the company describes this as its original and continuing family location.",
+  "project_locations": [
+    "Unionville, Avon, and Manchester, Connecticut; West Springfield, Massachusetts (operating locations). The website does not separately publish a project-location list."
+  ],
+  "distance_to_nearest_sanhaw_location": "0 miles / same-location overlap when comparing the company to Sanford & Hawley\u2019s own nearest listed location; this is not an external prospect-distance calculation.",
+  "service_area_fit": "Strong geographic fit by definition: the company operates in Connecticut and western Massachusetts, matching Sanford & Hawley\u2019s stated seller footprint. The target is the seller itself, not an independent prospective customer.",
+  "delivery_or_pickup_feasibility": "The website explicitly advertises delivery, a drive-through lumber yard, and shop-online functionality. Location pages publish operating hours and addresses. Specific delivery territories, fees, and pickup rules are not stated in the inspected pages.",
+  "local_market": "Central Connecticut and western Massachusetts local building-materials markets, with locations in Unionville, Avon, Manchester, and West Springfield.",
+  "employee_count": "Nearly 50, according to the About page; the page does not give a date for this figure.",
+  "revenue_or_size_band": null,
+  "annual_project_volume": null,
+  "residential_vs_commercial_mix": "The website targets both contractor and DIY/homeowner audiences, but does not quantify the mix.",
+  "contractor_specialty": "Building-materials/lumber-yard supplier with millwork, kitchens, windows, delivery, field service, and installed-sales capabilities; it is not presented as a specialty trade contractor.",
+  "project_types": [
+    "General building-material supply",
+    "Lumber and jobsite supply",
+    "Kitchen projects",
+    "Window projects",
+    "Millwork and moulding projects",
+    "Projects requiring delivery, field service, or installed sales"
+  ],
+  "estimated_material_intensity": "High as an assessment: the company operates lumber yards and promotes building materials, millwork, kitchens, windows, delivery, and installed sales. This is an operating-category assessment, not a disclosed spend metric.",
+  "growth_or_hiring_signal": null,
+  "independent_or_network_affiliation": "No franchise or buying-group/network affiliation was identified on the inspected company pages. The site supports family ownership but does not explicitly state a network status.",
+  "likely_products_needed": [
+    "Lumber and dimensional building materials",
+    "Mouldings and millwork",
+    "Kitchen products",
+    "Windows",
+    "Other building-material and jobsite supplies"
+  ],
+  "fit_with_sanhaw_products": "Assessment: high category fit because the company\u2019s own site shows a building-materials/lumber-yard assortment and specifically highlights lumber, millwork, kitchens, and windows. No current Sanford & Hawley purchasing relationship is claimed.",
+  "fit_with_sanhaw_services": "Assessment: high operational fit with delivery, millwork/shop work, field service, drive-through yard, estimates, and installed sales. These are services Sanford & Hawley publicly promotes; the site does not establish that the company buys them from another Sanford & Hawley entity.",
+  "repeat_purchase_potential": "Assessment: high in its role as a multi-location building-materials retailer and lumber yard, because lumber and project-related supplies are typically recurring categories. The website does not disclose purchase frequency.",
+  "commercial_account_potential": "Assessment: potentially high because the company explicitly serves contractors and operates multiple locations, but no account terms, customer counts, or commercial purchasing program were found.",
+  "delivery_need": "High operational relevance: delivery is prominently advertised and the About page references modern delivery trucks, including some with forklifts or booms.",
+  "millwork_or_field_service_need": "High operational relevance: the site explicitly promotes millwork, shop, field service, superior moulding selection, and an Avon Millwork Shop.",
+  "differentiation_or_pain_point": "Differentiation stated on the site includes a long family history, local/community orientation, multi-location service, delivery, drive-through warehouse, millwork, field service, and installed sales. No specific unmet pain point is disclosed.",
+  "decision_maker_name": "Frank Sanford; Bob Sanford; Ted Sanford; Bobby Sanford",
+  "decision_maker_title": "Company operators/owners are named on the About page; individual titles and purchasing authority are not specified.",
+  "business_email": "sales@sanfordandhawley.com",
+  "phone": "860-673-3213 (Avon/Unionville); 860-647-8924 (Manchester); 413-732-6900 (West Springfield)",
+  "contact_source_url": "https://sanhaw.com/locations",
+  "preferred_contact_channel": "Public business email or the location phone numbers; assessment based on the contact methods published by the company.",
+  "recent_trigger": "No current trigger identified. The Events page states that no events are currently scheduled, and no current hiring or expansion announcement was found in the inspected pages.",
+  "personalization_evidence": "The company describes itself as a family-owned business operating since 1884, with nearly fifty employees, four locations, delivery, millwork, field service, and contractor/DIY audiences. These points provide specific context for any internal supplier or partnership discussion.",
+  "contact_confidence": "High for the general business email and location phones; medium for the named operators as decision makers because titles and purchasing authority are not specified.",
+  "target_score": "Not a valid external prospect score because this URL is Sanford & Hawley\u2019s own website. On seller-fit dimensions only: high category and geography relevance; prospect qualification should be excluded or reset.",
+  "fit_reasons": [
+    "Established building-materials and lumber-yard operation since 1884.",
+    "Family-owned business with named Sanford operators.",
+    "Locations align with Connecticut and western Massachusetts.",
+    "Publicly advertised delivery, millwork, field service, kitchens, windows, and installed sales.",
+    "Explicitly serves contractor and DIY/homeowner audiences."
+  ],
+  "risks_or_disqualifiers": [
+    "This is Sanford & Hawley\u2019s own website, not an external target company.",
+    "No revenue, annual project volume, or quantified buying mix is published.",
+    "No individual decision-maker title or purchasing authority is verified.",
+    "No current trigger, hiring signal, or external supplier relationship is established."
+  ],
+  "unknowns": [
+    "Revenue or size band",
+    "Annual project volume",
+    "Quantified residential-versus-commercial mix",
+    "Current growth or hiring signal",
+    "Network, buying-group, or other affiliation status",
+    "Specific delivery territory and pickup rules",
+    "Individual purchasing decision-maker and title",
+    "Current supplier relationships and buying behavior",
+    "Research date"
+  ],
+  "research_date": "2026-09-15",
+  "source_quality": "High for company identity, ownership history, locations, services, public contact information, and stated employee figure; based primarily on first-party pages at sanhaw.com. Some fit and buying-potential fields are labeled assessments rather than disclosed facts.",
+  "recommended_next_step": "Confirm that an external prospect URL was intended. If profiling Sanford & Hawley itself, route the record to an internal-company profile rather than prospect qualification. For a supplier or partnership discussion, contact the general sales inbox or the relevant location and request the appropriate purchasing or operations contact.",
+  "email_status": "not drafted",
+  "profile_metadata": {
+    "available_field_count": 41,
+    "requested_field_count": 46,
+    "coverage_percentage": 89.13,
+    "insufficient_profile_coverage": false,
+    "coverage_notes": [
+      "Coverage is above half of the requested fields.",
+      "Unavailable fields are primarily revenue, annual project volume, growth/hiring signal, research date, and other undisclosed commercial metrics.",
+      "Several fit and buying-potential fields are reasoned assessments and are explicitly labeled as such."
+    ]
+  }
+}

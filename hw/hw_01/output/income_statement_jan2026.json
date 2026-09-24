@@ -1,0 +1,113 @@
+{
+  "period": "2026-01",
+  "revenue_usd": 9125.58,
+  "expense_lines": [
+    {
+      "label": "rent-crown-street",
+      "amount_usd": 1800.0,
+      "category": "rent",
+      "sources": [
+        "pdfs\\bank_statement_jan2026.pdf"
+      ]
+    },
+    {
+      "label": "eversource-electric",
+      "amount_usd": 186.42,
+      "category": "utilities",
+      "sources": [
+        "pdfs\\bank_statement_jan2026.pdf"
+      ]
+    },
+    {
+      "label": "park-tool-receipt-card",
+      "amount_usd": 127.4,
+      "category": "tools_equipment",
+      "sources": [
+        "pdfs\\receipt_park_tool.pdf",
+        "pdfs\\credit_card_jan2026.pdf",
+        "emails\\email_owner_voice_memo.txt"
+      ]
+    },
+    {
+      "label": "staples-office-supplies",
+      "amount_usd": 43.17,
+      "category": "office_supplies",
+      "sources": [
+        "pdfs\\credit_card_jan2026.pdf"
+      ]
+    },
+    {
+      "label": "ebay-park-tool-stand",
+      "amount_usd": 425.0,
+      "category": "tools_equipment",
+      "sources": [
+        "pdfs\\credit_card_jan2026.pdf",
+        "pdfs\\ebay_repair_stand.pdf"
+      ]
+    },
+    {
+      "label": "rei-jacket",
+      "amount_usd": 156.0,
+      "category": "other",
+      "sources": [
+        "pdfs\\credit_card_jan2026.pdf",
+        "emails\\email_owner_voice_memo.txt"
+      ]
+    },
+    {
+      "label": "speedy-courier",
+      "amount_usd": 28.0,
+      "category": "shipping",
+      "sources": [
+        "pdfs\\receipt_courier.pdf",
+        "pdfs\\credit_card_jan2026.pdf",
+        "emails\\email_owner_voice_memo.txt"
+      ]
+    },
+    {
+      "label": "home-depot-shop-supplies",
+      "amount_usd": 67.12,
+      "category": "shop_supplies",
+      "sources": [
+        "pdfs\\receipt_home_depot.pdf",
+        "pdfs\\credit_card_jan2026.pdf",
+        "emails\\email_owner_voice_memo.txt"
+      ]
+    },
+    {
+      "label": "aws-service",
+      "amount_usd": 19.99,
+      "category": "utilities",
+      "sources": [
+        "pdfs\\credit_card_jan2026.pdf"
+      ]
+    },
+    {
+      "label": "comcast-business-internet",
+      "amount_usd": 89.99,
+      "category": "utilities",
+      "sources": [
+        "pdfs\\bank_statement_jan2026.pdf"
+      ]
+    },
+    {
+      "label": "state-farm-liability",
+      "amount_usd": 214.0,
+      "category": "insurance",
+      "sources": [
+        "pdfs\\bank_statement_jan2026.pdf"
+      ]
+    },
+    {
+      "label": "park-tool-vendor-portal",
+      "amount_usd": 344.55,
+      "category": "tools_equipment",
+      "sources": [
+        "pdfs\\bank_statement_jan2026.pdf",
+        "emails\\email_owner_voice_memo.txt"
+      ]
+    }
+  ],
+  "total_expenses_usd": 3501.64,
+  "net_income_usd": 5623.94
+}

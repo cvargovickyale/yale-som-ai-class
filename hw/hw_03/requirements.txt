@@ -1,0 +1,5 @@
+python-dotenv>=1.0.1
+openai>=1.50.0
+pillow>=10.4.0
+pydantic-ai-slim[openai]>=1.0.0
+opencv-python-headless>=4.10.0

@@ -1,0 +1,7 @@
+dash
+openai
+python-dotenv
+requests
+yfinance
+beautifulsoup4
+numpy

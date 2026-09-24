@@ -1,0 +1,60 @@
+[
+  {
+    "target_company_name": "Litchfield Builders",
+    "target_website_url": "https://www.litchfieldbuilders.com",
+    "recipient_name": null,
+    "recipient_title": null,
+    "recipient_email": null,
+    "subject": "Regional lumber and millwork support for Litchfield Builders",
+    "body": "Hello Litchfield Builders team,\n\nI noticed that you handle both residential and commercial work in the New Haven area, including additions, new construction, kitchens, and millwork and trim. Your \u201cBig Small Company\u201d approach\u2014local service with the ability to take on larger projects\u2014stood out.\n\nSanford & Hawley supports Connecticut contractors with building materials, millwork, kitchens, windows, delivery, and related jobsite services. I\u2019d welcome a brief conversation about how we might help with recurring material orders or coordinated delivery for your upcoming projects.\n\nWho would be the best person to speak with about building-material purchasing and supplier relationships?\n\nBest,\nSanford & Hawley\nhttps://sanhaw.com",
+    "personalization_sources": [
+      "https://www.litchfieldbuilders.com",
+      "https://www.litchfieldbuilders.com/new-haven-county-residential-remodeling"
+    ],
+    "factuality_notes": [
+      "The draft uses only services and positioning stated on Litchfield Builders' website.",
+      "No recipient email was publicly verified, so this is a phone/contact-form handoff draft for human review.",
+      "It does not claim Litchfield Builders currently buys from Sanford & Hawley."
+    ],
+    "status": "draft \u2014 not sent"
+  },
+  {
+    "target_company_name": "Fiderio & Sons",
+    "target_website_url": "https://www.fiderio.com",
+    "recipient_name": "John Fiderio",
+    "recipient_title": "Founder, President & CEO",
+    "recipient_email": "sales@fiderio.com",
+    "subject": "A local supply partner for Fiderio & Sons\u2019 remodeling work",
+    "body": "Hello John,\n\nI was looking through Fiderio & Sons\u2019 story and was impressed by the way the family-owned business has grown from a carpentry company founded in 1984 into a full-service Connecticut design-build remodeler.\n\nYour work spans kitchens, windows and doors, additions, roofing, siding, and custom carpentry/millwork. Sanford & Hawley serves contractors across Connecticut with lumber, millwork, kitchens, windows, delivery, and field-service support. There may be a useful opportunity to simplify material coordination across those project types\u2014particularly when schedules and selections need to stay aligned.\n\nWould you be open to a short conversation, or could you point me to the person who manages supplier relationships and purchasing?\n\nBest,\nSanford & Hawley\nhttps://sanhaw.com",
+    "personalization_sources": [
+      "https://www.fiderio.com/about-us",
+      "https://www.fiderio.com"
+    ],
+    "factuality_notes": [
+      "John Fiderio's title is listed publicly on the About Us page.",
+      "sales@fiderio.com is presented publicly for project-related inquiries; purchasing ownership is not verified.",
+      "The draft describes a potential fit and does not claim an existing customer relationship."
+    ],
+    "status": "draft \u2014 not sent"
+  },
+  {
+    "target_company_name": "Fine Home Contracting",
+    "target_website_url": "https://www.finehomecontracting.com",
+    "recipient_name": null,
+    "recipient_title": null,
+    "recipient_email": "david@finehomecontracting.com",
+    "subject": "Helping coordinate materials for Connecticut additions and remodels",
+    "body": "Hello Fine Home Contracting team,\n\nYour one-team design-build process caught my attention\u2014especially the way you bring design, selections, permitting, construction, vendor coordination, and special orders together for whole-home remodels and large additions.\n\nSanford & Hawley works with Connecticut contractors on lumber, kitchens, windows, millwork, delivery, and related building-material needs. Since your process includes finalizing selections and placing special orders before construction, I thought a conversation about regional fulfillment and material coordination could be worthwhile.\n\nWould David or the person responsible for purchasing be open to a brief introduction? We\u2019d be glad to learn how you currently handle materials for projects near Avon, Farmington, and the surrounding communities.\n\nBest,\nSanford & Hawley\nhttps://sanhaw.com",
+    "personalization_sources": [
+      "https://finehomecontracting.com/contact-us",
+      "https://www.finehomecontracting.com/service",
+      "https://www.finehomecontracting.com"
+    ],
+    "factuality_notes": [
+      "The website publicly lists david@finehomecontracting.com, but does not establish David's title or purchasing authority.",
+      "The references to special orders, vendor coordination, additions, and whole-home remodeling are based on the inspected website.",
+      "The draft presents Sanford & Hawley's capabilities as a potential fit and does not imply a current relationship."
+    ],
+    "status": "draft \u2014 not sent"
+  }
+]

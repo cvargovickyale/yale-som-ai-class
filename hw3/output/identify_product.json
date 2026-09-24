@@ -1,0 +1,40 @@
+[
+  {
+    "query_image": "data/test_images/image_01_true.jpeg",
+    "product_present": true,
+    "match": {
+      "filename": "yale-dad-t-shirt.jpg",
+      "school_or_program": "Yale Dad",
+      "merch_type": "t_shirt",
+      "confidence": "high"
+    },
+    "reasoning": "The photo shows a gray short-sleeve T-shirt with a navy Yale wordmark, underline, small University text, and \u201cDAD\u201d beneath it. This matches the loaded yale-dad-t-shirt product photo in garment type, gray color, and graphic layout; the crewneck and hoodie alternatives do not match the visible short sleeves.",
+    "candidates_considered": [
+      "yale-dad-t-shirt.jpg",
+      "yale-dad-crewneck.jpg",
+      "yale-dad-hoodie.jpg"
+    ]
+  },
+  {
+    "query_image": "data/test_images/image_02_false.jpeg",
+    "product_present": false,
+    "match": null,
+    "reasoning": "The photo shows a gray pullover hoodie with prominent black text reading \u201cESSENTIALS\u201d across the chest. No Yale wordmark, bulldog/crest, college, school, or Yale-affiliated program branding is visible. Although Campus Customs sells hoodies, the visible branding does not plausibly correspond to any Campus Customs catalogue product, so no product images were loaded for comparison.",
+    "candidates_considered": []
+  },
+  {
+    "query_image": "data/test_images/image_03_true.jpeg",
+    "product_present": true,
+    "match": {
+      "filename": "dry-zone-long-sleeve.jpg",
+      "school_or_program": "Yale",
+      "merch_type": "long_sleeve",
+      "confidence": "high"
+    },
+    "reasoning": "The photo shows a navy long-sleeve shirt with prominent white \u201cYALE\u201d and smaller \u201cBULLDOGS\u201d text across the chest. I compared it with the loaded catalogue photos: dry-zone-long-sleeve.jpg has the same navy long-sleeve garment and the same centered YALE/BULLDOGS design, while ua-mens-tech-l-s-2-0.jpg uses a different outlined YALE layout with a large Y and Under Armour logo. The dry-zone long-sleeve is therefore a high-confidence match.",
+    "candidates_considered": [
+      "dry-zone-long-sleeve.jpg",
+      "ua-mens-tech-l-s-2-0.jpg"
+    ]
+  }
+]
