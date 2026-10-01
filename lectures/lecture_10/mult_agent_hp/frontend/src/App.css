@@ -1,0 +1,319 @@
+/* Windows Gateway 2000 desktop: teal backdrop, gray beveled windows, navy title bars */
+
+.desktop {
+  min-height: 100vh;
+  padding: 10px;
+}
+
+.window {
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #dfdfdf #000 #000 #dfdfdf;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080;
+  padding: 3px;
+}
+
+.app-window {
+  max-width: 1500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 20px);
+}
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 4px 3px 6px;
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.title-buttons {
+  display: flex;
+  gap: 2px;
+}
+.title-buttons span {
+  width: 18px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  background: #c0c0c0;
+  color: #000;
+  font-size: 11px;
+  line-height: 1;
+  border: 1px solid;
+  border-color: #fff #000 #000 #fff;
+  box-shadow: inset -1px -1px 0 #808080;
+}
+
+.app-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 4px 4px;
+  min-height: 0;
+}
+
+.group {
+  margin: 0;
+  padding: 6px 8px 8px;
+  border: 1px solid #808080;
+  box-shadow: 1px 1px 0 #fff, inset 1px 1px 0 #fff;
+  min-width: 0;
+}
+.group legend {
+  padding: 0 4px;
+}
+
+.chart-scroll {
+  overflow-x: auto;
+}
+
+.columns {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(340px, 5fr) 8fr;
+  gap: 6px;
+  min-height: 420px;
+}
+
+.left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+.trace-group {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 620px;
+}
+
+/* Ask form */
+.ask textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 4px;
+  background: #fff;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  box-shadow: inset 1px 1px 0 #000;
+}
+.ask textarea:focus {
+  outline: 1px dotted #000;
+  outline-offset: -4px;
+}
+.ask textarea:disabled {
+  background: #e0e0e0;
+}
+
+.ask-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.hint {
+  color: #444;
+  font-size: 11px;
+}
+
+.samples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.btn {
+  min-width: 75px;
+  padding: 4px 12px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #000 #000 #fff;
+  box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #dfdfdf;
+  cursor: pointer;
+}
+.btn:active:not(:disabled) {
+  border-color: #000 #fff #fff #000;
+  box-shadow: inset 1px 1px 0 #808080;
+  padding: 5px 11px 3px 13px;
+}
+.btn:focus-visible {
+  outline: 1px dotted #000;
+  outline-offset: -5px;
+}
+.btn:disabled {
+  color: #808080;
+  text-shadow: 1px 1px 0 #fff;
+  cursor: default;
+}
+.btn.default {
+  outline: 1px solid #000;
+  font-weight: 700;
+}
+.btn.small {
+  min-width: 0;
+  padding: 2px 6px;
+  font-size: 11px;
+}
+
+/* Answer */
+.answer-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.answer-box {
+  flex: 1;
+  min-height: 160px;
+  max-height: 460px;
+  overflow: auto;
+  padding: 6px 10px;
+  background: #fff;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  box-shadow: inset 1px 1px 0 #000;
+}
+.asked {
+  margin: 0 0 6px;
+  padding: 4px 6px;
+  background: #ffffe1;
+  border: 1px solid #000;
+  font-style: italic;
+}
+.pending {
+  color: #000080;
+}
+.hourglass {
+  display: inline-block;
+  animation: flip 1.6s steps(2) infinite;
+}
+@keyframes flip {
+  to { transform: rotate(360deg); }
+}
+.error {
+  color: #a00000;
+  font-weight: 700;
+}
+.muted {
+  color: #666;
+}
+
+.markdown {
+  font: 13px/1.5 Georgia, 'Times New Roman', serif;
+}
+.markdown h1, .markdown h2, .markdown h3 {
+  font: 700 13px Tahoma, sans-serif;
+  margin: 10px 0 4px;
+  color: #000080;
+}
+.markdown p { margin: 0 0 8px; }
+.markdown ul, .markdown ol { margin: 0 0 8px; padding-left: 20px; }
+.markdown table { border-collapse: collapse; font-size: 12px; }
+.markdown th, .markdown td { border: 1px solid #808080; padding: 2px 5px; vertical-align: top; }
+
+.reports {
+  margin-top: 10px;
+  border-top: 1px solid #c0c0c0;
+  padding-top: 6px;
+}
+.reports summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.report {
+  margin: 6px 0;
+  padding: 4px 6px;
+  background: #f2f2f2;
+  border: 1px solid #c0c0c0;
+  font-size: 11.5px;
+}
+.report.error {
+  background: #f8dcdc;
+}
+.report p {
+  margin: 2px 0;
+}
+
+/* Status bar */
+.statusbar {
+  display: flex;
+  gap: 3px;
+  padding-top: 3px;
+}
+.statusbar .cell {
+  padding: 1px 6px;
+  border: 1px solid;
+  border-color: #808080 #fff #fff #808080;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.statusbar .cell.bad {
+  color: #a00000;
+}
+.statusbar .sound-toggle {
+  margin-left: auto;
+  background: #c0c0c0;
+  cursor: pointer;
+}
+
+.linkish {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #0000ee;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Password dialog */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 64, 64, 0.55);
+}
+.login {
+  width: 340px;
+}
+.login-body {
+  padding: 10px 12px 12px;
+}
+.login-body p {
+  margin: 0 0 8px;
+}
+.login-icon {
+  float: left;
+  font-size: 28px;
+  margin: 0 8px 4px 0;
+}
+.login-body input {
+  width: 100%;
+  padding: 3px 4px;
+  background: #fff;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  box-shadow: inset 1px 1px 0 #000;
+}
+.login-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
