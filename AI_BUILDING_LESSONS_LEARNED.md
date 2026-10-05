@@ -212,3 +212,102 @@ Christopher's.
 **Soundbite:** "Every real bug today was upstream of the code — an
 unfinished task, a wrong assumption stated with too much confidence, or a
 path typed relative to the wrong root."
+
+## Homework 1 — Spoke & Wrench financial pipeline (graded review), 2026-09-24
+
+Built 2026-09-08 with Codex: LLM extraction of receipts, bank, and card
+statements, an LLM reconciliation log, then a plain-Python income statement
+and HTML report. Graded 86/100. Every lost point traced to a handoff between
+steps, not to the LLM misreading a document. Revenue was overstated by
+exactly $975.58 (three expense rows counted as revenue) and expenses
+understated by that plus one dropped $89 charge.
+
+1. **Hand off decisions as structure, not prose.** The bank-extraction step
+   correctly tagged every line `revenue` or `expense`. The reconciliation
+   step's output format had no field for it, so the label survived only
+   inside a plain-English sentence. The income statement then guessed by
+   searching that sentence for words like "invoice" and "service" — which
+   flagged a parts invoice *received* and a bank "service fee" as revenue,
+   even where the sentence literally said "expense." *CoS translation:* a
+   decision made upstream but recorded only in an email is a decision the
+   next team will re-make, differently.
+2. **Every gap in a spec is a decision the AI makes silently.** The prompt
+   said "roll rows into revenue and expense" but never said how to tell
+   which. Codex filled the gap with a keyword heuristic and never surfaced
+   it as a choice. *CoS translation:* when delegating, ask "what judgment
+   calls did you make that I didn't specify?" — it costs ten seconds.
+3. **Tie out to an independent control total.** The eight business deposits
+   on the bank statement sum to $8,150 — exactly the grader's revenue. A
+   30-second cross-check would have caught the error before submission.
+   *CoS translation:* don't review the logic, reconcile the output against
+   a number that was produced a different way.
+4. **Agree on what each step assumes about its input.** Reconciliation was
+   prompted to list only items needing a decision; the income statement
+   treated that list as the complete ledger. A clean, single-source $89
+   printing charge fell through the seam. The CLI deductions were the same
+   failure: the rubric defined exact flags, and the build used convenient
+   ones. *CoS translation:* two individually reasonable workstreams can
+   still break where they meet — the interface is someone's job.
+5. **A contingency plan needs a trigger.** The prompt log said "if the
+   rollup misclassifies a row, ask AI to audit" — but nothing ever checked
+   whether it had. *CoS translation:* turn every "if X goes wrong" into a
+   check that actually runs.
+
+**Soundbite:** "The AI did the hard part — reading messy documents —
+correctly. The points were lost at the handoffs, where nobody owned the
+contract between steps."
+
+## Lecture 08 — mobile layout fixes (follow-up), 2026-09-29
+
+One bug report — "mobile is crowded, make it scrollable" — turned into
+three sequential rounds of fixes on the live Render deployment, each one
+exposing the next real problem underneath rather than being the end of it.
+
+1. **A layout fix can silently break the thing it depends on — verify with
+   numbers, not a screenshot.** Making the mobile container scrollable via
+   `height: auto` looked fine in a screenshot of the top of the page, but it
+   unbounded the flex chain every internal list relies on to clip and
+   scroll — the course list rendered all 234 cards unclipped (a
+   39,575px-tall element) instead of a scrollable few. Only reading
+   `scrollHeight` numerically caught it; nothing about the screenshot looked
+   wrong. *CoS translation:* for layout/rendering bugs specifically, "looks
+   right in a screenshot" and "is actually right" are different claims —
+   check a number.
+2. **`flex: 1` only produces a finite, scrollable area when every ancestor
+   up to the true scroll boundary is itself bounded.** Re-flowing a
+   side-by-side desktop layout into a stacked mobile one broke that chain
+   silently — nothing errored, content just stopped clipping. *CoS
+   translation:* when you re-flow a system for a new context (desktop →
+   mobile, wide → narrow), re-check the sizing assumptions the whole system
+   depends on, not just the piece you're changing.
+3. **A UI pattern that works at one size can be structurally wrong at
+   another, not just "too small."** ~25 category chips wrapping to 9+ rows
+   on a phone wasn't a spacing problem to fix with more room — it was the
+   wrong interaction pattern for that viewport. The fix was changing the
+   pattern (a single swipeable row) rather than resizing the container
+   around it. *CoS translation:* "make it bigger" is sometimes the wrong
+   ask — the right fix is recognizing when a pattern itself doesn't
+   transfer to a new context.
+4. **A positioning strategy that works in the simple case can break in a
+   nested/scrolled one.** `position: sticky` for a "stay at the bottom"
+   taskbar is a reasonable first instinct, but it's unreliable specifically
+   inside a custom scroll container sized with vh/% units on real mobile
+   browsers, where the visible viewport itself changes as the address bar
+   collapses. `position: fixed` — anchored to the real screen, not a scroll
+   container — was the actually-robust choice, and checking for it exposed
+   a second, related bug: a popup menu positioned relative to that same
+   scroll container, which needed the identical fix. *CoS translation:*
+   when a reasonable-sounding technical choice breaks in one specific
+   environment, check whether something else built on the same assumption
+   is quietly broken too.
+5. **One bug report is rarely one bug — budget for the next layer, don't
+   declare victory after the first fix.** "Crowded" → chips consuming the
+   whole window → taskbar not sticking → popup menu misplaced were four
+   distinct root causes, each surfaced only by testing after fixing the
+   previous one, not predicted upfront. *CoS translation:* a symptom-level
+   report ("this feels off") is the start of a debugging thread, not a
+   single ticket — the fix that resolves the stated symptom is often just
+   the first domino.
+
+**Soundbite:** "Every fix this round passed the screenshot test and failed
+the numbers test — the bugs were all in dimensions a picture doesn't show."

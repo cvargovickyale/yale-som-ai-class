@@ -141,8 +141,23 @@ destructive commands and preserve unrelated user work.
   `agent.py`, `screen_tools.py` (mss/Pillow screen capture), `audit_log.py`,
   `prompts/prompt.md`, and `output/audit_log.json`. Its README is only a joke
   placeholder, so read the code, not the README.
-- `lectures/lecture_06/` through `lecture_13/`: folders exist but are empty as
-  of 2026-09-21; read their actual contents before planning anything.
+- `lectures/lecture_07/`: Yale SOM course-explorer app — React/Vite/TS
+  frontend, Python agent backend (`search_courses` tool + native OpenAI
+  `web_search`, via pydantic-ai/Portkey). First real frontend+backend split
+  in the course; see `AI_BUILDING_LESSONS_LEARNED.md` for the contract-first
+  pattern that made it click together.
+- `lectures/lecture_08/`: evolved lecture_07 into a real deployed app —
+  SQLite (`users`/`chats` tables), email/password auth (bcrypt + JWT),
+  per-user chat history, and a live Render deployment (`backend/` as a
+  Render Web Service, `frontend/` as a Render Static Site). `.claude/launch.json`
+  has a `lecture08-live` entry pointing at the Render URL. This is the
+  current reference pattern for any future assignment that needs a real
+  deployed app with auth/persistence, including `final_project/`.
+- `lectures/lecture_10/`: Harry Potter multi-agent dashboard (per git log;
+  not yet reviewed in detail here — read its own contents before reusing
+  anything from it).
+- `lectures/lecture_06/`, `lecture_09/`, `lecture_11/` through `lecture_13/`:
+  check actual contents before assuming empty — this changes weekly.
 
 ### Homeworks
 
@@ -152,24 +167,35 @@ destructive commands and preserve unrelated user work.
 - `hw/hw_02/`: completed Sanford & Hawley sales-agent homework. Read its
   `HARNESS.md` for the detailed agent architecture. (It has no folder-level
   `AI_HANDOFF.md`; this root file is the only one.)
-- `hw/hw_03/`: in progress — Campus Customs vision/agent homework. Its own
-  `README.md` and `AI_prompts.md` are the source of truth for its scenario,
-  10-problem list, and Problem 10's exact submission layout; that detail is
-  homework-specific and deliberately not duplicated here. Course-level facts
-  learned while working on it (model roster, sandbox gotchas, zip artifacts)
-  are folded into the relevant general sections above instead.
+- `hw/hw_03/`: submitted — Campus Customs vision/agent homework (two-ability
+  PydanticAI agent: product-identify from a photo, ad-effectiveness judged
+  against a customer profile; plus `build_catalogue.py`, a one-time
+  vision-based catalogue builder). Its own `README.md` and `AI_prompts.md`
+  are the source of truth for its scenario, 10-problem list, and Problem 10's
+  exact submission layout; that detail is homework-specific and deliberately
+  not duplicated here. Course-level facts learned while working on it (model
+  roster, sandbox gotchas, zip artifacts) are folded into the relevant
+  general sections above instead; reusable technical patterns are below.
 - `hw/hw_04/` through `hw/hw_06/`: future/homework slots; do not assume their
   requirements or create content until the user provides the assignment.
 
-**HW1 and HW2 are submitted work and are frozen.** Do not modify `hw/hw_01/`,
-`hw/hw_02/`, root-level `hw1/`, `hw2/`, `hw1.zip`, or `hw2.zip`. Read them as
-reference patterns only; ask before touching anything under those paths. Known
-cosmetic quirks in them are intentional leftovers, not bugs to fix: `hw/hw_01/`
-lacks a `README.md` and `requirements.txt` (the root `hw1/` copy has both),
+**HW1, HW2, and HW3 are submitted work and are frozen.** Do not modify
+`hw/hw_01/`, `hw/hw_02/`, `hw/hw_03/`, root-level `hw1/`, `hw2/`, `hw3/`,
+`hw1.zip`, `hw2.zip`, or `hw3.zip`. Read them as reference patterns only; ask
+before touching anything under those paths. Known cosmetic quirks in them are
+intentional leftovers, not bugs to fix: `hw/hw_01/` lacks a `README.md` and
+`requirements.txt` (the root `hw1/` copy has both),
 `hw/hw_01/output/judement_calls.json` is misspelled relative to the correctly
 named `hw1/output/judgment_calls.json`, and the filenames under
 `hw/hw_01/hw1_spoke_and_wrench/` contain literal backslashes from a
 Windows-created archive.
+
+A detailed graded-review retrospective for HW1 (what was asked, what was
+built, exactly where points were lost and why, process fixes for next time)
+lives in root-level `hw1_retrospective.md` — written after the grade came
+back, so it's a better source for "what actually goes wrong" than the
+original `AI_prompts.md` log. The distilled, CoS-facing version of the same
+lessons is in `AI_BUILDING_LESSONS_LEARNED.md`.
 
 ## Prior work as reusable patterns
 
@@ -209,6 +235,65 @@ count, page budgets, and absence of a send tool are enforced in
 discovery mode; and the twenty-candidate ceiling is enforced by the prompt
 only — `MAX_TARGETS_TO_EVALUATE` is defined but never referenced in code.
 Future assignments may need different limits and providers.
+
+Homework 3 demonstrates a two-ability PydanticAI agent (vision-based this
+time) plus a separate one-time preprocessing script, and introduced several
+patterns worth reusing directly rather than rediscovering:
+
+- **Two-stage tool design to bound image/video volume sent to a vision
+  model:** a free, text-only tool first (`get_catalogue_summary`,
+  `get_customer_profile_summary` — no media loaded) lets the agent rule out
+  implausible cases before paying for any image; a second, bounded tool then
+  loads only the media actually needed (`load_product_images`, capped at 10
+  via `ModelRetry`; `watch_ad_video`, a fixed small frame sample). This is
+  the actual fix for "don't check N things one at a time" — see
+  `hw/hw_03/tools.py`.
+- **A `source`/provenance field on every automatically-generated record**
+  (`CatalogueEntry.source`: `"vision_model"` or `"manual"`) so a human-entered
+  exception to an automated pipeline is permanently, structurally
+  distinguishable from a verified machine result — never silently
+  indistinguishable from automation. Paired with a `sys.stdin.isatty()`-gated
+  interactive fallback (`build_catalogue.py`'s `run_manual_review()`) for
+  when an automated call can't be completed (e.g. a vision backend's own
+  content-safety filter rejecting a legitimate photo — a real, recurring
+  failure mode with vision APIs, not a one-off).
+- **An audit trail built from the actual message history, not a self-report:**
+  `hw/hw_03/agent.py`'s `_extract_audit_steps()` walks PydanticAI's
+  `result.all_messages()` after a run to build `AuditStep`/`AuditEntry`
+  records (tool name, args, truncated result, timestamp), rather than asking
+  the model what it did. Reusable for any future agent needing a trustworthy
+  run log.
+- **A harness document written for two audiences, consolidated at the end:**
+  working notes accumulate per-problem while building, then get rewritten
+  once (Problem 9 in HW3) into one coherent, topically-organized document a
+  non-technical reader could follow — tools, data models with field
+  rationale, safety rules, a limits table, and an honest "known limitations"
+  section. See `hw/hw_03/output/harness.md` as the template for that final
+  pass, not the per-problem working version.
+- **No video input support in Chat Completions:** when an assignment needs a
+  vision model to "watch" a video, sample frames (OpenCV via
+  `opencv-python-headless`, no system `ffmpeg` dependency needed) rather than
+  look for a video-upload API that doesn't exist for this model family.
+
+## Infrastructure now available (added mid-semester, 2026-09)
+
+- **Git/GitHub:** the workspace root is a git repo with a private GitHub
+  remote at `cvargovickyale/yale-som-ai-class` — a Yale-specific GitHub
+  account, separate from Christopher's personal `cvargovick` account (both
+  are stored locally; `gh auth status` shows which is active). See
+  `CLAUDE.md` for the standing commit/push permission and the `.gitignore`
+  conventions (every `.venv`/`node_modules`/`__pycache__`, workspace-wide).
+- **Render:** the course-recommended deployment target for an app that needs
+  to be actually live (not just run locally) — see `lectures/lecture_08/` for
+  the working pattern (Web Service for anything with server-side logic,
+  Static Site for pure static frontends; the real distinguishing rule is "does
+  this need a running process per request," not "frontend vs. backend").
+- **Supabase:** CLI installed (`brew install supabase/tap/supabase`) and
+  logged in under the Yale account (`christopher.vargovick@yale.edu's Org`,
+  one project named "Yale" as of 2026-09-24, not yet linked to any specific
+  project folder). Available for a future assignment needing a real Postgres
+  backend; link it (`supabase link`) inside whichever project folder first
+  needs it, don't assume it's pre-wired anywhere yet.
 
 ## Submission and privacy rules
 
