@@ -1,8 +1,9 @@
 """Campus Customs API — HW4.
 
 FastAPI app that serves the product catalogue, per-size stock, and product
-images from the local data pack, plus a stub /api/chat endpoint that the
-PydanticAI agent replaces in P5.
+images from the local data pack; handles account signup/login; and runs a
+stub /api/chat endpoint (a bulldog, for now) that the PydanticAI agent
+replaces in P5.
 
 Data pack (not in git) must sit at hw4/data/:
     data/campus_customs.db
@@ -14,18 +15,37 @@ API docs:           http://127.0.0.1:8000/docs
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import json
-from contextlib import closing
 import os
+import random
+import secrets
 import sqlite3
+from contextlib import closing
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import jwt
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.staticfiles import StaticFiles
 
-from models import ChatRequest, ChatResponse, ProductDetail, ProductSummary, SizeStock
+from models import (
+    AuthResponse,
+    ChatRequest,
+    ChatResponse,
+    LoginRequest,
+    ProductDetail,
+    ProductSummary,
+    SignupRequest,
+    SizeStock,
+    UserOut,
+)
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
@@ -44,7 +64,7 @@ if not DB_PATH.exists() or not IMAGES_DIR.is_dir():
 SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"]
 SHORT_DESCRIPTION_CHARS = 90
 
-app = FastAPI(title="Campus Customs API", version="0.1.0")
+app = FastAPI(title="Campus Customs API", version="0.2.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
@@ -52,15 +72,41 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error(request: Request, exc: RequestValidationError):
+    """Return field + message only. FastAPI's default echoes the request body,
+    which would send passwords back in the error response."""
+    errors = [
+        {"field": ".".join(str(part) for part in e["loc"][1:]) or "body",
+         "msg": e["msg"].removeprefix("Value error, ")}
+        for e in exc.errors()
+    ]
+    return JSONResponse(status_code=422, content={"detail": errors})
+
+
 # Only the products/ folder is public — mounting data/ would expose the .db file.
 app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 
 
 def get_connection() -> sqlite3.Connection:
-    """Read-only connection; catalogue and stock are never written by the site."""
+    """Read-only connection for catalogue, stock, and user lookups."""
     conn = sqlite3.connect(f"{DB_PATH.as_uri()}?mode=ro", uri=True)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def get_write_connection() -> sqlite3.Connection:
+    """Read-write connection — used only to insert new accounts."""
+    conn = sqlite3.connect(f"{DB_PATH.as_uri()}?mode=rw", uri=True)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+# --------------------------------------------------------------------------
+# Products
+# --------------------------------------------------------------------------
 
 
 def short_description(text: str) -> str:
@@ -131,13 +177,152 @@ def get_product(product_id: str):
     )
 
 
+# --------------------------------------------------------------------------
+# Accounts — passwords use the same format as the seed database:
+#   pbkdf2_sha256$<salt>$<hex digest>, PBKDF2-HMAC-SHA256, 120,000 iterations,
+#   salt used as its UTF-8 text. (Iteration count confirmed in P4 by
+#   reproducing the seed test user's stored hash.)
+# --------------------------------------------------------------------------
+
+HASH_ALGORITHM = "pbkdf2_sha256"
+PBKDF2_ITERATIONS = 120_000
+
+JWT_SECRET = os.getenv("JWT_SECRET") or secrets.token_urlsafe(32)  # random → logins reset on restart
+JWT_ALGORITHM = "HS256"
+TOKEN_LIFETIME = timedelta(hours=24)
+
+bearer = HTTPBearer(auto_error=False)
+
+
+def _pbkdf2(password: str, salt: str) -> str:
+    return hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), PBKDF2_ITERATIONS).hex()
+
+
+def hash_password(password: str) -> str:
+    salt = secrets.token_hex(8)  # 16 hex chars, like the seed users
+    return f"{HASH_ALGORITHM}${salt}${_pbkdf2(password, salt)}"
+
+
+def verify_password(password: str, stored: str) -> bool:
+    try:
+        algorithm, salt, digest = stored.split("$")
+    except ValueError:
+        return False
+    if algorithm != HASH_ALGORITHM:
+        return False
+    return hmac.compare_digest(_pbkdf2(password, salt), digest)
+
+
+# Checked when an email isn't found, so a wrong email takes as long as a wrong
+# password and response time doesn't reveal which emails have accounts.
+_DUMMY_HASH = hash_password(secrets.token_hex(16))
+
+
+def create_token(user_id: int) -> str:
+    now = datetime.now(timezone.utc)
+    payload = {"sub": str(user_id), "iat": now, "exp": now + TOKEN_LIFETIME}
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
+def to_user(row: sqlite3.Row) -> UserOut:
+    first, last = row["first_name"], row["last_name"]
+    if not first:  # older rows may only have `name`
+        first, _, last = (row["name"] or "").partition(" ")
+    return UserOut(id=row["id"], first_name=first, last_name=last or "", email=row["email"])
+
+
+def get_optional_user(
+    creds: HTTPAuthorizationCredentials | None = Depends(bearer),
+) -> UserOut | None:
+    """The logged-in user if a valid token was sent, else None."""
+    if creds is None:
+        return None
+    try:
+        payload = jwt.decode(creds.credentials, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id = int(payload["sub"])
+    except (jwt.PyJWTError, KeyError, ValueError):
+        return None
+    with closing(get_connection()) as conn:
+        row = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    return to_user(row) if row else None
+
+
+def get_current_user(user: UserOut | None = Depends(get_optional_user)) -> UserOut:
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Please log in")
+    return user
+
+
+@app.post("/api/auth/signup", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
+def signup(body: SignupRequest):
+    email = body.email.strip().lower()
+    with closing(get_write_connection()) as conn:
+        if conn.execute("SELECT 1 FROM users WHERE lower(email) = ?", (email,)).fetchone():
+            raise HTTPException(status_code=409, detail="An account with that email already exists")
+        cur = conn.execute(
+            "INSERT INTO users (name, first_name, last_name, email, password_hash) VALUES (?, ?, ?, ?, ?)",
+            (
+                f"{body.first_name} {body.last_name}",
+                body.first_name,
+                body.last_name,
+                email,
+                hash_password(body.password),
+            ),
+        )
+        conn.commit()
+        row = conn.execute("SELECT * FROM users WHERE id = ?", (cur.lastrowid,)).fetchone()
+    user = to_user(row)
+    return AuthResponse(token=create_token(user.id), user=user)
+
+
+@app.post("/api/auth/login", response_model=AuthResponse)
+def login(body: LoginRequest):
+    email = body.email.strip().lower()
+    with closing(get_connection()) as conn:
+        row = conn.execute("SELECT * FROM users WHERE lower(email) = ?", (email,)).fetchone()
+    stored = row["password_hash"] if row else _DUMMY_HASH
+    if not verify_password(body.password, stored) or row is None:
+        # Same message either way — don't reveal whether the email exists.
+        raise HTTPException(status_code=401, detail="Incorrect email or password")
+    user = to_user(row)
+    return AuthResponse(token=create_token(user.id), user=user)
+
+
+@app.get("/api/auth/me", response_model=UserOut)
+def me(user: UserOut = Depends(get_current_user)):
+    return user
+
+
+# --------------------------------------------------------------------------
+# Chat — stub bulldog until the PydanticAI agent lands in P5
+# --------------------------------------------------------------------------
+
+BARKS = [
+    "Woof!",
+    "Woof woof!",
+    "Arf! *tilts head*",
+    "WOOF! *spins in a circle*",
+    "Woof? *sniffs your shoes*",
+]
+
+BORED = [
+    "*wags tail*",
+    "*brings you a ball* 🎾",
+    "*drops a slobbery tennis ball at your feet* 🎾 Woof?",
+    "*yawns, then wags tail hopefully*",
+    "*nudges the ball toward you* 🎾",
+]
+
+
 @app.post("/api/chat", response_model=ChatResponse)
-def chat(body: ChatRequest):
-    """Stub until the PydanticAI agent lands in P5 — proves the round trip works."""
-    return ChatResponse(
-        reply=(
-            "Thanks for reaching out to Campus Customs! Our shopping assistant "
-            f'isn\'t connected yet, but the backend got your message: "{body.message}"'
-        ),
-        products=[],
-    )
+def chat(body: ChatRequest, user: UserOut | None = Depends(get_optional_user)):
+    bark = random.choice(BARKS)
+    if user:
+        bark = f"{bark} Woof, {user.first_name}! 🐶"
+    return ChatResponse(reply=bark, products=[])
+
+
+@app.post("/api/chat/bored", response_model=ChatResponse)
+def chat_bored():
+    """Called by the chat panel after the shopper goes quiet for a while."""
+    return ChatResponse(reply=random.choice(BORED), products=[])

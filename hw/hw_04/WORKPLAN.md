@@ -81,8 +81,9 @@ reach it.
 3. **Extra backend files.** Lecture 08 split out `auth.py` and `db.py`. The
    expected tree lists only `main.py`, `agent.py`, `models.py`, `tools.py`.
    Either keep auth/DB helpers inside `main.py` to match exactly, or accept
-   small extra files. (Decide at P4.) P3 kept everything in `main.py`, with
-   API shapes in `models.py`.
+   small extra files. **Done (P4):** kept everything in `main.py` (sections:
+   Products / Accounts / Chat), with API shapes in `models.py`. The tree
+   matches exactly.
 6. **`.env` location (P5).** Backend loads `hw4/.env`. The real key lives in
    the workspace-root `.env`, which must never be copied. Either load the
    root `.env` as a fallback (Lecture 08 pattern) or have Christopher create
@@ -109,3 +110,13 @@ reach it.
 - `hw/hw_03/`: same Campus Customs brand. Tool design, `harness.md` final-pass
   template, and audit trail built from `result.all_messages()`.
 - `lectures/lecture_07/`: contract-first `/chat` response shape.
+
+## Local test accounts (this file is private; never put these in `hw4/`)
+
+| Who | Email | Password | Notes |
+|---|---|---|---|
+| Seed test user | test@campuscustoms.yale.edu | password | From the assignment |
+| Woody Pride | woody@example.com | BringTheBall1975 | Created in P4 through the Create Account page |
+
+The P4 database backup from before the first write is in the session
+scratchpad only. To reset, re-unzip `data.zip`.

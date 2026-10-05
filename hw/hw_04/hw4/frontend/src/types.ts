@@ -22,6 +22,26 @@ export interface ProductDetail extends ProductSummary {
   sizes: SizeStock[]
 }
 
+export interface User {
+  id: number
+  first_name: string
+  last_name: string
+  email: string
+}
+
+export interface AuthResponse {
+  token: string
+  user: User
+}
+
+export interface SignupInput {
+  first_name: string
+  last_name: string
+  email: string
+  password: string
+  confirm_password: string
+}
+
 export interface ChatResponse {
   reply: string
   products: ProductSummary[]

@@ -1,7 +1,7 @@
 # Campus Customs — Agent Harness
 
 How the Campus Customs website and its chatbot are put together: the data
-they rely on, the agent's structured outputs, its tools, its safety rules,
+they rely on, how accounts work, the agent's structured outputs, its tools, its safety rules,
 and its limits. Built up one problem at a time, then consolidated at the end.
 
 ## 1. Data (`data/campus_customs.db`)
@@ -39,7 +39,7 @@ users (3)  ──id = user_id──▶  chat_messages (22)
 | `size` | text | One of XS, S, M, L, XL, XXL | Stock is per size, so "is it in stock?" depends on which size. |
 | `quantity` | integer | Units on hand, 0–25; 145 rows are 0 | The real stock answer. 0 means sold out in that size. The bot reads it; it never guesses. |
 
-### `users` — customer accounts (3 rows)
+### `users` — customer accounts (3 rows in the seed data)
 
 | Field | Type | What it holds | Why it matters (shop / chatbot) |
 |---|---|---|---|
@@ -78,10 +78,96 @@ not store data.)
 - **One product ID has a built-in typo** (`yale-sports-creqneck-field-hockey`).
   The image file uses the same spelling, so leave it.
 
-## 2. Models — *to come (P5–P7)*
+## 2. Accounts and login
 
-## 3. Tools — *to come (P6–P7)*
+Shoppers can browse without an account. An account lets the site (and, from
+P8, the chatbot) know who they are. All account logic is plain backend code
+in `backend/main.py`. **No AI model ever sees a password, a password hash,
+or a login token.**
 
-## 4. Safety — *to come (P12)*
+### How it works
 
-## 5. Specs and limits — *to come (P12)*
+1. **Create account:** the shopper enters first name, last name, email,
+   password, and confirm password. The page checks that the passwords match
+   and are at least 8 characters, then sends them to `POST /api/auth/signup`.
+   The backend checks everything again (it never trusts the page), lowercases
+   the email, rejects an email that's already registered, hashes the
+   password, and inserts a new `users` row.
+2. **Log in:** email and password go to `POST /api/auth/login`. The backend
+   finds the user by email, hashes the typed password with that user's
+   stored salt, and compares the result to the stored hash.
+3. **Staying logged in:** on success the backend returns a signed login
+   token (a JWT) that expires after 24 hours. The browser keeps it and sends
+   it with each request as `Authorization: Bearer <token>`. `GET /api/auth/me`
+   turns a valid token back into the user's name and email. Logging out
+   deletes the token from the browser.
+
+### Password hashing
+
+| Setting | Value |
+|---|---|
+| Method | PBKDF2-HMAC-SHA256 |
+| Iterations | 120,000 |
+| Salt | 16 random hex characters per user, used as text |
+| Stored format | `pbkdf2_sha256$<salt>$<64-hex-character hash>` |
+
+This is the same format the seed database already used. New accounts are
+hashed exactly the way the seed users were, so old and new accounts log in
+through one code path. The iteration count isn't written in the stored
+string, so I confirmed it by reproducing the seed test user's stored hash
+from its known password.
+
+A hash is one-way. The backend can check whether a typed password is right,
+but nobody (a person, an AI, or the backend itself) can turn the stored
+hash back into the password. The random salt means two people with the
+same password still get different hashes.
+
+### What gets stored, and who can read it
+
+| Data | Where | Stored as | Who can read it |
+|---|---|---|---|
+| First name, last name | `users` table | Plain text | The backend; the logged-in user sees their own name |
+| Email | `users` table | Plain text, lowercased | The backend; the logged-in user sees their own email |
+| Password | Nowhere | Never stored, logged, or sent back | Nobody. It exists only for the moment it's checked. |
+| Password hash | `users.password_hash` | PBKDF2 hash | The backend only. Never returned by any API endpoint. |
+| Login token | The shopper's browser (`localStorage`) | Signed JWT holding only the user ID and expiry | That browser; the backend verifies the signature |
+| Token signing secret | `.env` (`JWT_SECRET`) | Plain text, never committed | The backend |
+
+### Protections built in
+
+- **Same error for a wrong email and a wrong password** ("Incorrect email
+  or password"), so the login form can't be used to find out who has an
+  account. An unknown email is still checked against a dummy hash, so it
+  takes as long as a wrong password.
+- **Validation errors never echo what was typed.** FastAPI's default error
+  response repeats the request body, which would send passwords back. A
+  custom handler returns only the field name and the message.
+- **One account per email:** the email is lowercased and must be unique.
+- **The database file is never served or committed.** Only
+  `data/products/` is public, and `data/` is in `.gitignore`.
+- **Read-only by default:** the backend opens the database read-only for
+  everything except inserting a new account.
+
+### Known limits (honest list)
+
+- **Emails and names are plain text.** Anyone holding the `.db` file can
+  read them. Only passwords are protected by hashing.
+- **120,000 iterations is below today's guidance** (OWASP recommends
+  600,000 for PBKDF2-SHA256). I kept it to match the seed data. The fix
+  would be storing the iteration count in the hash and re-hashing each user
+  at their next login.
+- **No lockout or rate limit** on repeated login attempts.
+- **The token lives in `localStorage`,** which any script running on the
+  page can read. That's fine for a class project; a production site would
+  use an HTTP-only cookie.
+- **No password reset or email verification.**
+- **If `JWT_SECRET` isn't set,** the backend makes a random one at startup,
+  so everyone is logged out whenever the server restarts.
+
+## 3. Models — *to come (P5–P7)*
+
+## 4. Tools — *to come (P6–P7)*
+
+## 5. Safety — *to come (P12)*
+
+## 6. Specs and limits — *to come (P12)*

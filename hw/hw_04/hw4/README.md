@@ -4,8 +4,10 @@ A customer website for Campus Customs (Yale Bulldog Blue): browse products,
 open a single-item page with live per-size stock, and chat with a shopping
 assistant. React + Vite + TypeScript frontend, Python FastAPI backend.
 
-> Status: P3. Website and product API work; the chat endpoint is a stub until
-> the PydanticAI agent is added. Accounts arrive in P4.
+> Status: P4. Website, product API, and accounts (create account / log in)
+> work. The chat is a stub bulldog until the PydanticAI agent is added.
+
+Seed test account: `test@campuscustoms.yale.edu` / `password`.
 
 ## 1. Place the data pack (not in git)
 
@@ -48,10 +50,11 @@ the backend on port 8000, so start the backend first.
 ```
 hw4/
 ├── backend/
-│   ├── main.py        # FastAPI app: products, images, chat
+│   ├── main.py        # FastAPI app: products, images, accounts, chat
 │   └── models.py      # Pydantic shapes shared with the frontend
 ├── frontend/          # Vite React TypeScript app
 │   └── src/
+│       ├── auth.tsx   # login state shared across pages
 │       ├── pages/     # Home, Products, ProductDetail, About, Login, Signup
 │       └── components/  # NavBar, ProductCard, ChatWidget
 └── output/            # harness and assignment write-ups
@@ -64,4 +67,11 @@ hw4/
 | GET | `/api/products` | All products: name, price, short description, image URL, total stock |
 | GET | `/api/products/{product_id}` | One product with full description, colors, and stock per size |
 | GET | `/images/{file}` | Product image (only `data/products/` is served, never the database) |
-| POST | `/api/chat` | `{ "message": "..." }` → `{ "reply": "...", "products": [] }` (stub) |
+| POST | `/api/auth/signup` | Create account (first/last name, email, password + confirm) → login token + user |
+| POST | `/api/auth/login` | Email + password → login token + user |
+| GET | `/api/auth/me` | The logged-in user (needs `Authorization: Bearer <token>`) |
+| POST | `/api/chat` | `{ "message": "..." }` → `{ "reply": "...", "products": [] }` (stub bulldog) |
+| POST | `/api/chat/bored` | The bulldog's idle action (wags tail, brings a ball) |
+
+Passwords are hashed with PBKDF2-SHA256 (120,000 iterations), the same
+format as the seed users. See `output/harness.md` §2 for details.

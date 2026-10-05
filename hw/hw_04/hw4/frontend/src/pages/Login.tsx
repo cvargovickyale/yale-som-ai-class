@@ -1,13 +1,26 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth'
 
-// Form only for now — the backend login endpoint arrives in P4.
 export default function Login() {
-  const [notice, setNotice] = useState<string | null>(null)
+  const { login } = useAuth()
+  const navigate = useNavigate()
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setNotice('Sign-in is coming soon. Accounts are not connected yet.')
+    const form = new FormData(e.currentTarget)
+    setError(null)
+    setBusy(true)
+    try {
+      await login(String(form.get('email')), String(form.get('password')))
+      navigate('/')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed')
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
@@ -22,11 +35,11 @@ export default function Login() {
           Password
           <input type="password" name="password" autoComplete="current-password" required />
         </label>
-        <button type="submit" className="button">
-          Log in
+        {error && <p className="form-error">{error}</p>}
+        <button type="submit" className="button" disabled={busy}>
+          {busy ? 'Logging in…' : 'Log in'}
         </button>
       </form>
-      {notice && <p className="notice">{notice}</p>}
       <p className="muted">
         New here? <Link to="/signup">Create an account</Link>
       </p>

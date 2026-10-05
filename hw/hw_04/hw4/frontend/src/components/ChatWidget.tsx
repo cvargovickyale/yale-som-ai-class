@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { sendChat } from '../api'
+import { sendBored, sendChat } from '../api'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -8,19 +8,39 @@ interface Message {
 
 const GREETING: Message = {
   role: 'assistant',
-  content: "Hi! I'm the Campus Customs assistant. Ask me about our Yale gear.",
+  content: "Woof! 🐶 I'm the Campus Customs bulldog. Say something!",
 }
+
+// The bulldog gets bored if you go quiet: after BORED_AFTER_MS it wags its
+// tail or brings a ball, at most MAX_BORED times in a row until you talk again.
+const BORED_AFTER_MS = 15_000
+const MAX_BORED = 3
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([GREETING])
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
+  const [boredStreak, setBoredStreak] = useState(0)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, open])
+
+  // Restarts whenever a message arrives; fires only while the panel is open and idle.
+  useEffect(() => {
+    if (!open || sending || boredStreak >= MAX_BORED) return
+    const timer = setTimeout(() => {
+      sendBored()
+        .then((res) => {
+          setMessages((m) => [...m, { role: 'assistant', content: res.reply }])
+          setBoredStreak((n) => n + 1)
+        })
+        .catch(() => setBoredStreak(MAX_BORED)) // backend down — stop trying
+    }, BORED_AFTER_MS)
+    return () => clearTimeout(timer)
+  }, [open, sending, boredStreak, messages])
 
   async function handleSend(e: FormEvent) {
     e.preventDefault()
@@ -28,13 +48,14 @@ export default function ChatWidget() {
     if (!text || sending) return
     setMessages((m) => [...m, { role: 'user', content: text }])
     setDraft('')
+    setBoredStreak(0)
     setSending(true)
     try {
       const res = await sendChat(text)
       setMessages((m) => [...m, { role: 'assistant', content: res.reply }])
     } catch (err) {
       const reason = err instanceof Error ? err.message : 'unknown error'
-      setMessages((m) => [...m, { role: 'assistant', content: `Sorry, I couldn't reach the store (${reason}).` }])
+      setMessages((m) => [...m, { role: 'assistant', content: `*whimpers* Couldn't reach the store (${reason}).` }])
     } finally {
       setSending(false)
     }
@@ -43,7 +64,7 @@ export default function ChatWidget() {
   if (!open) {
     return (
       <button className="chat-launcher" onClick={() => setOpen(true)}>
-        💬 Chat with us
+        🐶 Chat with us
       </button>
     )
   }
@@ -51,7 +72,7 @@ export default function ChatWidget() {
   return (
     <section className="chat-panel" aria-label="Chat with Campus Customs">
       <header className="chat-header">
-        <span>Campus Customs Assistant</span>
+        <span>Campus Customs Bulldog</span>
         <button className="chat-close" onClick={() => setOpen(false)} aria-label="Close chat">
           ×
         </button>
@@ -69,7 +90,7 @@ export default function ChatWidget() {
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="Ask about products, sizes, stock…"
+          placeholder="Say something to the bulldog…"
           aria-label="Chat message"
         />
         <button type="submit" disabled={sending || !draft.trim()}>

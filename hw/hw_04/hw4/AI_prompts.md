@@ -107,3 +107,59 @@ backend that serves products and images. will grow later
   (placeholders only), `.gitignore` (excludes `.env`, `data/`, `*.db`,
   `.venv`, `node_modules`), and a README explaining how to run the backend
   and frontend after placing the data pack.
+
+## Problem 4 — Create account and login
+
+**Prompt:** p4: we need a normal create-account and login flow. accounts need
+first last email pw (confirm pw too)
+Login is email and pw. new accounts get added to users table. store these
+securely so humans/AI cannot access, maybe use same hash you identified. seed
+db has a test user test@campuscustoms.yale.edu; pw: password
+
+confirm login works wit hthem and create a brand new person named woody.
+
+harness.md can now describe how auth works, the hash method and everything
+that you store
+
+the chat agent should act like it's a dog and bark at you. woof. and if it
+gets bored it will wag tail or bring you a ball. because it is a bulldog.
+
+**Notes:**
+
+- **Hash method confirmed:** the seed test user's stored hash was
+  reproduced from `password` with PBKDF2-HMAC-SHA256 at **120,000
+  iterations**, using the salt as text. New accounts use the same format
+  (`pbkdf2_sha256$<random 16-hex salt>$<hash>`), so seed and new users share
+  one login path.
+- **Backend (`main.py`, Accounts section):** `POST /api/auth/signup`,
+  `POST /api/auth/login`, and `GET /api/auth/me`. Logins use a JWT token
+  that expires after 24 hours. Every rule is checked again on the server:
+  passwords match, at least 8 characters, valid email, email lowercased and
+  unique. Wrong email and wrong password get the same error, with matching
+  timing.
+- **Security fix found while testing:** FastAPI's default validation error
+  echoed the request body, including the password, back in the response. I
+  added a handler that returns only the field and the message.
+- **Frontend:** real Log In and Create Account forms (with confirm
+  password), a shared login state (`auth.tsx`), and the nav bar switching
+  to "Hi, {first name} · Log Out." The login survives a page reload.
+- **Bulldog chat stub:** `/api/chat` barks (and barks your first name when
+  you're logged in). If the chat sits idle for 15 seconds, the page calls
+  `/api/chat/bored` and the dog wags its tail or brings a ball, up to 3
+  times in a row until you talk again.
+- **Verified in the browser:**
+  - the test user is rejected with a wrong password and logs in with
+    `password`
+  - the login survives a reload
+  - the bulldog greets "Woof, Test!" and dropped a tennis ball after 15
+    seconds idle
+  - Woody Pride was created through Create Account (the confirm-password
+    mismatch was rejected first), then logged out and back in
+  - a duplicate signup with Woody's email is refused
+- **Verified in the database:** Woody's row is stored with a PBKDF2 hash.
+  His plaintext password appears nowhere in the raw `.db` bytes, and the
+  hash verifies only with the right password.
+- `output/harness.md` §2 documents the login flow, hashing settings, a
+  stored-data table, built-in protections, and known limits (plain-text
+  emails, 120k iterations vs. OWASP's 600k, no rate limiting, token in
+  `localStorage`).

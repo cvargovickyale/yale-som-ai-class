@@ -1,13 +1,37 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth'
+import type { SignupInput } from '../types'
 
-// Form only for now — the backend signup endpoint arrives in P4.
+const MIN_PASSWORD = 8
+
 export default function Signup() {
-  const [notice, setNotice] = useState<string | null>(null)
+  const { signup } = useAuth()
+  const navigate = useNavigate()
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setNotice('Account creation is coming soon. Accounts are not connected yet.')
+    const form = new FormData(e.currentTarget)
+    const input = Object.fromEntries(
+      ['first_name', 'last_name', 'email', 'password', 'confirm_password'].map((k) => [k, String(form.get(k) ?? '')]),
+    ) as unknown as SignupInput
+
+    // Quick checks here; the backend re-checks everything.
+    if (input.password.length < MIN_PASSWORD) return setError(`Password must be at least ${MIN_PASSWORD} characters.`)
+    if (input.password !== input.confirm_password) return setError('Passwords do not match.')
+
+    setError(null)
+    setBusy(true)
+    try {
+      await signup(input)
+      navigate('/')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not create account')
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
@@ -30,13 +54,17 @@ export default function Signup() {
         </label>
         <label>
           Password
-          <input type="password" name="password" autoComplete="new-password" minLength={8} required />
+          <input type="password" name="password" autoComplete="new-password" minLength={MIN_PASSWORD} required />
         </label>
-        <button type="submit" className="button">
-          Create account
+        <label>
+          Confirm password
+          <input type="password" name="confirm_password" autoComplete="new-password" required />
+        </label>
+        {error && <p className="form-error">{error}</p>}
+        <button type="submit" className="button" disabled={busy}>
+          {busy ? 'Creating account…' : 'Create account'}
         </button>
       </form>
-      {notice && <p className="notice">{notice}</p>}
       <p className="muted">
         Already have an account? <Link to="/login">Log in</Link>
       </p>

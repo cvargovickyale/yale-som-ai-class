@@ -1,4 +1,5 @@
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth'
 
 const MAIN_PAGES = [
   { to: '/', label: 'Home' },
@@ -14,6 +15,14 @@ const ACCOUNT_PAGES = [
 const linkClass = ({ isActive }: { isActive: boolean }) => (isActive ? 'nav-link active' : 'nav-link')
 
 export default function NavBar() {
+  const { user, ready, logout } = useAuth()
+  const navigate = useNavigate()
+
+  function handleLogout() {
+    logout()
+    navigate('/')
+  }
+
   return (
     <header className="navbar">
       <Link to="/" className="brand">
@@ -27,11 +36,20 @@ export default function NavBar() {
         ))}
       </nav>
       <nav className="nav-links account">
-        {ACCOUNT_PAGES.map((p) => (
-          <NavLink key={p.to} to={p.to} className={linkClass}>
-            {p.label}
-          </NavLink>
-        ))}
+        {!ready ? null : user ? (
+          <>
+            <span className="greeting">Hi, {user.first_name}</span>
+            <button className="nav-link link-button" onClick={handleLogout}>
+              Log Out
+            </button>
+          </>
+        ) : (
+          ACCOUNT_PAGES.map((p) => (
+            <NavLink key={p.to} to={p.to} className={linkClass}>
+              {p.label}
+            </NavLink>
+          ))
+        )}
       </nav>
     </header>
   )

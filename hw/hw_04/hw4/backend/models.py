@@ -6,7 +6,12 @@ mirrors them field for field.
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from typing import Annotated
+
+from pydantic import BaseModel, EmailStr, Field, StringConstraints, model_validator
+
+Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=50)]
+Password = Annotated[str, Field(min_length=8, max_length=128)]
 
 
 class SizeStock(BaseModel):
@@ -33,6 +38,39 @@ class ProductDetail(ProductSummary):
     colors: list[str]
     search_tags: list[str]
     sizes: list[SizeStock]
+
+
+class SignupRequest(BaseModel):
+    first_name: Name
+    last_name: Name
+    email: EmailStr
+    password: Password
+    confirm_password: str
+
+    @model_validator(mode="after")
+    def passwords_match(self) -> SignupRequest:
+        if self.password != self.confirm_password:
+            raise ValueError("Passwords do not match")
+        return self
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=1, max_length=128)
+
+
+class UserOut(BaseModel):
+    """What the frontend may know about a user — never the password hash."""
+
+    id: int
+    first_name: str
+    last_name: str
+    email: str
+
+
+class AuthResponse(BaseModel):
+    token: str
+    user: UserOut
 
 
 class ChatRequest(BaseModel):
