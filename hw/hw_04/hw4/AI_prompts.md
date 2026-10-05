@@ -9,12 +9,22 @@ one problem at a time. Coding assistant: Claude Code.
 **Prompt:** Help me open the database so I can understand the fields like
 catalogue inventory and users
 
+**Follow-up prompt used:** no, you run that in terminal. then, start a
+harness.md file in the ouput. the first section of this harness file will
+have each table and its fields - I'll type why each field matters for either
+the shop or the chatbot, you can help fill in based on my lead. we'll do
+models tools and safety and specs in the harness in later problems
+
 **Notes:**
 
 - Setup: created the `hw4/` folder and placed the data pack at `hw4/data/`.
   It is excluded from git (assignment rule: never commit the DB or images).
 - No LLM was used. The analysis is direct SQL against `campus_customs.db`
-  with the `sqlite3` command-line tool.
+  with the `sqlite3` command-line tool, opened in my terminal with sample
+  rows from each table.
+- Started `output/harness.md`. Section 1 (Data) lists every table and field.
+  The "why it matters" column is written from my own notes. Models, tools,
+  safety, and specs sections come in later problems.
 - Findings that shape later problems:
   - **Tables:** `catalogue` (102 products), `inventory` (612 rows: every
     product × 6 sizes), `users` (3), and `chat_messages` (22 rows from an
