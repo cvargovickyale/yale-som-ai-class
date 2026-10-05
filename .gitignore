@@ -25,3 +25,8 @@ lectures/lecture_02/leases.json
 # or *.db ignore rule added above.
 !lectures/lecture_08/data/
 !lectures/lecture_08/data/**
+# HW4: data pack (campus_customs.db + product images) must never be committed
+# — assignment rule, and keeps it out of history for the public-repo export.
+hw/hw_04/data/
+hw/hw_04/**/data/
+*.db-journal

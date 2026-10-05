@@ -96,6 +96,31 @@ When starting a lecture, homework, or final project:
 7. If a user manually edits a file after an archive is created, recreate the
    archive. A zip is a snapshot, not a live folder.
 
+### New-homework kickoff (established HW4, 2026-10-05)
+
+Christopher works through homeworks **one problem at a time, to learn along
+the way** — he leads, types each problem in his own words, and says "P5"
+meaning Problem 5. Before any building:
+
+1. **Plan backward from the submission problem** (usually the last one). Read
+   its required file tree and submission method first (zip vs. public GitHub
+   repo, and which files must never be committed), so every earlier problem
+   builds toward the right files in the right places.
+2. **Write `hw/hw_0N/WORKPLAN.md`**: a P-number → problem name → what gets
+   built → which final-tree files it produces table, plus open decisions and
+   the submission mechanics. Keep it outside the deliverable folder so the
+   submitted tree matches the spec exactly. `hw/hw_04/WORKPLAN.md` is the
+   template.
+3. **Walk him through the app's gist** (architecture, data flow, what's
+   deterministic code vs. what's the LLM), then give a **mid-level quiz** and
+   wait for his answers before starting the first build problem.
+4. **Prompt log scope:** the prompt-log problem (P1 in HW3/HW4) only sets up
+   the convention. Kickoff/background conversation is *not* logged;
+   `AI_prompts.md` entries start with the first real build problem (P2 in
+   HW4).
+5. Then go one problem at a time — finish, verify, log the prompt, and stop
+   for him to lead the next one. Don't run ahead into later problems.
+
 Use `rg`/`rg --files` to search. Use `apply_patch` for local edits. Avoid
 destructive commands and preserve unrelated user work.
 
@@ -176,7 +201,12 @@ destructive commands and preserve unrelated user work.
   not duplicated here. Course-level facts learned while working on it (model
   roster, sandbox gotchas, zip artifacts) are folded into the relevant
   general sections above instead; reusable technical patterns are below.
-- `hw/hw_04/` through `hw/hw_06/`: future/homework slots; do not assume their
+- `hw/hw_04/`: **in progress (started 2026-10-05)** — Campus Customs customer
+  website: React + Vite TS frontend, FastAPI backend, PydanticAI agent over
+  `campus_customs.db`. Submitted as a **public GitHub repo URL** (no zip),
+  with code in a folder named `hw4/`. See `hw/hw_04/WORKPLAN.md` for the
+  P1–P13 map, final file tree, and submission plan.
+- `hw/hw_05/` and `hw/hw_06/`: future homework slots; do not assume their
   requirements or create content until the user provides the assignment.
 
 **HW1, HW2, and HW3 are submitted work and are frozen.** Do not modify

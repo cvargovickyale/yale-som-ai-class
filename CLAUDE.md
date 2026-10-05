@@ -65,6 +65,13 @@ still need explicit confirmation per the usual git safety rules.
 
 ## How work gets done here
 
+**Starting any new homework (or the final project)?** Follow the "Course
+project workflow" section in `AI_HANDOFF.md` — especially its kickoff steps:
+plan backward from the final submission problem, write a `WORKPLAN.md` that
+maps each problem number (P1, P2, …) to its outputs, explain the app's gist,
+and quiz Christopher before building. `hw/hw_04/WORKPLAN.md` is the worked
+example.
+
 1. Pin down the assignment's exact requested files, folder layout, and archive
    name from the assignment materials.
 2. Copy the environment/dependency pattern from the nearest existing project.
