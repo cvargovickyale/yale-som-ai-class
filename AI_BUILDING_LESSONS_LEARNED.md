@@ -311,3 +311,65 @@ exposing the next real problem underneath rather than being the end of it.
 
 **Soundbite:** "Every fix this round passed the screenshot test and failed
 the numbers test — the bugs were all in dimensions a picture doesn't show."
+
+## Homework 4 — Campus Customs website + chatbot (kickoff), 2026-10-05
+
+Kickoff only: planning, the architecture walkthrough, and a quiz before any
+code. The quiz review alone surfaced design principles worth keeping. More
+entries to come as the build proceeds.
+
+1. **Show the facts that matter most with code, not the model.** Giving the
+   agent a database tool for price and stock doesn't make a wrong answer
+   impossible. The model can still misquote what the tool returned. What the
+   tool does is give the model the real number and make its answer
+   checkable against a logged tool call. For the facts a customer acts on
+   (price, stock), the stronger move is to show them on the page straight
+   from the database, so they're right no matter what the chat says. *CoS
+   translation:* don't make an AI the only source for a number someone will
+   rely on. Put it in a deterministic system of record, let the AI explain
+   it, and keep a log that proves which source it used.
+
+2. **Grounding reduces errors; an audit trail is what lets you trust it.**
+   "It looks things up in the database" sounds like a guarantee, but it's
+   really a lower error rate. Trust comes from being able to check
+   afterward: was the tool called, what did it return, does the answer
+   match. *CoS translation:* when a vendor says their AI is "grounded in
+   your data," ask how you'd verify a specific answer after the fact.
+
+3. **Prose is not an interface.** For chat search to update the page, the
+   agent has to return product IDs in a fixed structure, not a paragraph
+   describing the products. Code can't reliably act on prose. The split
+   that works: the backend decides *which* products, the frontend decides
+   *how* they look. *CoS translation:* when one team's output feeds another
+   team's work, agree on a structured handoff format. A well-written memo
+   is not a spec. (Same lesson as HW1's revenue/expense label that survived
+   only in a sentence.)
+
+4. **Keep the LLM out of deterministic, security-sensitive paths.** Login is
+   a strict yes/no hash comparison. Routing it through an LLM would add
+   cost and latency, send credentials to a third-party API, and open a door
+   to someone talking the model into "logging them in." *CoS translation:*
+   decide on purpose which steps need judgment (use AI) and which need
+   exactness or control (use plain code). "We could use AI for that too"
+   isn't a reason.
+
+5. **Check a reused pattern against the actual data before copying it.**
+   Lecture 08's login code used bcrypt, but HW4's database stores PBKDF2
+   hashes. Copying the earlier code as-is would have locked every existing
+   user out, with no error until someone tried to log in. *CoS translation:*
+   reusing institutional knowledge is high-leverage (see Lecture 07), but
+   only after confirming the new situation actually matches the old one.
+
+6. **Plan backward from the delivery spec, and scope a visibility decision
+   to its container.** The submission problem (a public repo, a required
+   folder name, a list of files that must never be committed) was read
+   first, so every earlier step builds toward the right place. It also
+   caught a trap: the instinct to "just make my repo public" would have
+   published the whole private workspace, including other coursework and a
+   database with signup emails. The fix is a separate public repo holding
+   only the deliverable. *CoS translation:* read the delivery requirements
+   before the work starts, and when something is made public, check
+   everything that comes with it, not just the part you meant to share.
+
+**Soundbite:** "Let the model explain; let code state the facts — and make
+sure you can prove which one said what."
