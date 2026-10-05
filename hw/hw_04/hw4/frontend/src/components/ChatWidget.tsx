@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { sendBored, sendChat } from '../api'
+import { Link } from 'react-router-dom'
+import { formatPrice, sendBored, sendChat } from '../api'
+import type { ProductSummary } from '../types'
 
 interface Message {
   role: 'user' | 'assistant'
   content: string
+  products?: ProductSummary[]
 }
 
 const GREETING: Message = {
   role: 'assistant',
-  content: "Woof! 🐶 I'm the Campus Customs bulldog. Say something!",
+  content: "Woof! 🐶 I'm the Campus Customs bulldog. Ask me about Yale gear, sizes, or the shop.",
 }
 
 // The bulldog gets bored if you go quiet: after BORED_AFTER_MS it wags its
@@ -52,7 +55,7 @@ export default function ChatWidget() {
     setSending(true)
     try {
       const res = await sendChat(text)
-      setMessages((m) => [...m, { role: 'assistant', content: res.reply }])
+      setMessages((m) => [...m, { role: 'assistant', content: res.reply, products: res.products }])
     } catch (err) {
       const reason = err instanceof Error ? err.message : 'unknown error'
       setMessages((m) => [...m, { role: 'assistant', content: `*whimpers* Couldn't reach the store (${reason}).` }])
@@ -81,6 +84,19 @@ export default function ChatWidget() {
         {messages.map((m, i) => (
           <div key={i} className={`chat-msg ${m.role}`}>
             {m.content}
+            {m.products && m.products.length > 0 && (
+              <ul className="chat-products">
+                {m.products.map((p) => (
+                  <li key={p.product_id}>
+                    <Link to={`/products/${p.product_id}`}>
+                      <img src={p.image_url} alt="" />
+                      <span>{p.name}</span>
+                      <strong>{formatPrice(p.price)}</strong>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         ))}
         {sending && <div className="chat-msg assistant typing">…</div>}
@@ -90,7 +106,7 @@ export default function ChatWidget() {
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="Say something to the bulldog…"
+          placeholder="Ask about products, sizes, the shop…"
           aria-label="Chat message"
         />
         <button type="submit" disabled={sending || !draft.trim()}>

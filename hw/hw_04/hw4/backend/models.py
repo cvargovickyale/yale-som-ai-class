@@ -1,11 +1,15 @@
-"""Pydantic shapes shared by the API and (from P5) the agent.
+"""Pydantic shapes shared by the API and the agent.
 
-These are the contract between backend and frontend; `frontend/src/types.ts`
-mirrors them field for field.
+API shapes are the contract between backend and frontend;
+`frontend/src/types.ts` mirrors them field for field. Agent shapes
+(`AgentDeps`, `AgentReply`) are the contract between `main.py` and the
+PydanticAI agent.
 """
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Annotated
 
 from pydantic import BaseModel, EmailStr, Field, StringConstraints, model_validator
@@ -78,7 +82,37 @@ class ChatRequest(BaseModel):
 
 
 class ChatResponse(BaseModel):
-    """Chat reply plus the products it refers to (empty until P7)."""
+    """What /api/chat sends the website: the agent's reply plus the products
+    it refers to. Product details are looked up from the database by
+    main.py, never taken from the model's text."""
 
     reply: str
     products: list[ProductSummary] = []
+
+
+# --------------------------------------------------------------------------
+# Agent contract
+# --------------------------------------------------------------------------
+
+
+@dataclass
+class AgentDeps:
+    """Per-request context handed to the agent and its tools.
+
+    Deliberately minimal: the agent gets the shopper's first name and a path
+    to the database. Never emails, password hashes, or login tokens.
+    """
+
+    db_path: Path
+    first_name: str | None = None
+
+
+class AgentReply(BaseModel):
+    """The agent's structured answer (PydanticAI `output_type`)."""
+
+    reply: str = Field(description="The message shown to the shopper. Plain text, short.")
+    product_ids: list[str] = Field(
+        default_factory=list,
+        description="Catalogue product_ids from tool results that the reply is about, "
+        "in the order mentioned. Empty if no tool returned products.",
+    )

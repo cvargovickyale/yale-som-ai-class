@@ -1,9 +1,9 @@
 """Campus Customs API — HW4.
 
 FastAPI app that serves the product catalogue, per-size stock, and product
-images from the local data pack; handles account signup/login; and runs a
-stub /api/chat endpoint (a bulldog, for now) that the PydanticAI agent
-replaces in P5.
+images from the local data pack; handles account signup/login; and exposes
+the chat route, POST /api/chat, which hands the shopper's message to the
+PydanticAI agent (agent.py) and returns its reply plus matching products.
 
 Data pack (not in git) must sit at hw4/data/:
     data/campus_customs.db
@@ -15,9 +15,11 @@ API docs:           http://127.0.0.1:8000/docs
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import hmac
 import json
+import logging
 import os
 import random
 import secrets
@@ -34,8 +36,11 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.staticfiles import StaticFiles
+from pydantic_ai.exceptions import ModelHTTPError
 
+from agent import AgentUnavailable, run_agent
 from models import (
+    AgentDeps,
     AuthResponse,
     ChatRequest,
     ChatResponse,
@@ -64,7 +69,9 @@ if not DB_PATH.exists() or not IMAGES_DIR.is_dir():
 SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"]
 SHORT_DESCRIPTION_CHARS = 90
 
-app = FastAPI(title="Campus Customs API", version="0.2.0")
+log = logging.getLogger("campus_customs")
+
+app = FastAPI(title="Campus Customs API", version="0.3.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
@@ -294,17 +301,66 @@ def me(user: UserOut = Depends(get_current_user)):
 
 
 # --------------------------------------------------------------------------
-# Chat — stub bulldog until the PydanticAI agent lands in P5
+# Chat — the website's chat panel POSTs {"message": ...} here
 # --------------------------------------------------------------------------
 
-BARKS = [
-    "Woof!",
-    "Woof woof!",
-    "Arf! *tilts head*",
-    "WOOF! *spins in a circle*",
-    "Woof? *sniffs your shoes*",
-]
+MAX_CHAT_PRODUCTS = 8
 
+
+def lookup_products(product_ids: list[str]) -> list[ProductSummary]:
+    """Turn the agent's product IDs into real catalogue data.
+
+    Names, prices, and images come from the database, never from the model's
+    text. IDs that don't exist (a hallucinated ID) are silently dropped.
+    """
+    ids = list(dict.fromkeys(product_ids))[:MAX_CHAT_PRODUCTS]  # dedupe, keep order
+    if not ids:
+        return []
+    marks = ",".join("?" * len(ids))
+    with closing(get_connection()) as conn:
+        rows = conn.execute(
+            PRODUCT_QUERY + f" WHERE c.product_id IN ({marks}) GROUP BY c.product_id", ids
+        ).fetchall()
+    by_id = {r["product_id"]: to_summary(r) for r in rows}
+    return [by_id[i] for i in ids if i in by_id]
+
+
+CONTENT_FILTER_REPLY = (
+    "Woof… I can't help with that one. I'm here for Campus Customs gear, sizing, "
+    "and the shop. What can I help you find?"
+)
+
+
+def _is_content_filter(exc: ModelHTTPError) -> bool:
+    body = exc.body if isinstance(exc.body, dict) else {}
+    return body.get("code") == "content_filter" or "content_filter" in str(exc.body)
+
+
+@app.post("/api/chat", response_model=ChatResponse)
+async def chat(body: ChatRequest, user: UserOut | None = Depends(get_optional_user)):
+    deps = AgentDeps(db_path=DB_PATH, first_name=user.first_name if user else None)
+    try:
+        out = await run_agent(body.message, deps)
+    except AgentUnavailable as exc:
+        raise HTTPException(status_code=503, detail=f"The shopping assistant is offline: {exc}")
+    except ModelHTTPError as exc:
+        if not _is_content_filter(exc):
+            log.exception("Agent run failed")
+            raise HTTPException(status_code=502, detail="The shopping assistant hit a snag. Please try again.")
+        # The AI provider's own safety filter blocked the message before the
+        # model saw it (e.g. a jailbreak attempt). Answer politely in character.
+        log.warning("Provider content filter blocked a chat message")
+        return ChatResponse(reply=CONTENT_FILTER_REPLY, products=[])
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail="The shopping assistant took too long. Please try again.")
+    except Exception:
+        log.exception("Agent run failed")
+        raise HTTPException(status_code=502, detail="The shopping assistant hit a snag. Please try again.")
+    return ChatResponse(reply=out.reply, products=lookup_products(out.product_ids))
+
+
+# The bulldog's idle behavior from P4: no AI call, just a random dog action
+# when the chat panel sits quiet.
 BORED = [
     "*wags tail*",
     "*brings you a ball* 🎾",
@@ -312,14 +368,6 @@ BORED = [
     "*yawns, then wags tail hopefully*",
     "*nudges the ball toward you* 🎾",
 ]
-
-
-@app.post("/api/chat", response_model=ChatResponse)
-def chat(body: ChatRequest, user: UserOut | None = Depends(get_optional_user)):
-    bark = random.choice(BARKS)
-    if user:
-        bark = f"{bark} Woof, {user.first_name}! 🐶"
-    return ChatResponse(reply=bark, products=[])
 
 
 @app.post("/api/chat/bored", response_model=ChatResponse)

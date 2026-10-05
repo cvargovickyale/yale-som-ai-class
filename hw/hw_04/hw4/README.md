@@ -4,8 +4,8 @@ A customer website for Campus Customs (Yale Bulldog Blue): browse products,
 open a single-item page with live per-size stock, and chat with a shopping
 assistant. React + Vite + TypeScript frontend, Python FastAPI backend.
 
-> Status: P4. Website, product API, and accounts (create account / log in)
-> work. The chat is a stub bulldog until the PydanticAI agent is added.
+> Status: P5. Website, product API, accounts, and a PydanticAI chat agent
+> (via Portkey) work. Product-info and stock tools for the agent arrive in P6.
 
 Seed test account: `test@campuscustoms.yale.edu` / `password`.
 
@@ -22,6 +22,9 @@ hw4/
 
 ## 2. Run the backend (terminal 1)
 
+Needs Python 3.11+ and a Portkey API key in `hw4/.env`. Without a key the
+site still runs; only the chat reports that it's offline.
+
 ```bash
 cd hw4
 python3 -m venv .venv
@@ -29,7 +32,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env        # then add your PORTKEY_API_KEY
 cd backend
-uvicorn main:app --reload
+uvicorn main:app --reload --port 8000
 ```
 
 API runs at http://127.0.0.1:8000 (interactive docs at `/docs`).
@@ -50,8 +53,12 @@ the backend on port 8000, so start the backend first.
 ```
 hw4/
 ├── backend/
-│   ├── main.py        # FastAPI app: products, images, accounts, chat
-│   └── models.py      # Pydantic shapes shared with the frontend
+│   ├── main.py        # FastAPI app: products, images, accounts, chat route
+│   ├── agent.py       # PydanticAI agent: Portkey model + prompt + tools
+│   ├── tools.py       # database tools the agent can call (read-only)
+│   ├── models.py      # Pydantic shapes: API contract + agent contract
+│   └── prompts/
+│       └── prompt.md  # agent voice, honesty and safety rules
 ├── frontend/          # Vite React TypeScript app
 │   └── src/
 │       ├── auth.tsx   # login state shared across pages
@@ -70,7 +77,7 @@ hw4/
 | POST | `/api/auth/signup` | Create account (first/last name, email, password + confirm) → login token + user |
 | POST | `/api/auth/login` | Email + password → login token + user |
 | GET | `/api/auth/me` | The logged-in user (needs `Authorization: Bearer <token>`) |
-| POST | `/api/chat` | `{ "message": "..." }` → `{ "reply": "...", "products": [] }` (stub bulldog) |
+| POST | `/api/chat` | `{ "message": "..." }` → `{ "reply": "...", "products": [ ... ] }` from the agent |
 | POST | `/api/chat/bored` | The bulldog's idle action (wags tail, brings a ball) |
 
 Passwords are hashed with PBKDF2-SHA256 (120,000 iterations), the same

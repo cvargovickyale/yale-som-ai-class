@@ -84,10 +84,9 @@ reach it.
    small extra files. **Done (P4):** kept everything in `main.py` (sections:
    Products / Accounts / Chat), with API shapes in `models.py`. The tree
    matches exactly.
-6. **`.env` location (P5).** Backend loads `hw4/.env`. The real key lives in
-   the workspace-root `.env`, which must never be copied. Either load the
-   root `.env` as a fallback (Lecture 08 pattern) or have Christopher create
-   `hw4/.env` himself.
+6. ~~**`.env` location.**~~ **Done (P5):** `agent.py` loads `hw4/.env` first,
+   then parent folders as a fallback (Lecture 08 pattern), so the workspace
+   `.env` key is used without copying it. Graders use `hw4/.env`.
 4. **Models.** Default `gpt-5.6-luna`. The assignment allows 5.6/6 series and
    hints at "a smarter model for harder agent steps." Log any upgrade
    (e.g. `terra`/`sol` for search reasoning) in `AI_prompts.md`.
