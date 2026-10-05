@@ -1,0 +1,16 @@
+# Secrets — only .env.example (placeholders) is committed
+.env
+.env.local
+
+# Local-only data pack: campus_customs.db + product images (assignment rule)
+data/
+*.db
+*.db-journal
+
+# Environments, dependencies, build output
+.venv/
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.DS_Store

@@ -4,18 +4,56 @@
     {
       "name": "lecture07-frontend",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "lectures/lecture_07/frontend", "run", "dev"],
+      "runtimeArgs": [
+        "--prefix",
+        "lectures/lecture_07/frontend",
+        "run",
+        "dev"
+      ],
       "port": 5173
     },
     {
       "name": "lecture08-frontend",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "lectures/lecture_08/frontend", "run", "dev"],
+      "runtimeArgs": [
+        "--prefix",
+        "lectures/lecture_08/frontend",
+        "run",
+        "dev"
+      ],
       "port": 5174
     },
     {
       "name": "lecture08-live",
       "url": "https://yale-som-ai-class.onrender.com"
+    },
+    {
+      "name": "hw4-backend",
+      "runtimeExecutable": "hw/hw_04/hw4/.venv/bin/python",
+      "runtimeArgs": [
+        "-m",
+        "uvicorn",
+        "main:app",
+        "--app-dir",
+        "hw/hw_04/hw4/backend",
+        "--reload",
+        "--reload-dir",
+        "hw/hw_04/hw4/backend",
+        "--port",
+        "8000"
+      ],
+      "port": 8000
+    },
+    {
+      "name": "hw4-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "hw/hw_04/hw4/frontend",
+        "run",
+        "dev"
+      ],
+      "port": 5173
     }
   ]
 }

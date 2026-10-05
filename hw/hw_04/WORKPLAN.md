@@ -69,10 +69,10 @@ reach it.
 
 ## Decisions (resolve when we reach each problem)
 
-1. **Working location.** Recommend building in `hw/hw_04/hw4/`, with the data
-   pack moved to `hw/hw_04/hw4/data/` (gitignored). The backend then reads
-   `../data/campus_customs.db`, and README tells graders to drop `data/` into
-   `hw4/`. (Decide at P2/P3.)
+1. ~~**Working location.**~~ **Done (P2):** building in `hw/hw_04/hw4/`, data
+   pack at `hw/hw_04/hw4/data/` (gitignored). The backend reads it via
+   `DATA_DIR` (default `hw4/data`), and README tells graders to drop `data/`
+   into `hw4/`.
 2. **Public-repo mechanics (P13).** The workspace repo is private, so it
    can't be the submission. Plan: create a new public repo under the
    `cvargovickyale` account (name TBD) whose root contains `hw4/`, populated
@@ -81,7 +81,12 @@ reach it.
 3. **Extra backend files.** Lecture 08 split out `auth.py` and `db.py`. The
    expected tree lists only `main.py`, `agent.py`, `models.py`, `tools.py`.
    Either keep auth/DB helpers inside `main.py` to match exactly, or accept
-   small extra files. (Decide at P3/P4.)
+   small extra files. (Decide at P4.) P3 kept everything in `main.py`, with
+   API shapes in `models.py`.
+6. **`.env` location (P5).** Backend loads `hw4/.env`. The real key lives in
+   the workspace-root `.env`, which must never be copied. Either load the
+   root `.env` as a fallback (Lecture 08 pattern) or have Christopher create
+   `hw4/.env` himself.
 4. **Models.** Default `gpt-5.6-luna`. The assignment allows 5.6/6 series and
    hints at "a smarter model for harder agent steps." Log any upgrade
    (e.g. `terra`/`sol` for search reasoning) in `AI_prompts.md`.
