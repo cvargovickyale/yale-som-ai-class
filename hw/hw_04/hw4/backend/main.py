@@ -133,6 +133,30 @@ def image_url(image_file_path: str) -> str:
     return "/images/" + Path(image_file_path).name
 
 
+# The catalogue has 22 inconsistent garment_type labels (P2). Shoppers see 6
+# clean categories instead. Checked in this order, first match wins; this
+# covers all 102 products (verified in P9).
+CATEGORY_RULES = [
+    ("hood", "Hoodies"),
+    ("t-shirt", "T-Shirts"),
+    ("quarter-zip", "Quarter-Zips"),
+    ("jacket", "Jackets"),
+    ("long-sleeve", "Long Sleeves"),
+    ("crew", "Crewnecks"),
+    ("mockneck", "Crewnecks"),
+]
+CATEGORIES = ["Hoodies", "Crewnecks", "T-Shirts", "Quarter-Zips", "Jackets", "Long Sleeves", "Other"]
+
+
+def category_for(garment_type: str) -> str:
+    gt = garment_type.lower()
+    return next((name for key, name in CATEGORY_RULES if key in gt), "Other")
+
+
+def category_slug(name: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+
+
 def to_summary(row: sqlite3.Row) -> ProductSummary:
     return ProductSummary(
         product_id=row["product_id"],
@@ -142,6 +166,7 @@ def to_summary(row: sqlite3.Row) -> ProductSummary:
         short_description=short_description(row["description"]),
         image_url=image_url(row["image_file_path"]),
         total_stock=row["total_stock"],
+        category=category_for(row["garment_type"]),
     )
 
 
@@ -351,6 +376,16 @@ def build_page_view(page_path: str | None) -> PageView | None:
     if path == "/products":
         query = parse_qs(url.query)
         ids = [i for i in query.get("ids", [""])[0].split(",") if i]
+        slug = query.get("category", [""])[0]
+        if not ids and slug:
+            name = next((c for c in CATEGORIES if category_slug(c) == slug), None)
+            if name:
+                in_category = [p for p in list_products() if p.category == name]
+                return PageView(
+                    kind="category",
+                    results_label=name,
+                    result_products=[ProductRef(product_id=p.product_id, name=p.name) for p in in_category],
+                )
         if not ids:
             return PageView(kind="catalogue")
         label = re.sub(r"[^\w $&'.,()-]", "", query.get("q", [""])[0])[:MAX_LABEL_CHARS].strip()

@@ -112,6 +112,13 @@ def dynamic_context(ctx: RunContext[AgentDeps]) -> str:
             f"showing {len(page.result_products)} products (product_ids in on-screen order: {ids}). "
             "\"These\", \"those\", or \"the third one\" refer to this list."
         )
+    elif page.kind == "category":
+        ids = ", ".join(p.product_id for p in page.result_products)
+        lines.append(
+            f"The Products page showing the {json.dumps(page.results_label or '')} category tab, "
+            f"{len(page.result_products)} products (product_ids in on-screen order: {ids}). "
+            "\"These\" or \"those\" refer to this list."
+        )
     elif page.kind == "catalogue":
         lines.append("The Products page showing the full catalogue (all products).")
     else:

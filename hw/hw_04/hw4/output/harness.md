@@ -304,7 +304,7 @@ Logged-in customers: their last 20 saved messages, across visits (section
 
 | Type | Used for | Fields |
 |---|---|---|
-| `ProductSummary` | Product cards; products in chat replies | `product_id`, `name`, `garment_type`, `price`, `short_description`, `image_url`, `total_stock` |
+| `ProductSummary` | Product cards; products in chat replies | `product_id`, `name`, `garment_type`, `price`, `short_description`, `image_url`, `total_stock`, `category` (one of 6, mapped from `garment_type` in P9) |
 | `ProductDetail` | Single-item page | everything in `ProductSummary` plus `description`, `colors`, `search_tags`, `sizes` |
 | `SizeStock` | One size's stock | `size`, `quantity` |
 | `SignupRequest` / `LoginRequest` | Account forms | see §2 |
@@ -313,7 +313,7 @@ Logged-in customers: their last 20 saved messages, across visits (section
 | `ChatHistoryMessage` | One saved message for the chat panel | `role`, `content`, `products` (re-read from the database), `results_label`, `created_at` |
 | `ChatResponse` | Reply to the website (the chat API contract, section 7) | `reply`, `products: list[ProductSummary]`, `results_label` |
 | `AgentDeps` | Context ("deps") given to the agent per message | `db_path`, `user_id`, `first_name`, `last_name`, `email`, `page` (never a password, hash, or token) |
-| `PageView` / `ProductRef` | What's on screen, built by `main.py` | `kind`, `product`, `results_label`, `result_products` (see section 8) |
+| `PageView` / `ProductRef` | What's on screen, built by `main.py` | `kind` (home, catalogue, category, search_results, product, …), `product`, `results_label`, `result_products` (see section 8) |
 | `AgentReply` | The agent's required output | `reply`, `product_ids`, `results_label` |
 | `SearchResults` / `ProductMatch` | `find_products` result: how it matched, plus one entry per hit | see section 6 |
 | `ProductInfo` | `get_product_info` result | see section 6 |
@@ -484,7 +484,7 @@ code:
 | Field | Type | Meaning |
 |---|---|---|
 | `reply` | text | The agent's message for the chat panel. |
-| `products` | list of `ProductSummary` (`product_id`, `name`, `price`, `image_url`, `short_description`, `garment_type`, `total_stock`) | The cards to render, in the agent's order. Filled from the database by `main.py`. The model only chose the IDs. |
+| `products` | list of `ProductSummary` (`product_id`, `name`, `price`, `image_url`, `short_description`, `garment_type`, `total_stock`, `category`) | The cards to render, in the agent's order. Filled from the database by `main.py`. The model only chose the IDs. |
 | `results_label` | text or null | **Set** (e.g. "Hoodies"): the shopper was browsing/searching, so filter the Products page to `products` under this heading. **Null**: an answer about specific products, so show small cards in the chat and leave the page alone. |
 
 ### How search results reach the page
@@ -511,8 +511,8 @@ Products page reads q and ids from the URL
   │  shows "Results from chat · Hoodies · 27 items of 102"
   │  and only those cards, in that order, with a "Show all products" button
   ▼
-Shopper clicks a card → /products/<id> single-item page
-  │  "← Back to results" returns to the same filtered view
+Shopper clicks a card → /products/<id> opens as a popup over the results
+  │  (P9); ×, Esc, or a click outside closes it back to the same filtered view
 ```
 
 **Why the results live in the URL:** the filtered view is just a web
@@ -542,7 +542,7 @@ agent:
 | "what Saybrook stuff do you have?" | 3 cards under "Saybrook gear" | 3 Saybrook products ✓ |
 | "How much is the Yale Mom hoodie?" while on All products | $68.00, one card in chat, page stayed at 102 | ✓ |
 | "do you sell hats?" | No hats; no filter | ✓ |
-| Click a filtered card → single-item page | Opened, $45.00 with sizes; "← Back to results" and the browser Back button both returned to the 27 hoodies | ✓ |
+| Click a filtered card → single-item page | Opened, $45.00 with sizes; "← Back to results" and the browser Back button both returned to the 27 hoodies (P7). Since P9 the item opens as a popup over the results and closes back to them. | ✓ |
 | Open a results URL directly (like a reload), including a fake ID | 3 Saybrook cards; fake ID skipped | ✓ |
 | "Show all products" | Back to all 102 | ✓ |
 
@@ -627,6 +627,8 @@ Chat panel (frontend)
 main.py → build_page_view(page_path)          (untrusted input → validated)
   │  "/"                     → kind "home"   (also about / login / signup)
   │  "/products"             → kind "catalogue"
+  │  "/products?category=…"  → kind "category" (P9 tabs): the tab name and
+  │                            its products, from the database
   │  "/products?q=…&ids=…"   → kind "search_results"; every ID checked
   │                            against the DB (fake ones dropped); label
   │                            stripped of odd characters, max 60 chars

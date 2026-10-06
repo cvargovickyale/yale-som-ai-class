@@ -440,3 +440,62 @@ agent gets this page context through the dynamic code
   customer fields the agent sees, the page-context flow with a real
   example of the generated instructions, the verified tests, and known
   limits. Sections 1–5 and 9 were updated to match.
+
+## Problem 9 — Usability improvements
+
+**Prompt:** p9 Usability - app should have two front-end usability
+improvements. I choose 1. Make the single product pages a floating popup as
+opposed to a separate looking page. like the edges of the multi product page
+should be visible grayed out behind the big popup. don't need to change the
+content, just make it feel less jarring to go to a single product page.
+
+Second improvement on the frontend should be a product category selection
+buttons/tabs either at the top or to the left. like I should also be able to
+click t shirts.
+
+I'm thinking through what two agent/backend usability improvements to
+suggest next - what is taking too much time or tokens than it needs to? like
+if this website were to scale, what would cause problems first?
+
+**Notes:**
+
+- **Front-end improvement 1, product popup:**
+  - the single-item view opens as a dialog over the page it was clicked
+    from (`backgroundLocation` pattern in `App.tsx`), with the page visible
+    and grayed out behind it
+  - × / Esc / clicking the gray area closes it back to the same tab or
+    results at the same scroll position
+  - the page behind can't scroll, and focus moves into the dialog
+  - a pasted product URL opens over All products
+  - the chat panel stays on top
+- **Front-end improvement 2, category tabs:** All · Hoodies · Crewnecks ·
+  T-Shirts · Quarter-Zips · Jackets · Long Sleeves, each with a count,
+  with the selection in the URL (`?category=t-shirts`).
+  - The backend maps the 22 messy `garment_type` labels to 6 categories
+    (a new `category` field on every product). All 102 are covered.
+  - The agent gets the open tab as page context.
+- **Verified:**
+  - tab counts sum to 102, and T-Shirts shows exactly 25
+  - the popup opens over the tab, and the 25 cards stay rendered behind
+  - Esc, ×, and a backdrop click each return to the same tab at 600 px
+    scroll; a click inside doesn't close it
+  - at 1280×800 the popup is 980 px wide with 150 px of grayed page on
+    each side
+  - a pasted URL works, and a chat-results card opens and closes back to
+    the results
+  - on the Jackets tab, "which of these come in XXL?" → 5, matching the
+    database
+- **Agent/backend question:** measured 4 live messages instead of guessing.
+  - A simple price question cost 3 round trips, 9,311 input tokens, and
+    6.4 s for a 121-token answer, because it called `get_product_info`
+    after `find_products` had already returned the price.
+  - Input outweighs output about 50–75 to 1, since the ~2,300-token prompt
+    is re-sent on every round trip.
+  - Saved history adds about 1,800 tokens per request.
+  - At scale, the first thing to break is cost: `/api/chat` has no rate
+    limit.
+  - The ranked candidate list is in `output/usability.md`. *The two
+    agent/backend improvements are still to be chosen.*
+- `output/usability.md` created. Harness sections 5, 7, and 8 were updated
+  (the `category` field, the popup replacing "Back to results", and
+  category page context).

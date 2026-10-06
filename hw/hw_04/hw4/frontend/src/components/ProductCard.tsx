@@ -3,13 +3,12 @@ import { formatPrice } from '../api'
 import type { ProductSummary } from '../types'
 
 export default function ProductCard({ product }: { product: ProductSummary }) {
-  // Remember where the card was clicked (e.g. a filtered results view) so the
-  // single-item page can link straight back to it.
+  // The page this card sits on stays visible behind the product popup (P9).
   const location = useLocation()
   return (
     <Link
       to={`/products/${product.product_id}`}
-      state={{ from: location.pathname + location.search }}
+      state={{ backgroundLocation: location }}
       className="product-card"
     >
       <img src={product.image_url} alt={product.name} loading="lazy" />

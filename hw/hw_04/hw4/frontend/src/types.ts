@@ -13,6 +13,7 @@ export interface ProductSummary {
   short_description: string
   image_url: string
   total_stock: number
+  category: string // e.g. "Hoodies" (backend maps the catalogue's 22 garment types to 6 categories)
 }
 
 export interface ProductDetail extends ProductSummary {

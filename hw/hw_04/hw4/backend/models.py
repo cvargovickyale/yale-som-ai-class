@@ -33,6 +33,7 @@ class ProductSummary(BaseModel):
     short_description: str
     image_url: str
     total_stock: int
+    category: str  # one of main.CATEGORIES, e.g. "Hoodies" (P9 category tabs)
 
 
 class ProductDetail(ProductSummary):
@@ -127,10 +128,10 @@ class PageView(BaseModel):
     """What the shopper is looking at, built and validated by main.py from
     the page path the website sends (never trusted as-is)."""
 
-    kind: Literal["home", "catalogue", "search_results", "product", "about", "login", "signup", "other"]
+    kind: Literal["home", "catalogue", "category", "search_results", "product", "about", "login", "signup", "other"]
     product: ProductRef | None = None  # kind == "product"
-    results_label: str | None = None  # kind == "search_results"
-    result_products: list[ProductRef] = []  # kind == "search_results" (validated IDs only)
+    results_label: str | None = None  # kind == "search_results" or "category" (the category name)
+    result_products: list[ProductRef] = []  # kind == "search_results" or "category" (validated IDs only)
 
 
 @dataclass

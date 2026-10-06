@@ -141,7 +141,7 @@ export default function ChatWidget() {
               <ul className="chat-products">
                 {m.products.map((p) => (
                   <li key={p.product_id}>
-                    <Link to={`/products/${p.product_id}`}>
+                    <Link to={`/products/${p.product_id}`} state={{ backgroundLocation: location }}>
                       <img src={p.image_url} alt="" />
                       <span>{p.name}</span>
                       <strong>{formatPrice(p.price)}</strong>

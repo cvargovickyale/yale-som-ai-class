@@ -10,6 +10,8 @@ assistant. React + Vite + TypeScript frontend, Python FastAPI backend.
 > filters the Products page to the matching cards. Logged-in customers' chats
 > are saved and reload when they return; the agent knows who's chatting and
 > what page they're on ("do you have this in blue?").
+> Products can be browsed by category tab, and each product opens as a popup
+> over the page you clicked from.
 
 Seed test account: `test@campuscustoms.yale.edu` / `password`.
 
