@@ -373,3 +373,36 @@ entries to come as the build proceeds.
 
 **Soundbite:** "Let the model explain; let code state the facts — and make
 sure you can prove which one said what."
+
+### HW4 build lessons (P3–P8), 2026-10-06
+
+7. **A silent cap looks exactly like a complete answer.** Search returned
+   "at most 10" results. For "show me hoodies," the page would have said
+   "Hoodies · 10 items" with no error. It looks finished, and it's wrong,
+   because there are 27. It was caught only by counting against the
+   database *before* building. *CoS translation:* when a report says "here
+   are the results," ask "is this all of them, or the first N?" Limits
+   don't announce themselves.
+
+8. **The change on disk isn't necessarily the change that's running.** The
+   agent kept refusing to tell a customer their own email, even after the
+   rule was fixed, because the server only reloads on code changes and was
+   still running the old prompt. Several "fixes" were tested against a
+   system that hadn't received them. *CoS translation:* before judging
+   whether a fix worked, confirm the fix is actually live. Same lesson as
+   Lecture 08's stale production bundle.
+
+9. **Defaults are decisions someone else made for you.** The web
+   framework's standard error message echoed the whole form back,
+   password included. Nobody chose that; it was the default. *CoS
+   translation:* when adopting a tool, ask what it does by default with
+   sensitive data, not just what it can be configured to do.
+
+10. **Treat a vendor's safety control as a layer to handle, not an
+    obstacle.** The AI provider's content filter blocked a jailbreak test
+    and crashed the chat. The fix was to handle the block gracefully (a
+    polite in-character reply), not to reword the test to slip past it.
+    Our own rules caught the milder version that the filter let through.
+    *CoS translation:* layered controls are a feature. Design for each
+    layer to fail gracefully instead of trying to get around the one in
+    your way.
