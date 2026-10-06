@@ -4,7 +4,7 @@ A customer website for Campus Customs (Yale Bulldog Blue): browse products,
 open a single-item page with live per-size stock, and chat with a shopping
 assistant. React + Vite + TypeScript frontend, Python FastAPI backend.
 
-> Status: P10. Website, product API, accounts, and a PydanticAI chat agent
+> Status: P11. Website, product API, accounts, and a PydanticAI chat agent
 > (via Portkey) with database tools for product search, product info, and
 > live stock by size. Asking the chat for a type of item ("show me hoodies")
 > filters the Products page to the matching cards. Logged-in customers' chats
@@ -82,8 +82,9 @@ With both servers running, open http://localhost:5173:
 7. **Cost visibility.** Each chat message prints one line in the backend
    terminal: model round trips, tokens, and database queries.
 
-Details for each improvement: `output/usability.md`. Visual design:
-`output/design.md`. How everything works:
+Screenshot proof of the key features: open `output/app_check.html`
+(double-click; works offline). Details for each improvement:
+`output/usability.md`. Visual design: `output/design.md`. How everything works:
 `output/harness.md`.
 
 ## Project layout

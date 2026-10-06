@@ -633,3 +633,72 @@ will like about the site
 - `output/design.md` written (what people will like, cost-conscious
   choices, what was deliberately left out). Harness notes added for the
   persona, the placeholder descriptions, and photo-border trimming.
+
+## Problem 11 — Site testing (app check)
+
+**Prompt:** launch it for me to check out in parallel to you doing this:.
+we're working on P11 which you will document in output/app_check.html which
+should be a page you can double click open. assemble clear screenshots and
+short captions for 1. Chat checking the inventory level of an item from the
+db
+
+2. dynamic search-result cards appearing after a category question like
+hoddies
+3. one of the usability features. once I see the selection thing I may make
+that the option. revise the usability doc to include the new visual on top
+of the same category selection thing that was our original improvement
+
+for this prompt, think particularly about making this easy to grade. have a
+heading for each cehck, a screenshot, then a sentence or two on what the
+screenshot proves.
+
+screenshot images in ouput/app_check_images/ and linked from app_check.html
+-- relative paths like app_check_images/inventory.png
+
+**Follow-up prompt used:** when you're ready: confirming the body part
+picker is cool and in your screenshot make sure on of them is hovered over so
+it's obvious
+
+**Notes:**
+
+- **Screenshots** were captured from the running app (README setup, ports
+  8000/5173) by a script driving headless Chrome (`playwright-core`, kept
+  in a scratch folder, not the project), as a guest at 1920×1080, with
+  reduced motion so nothing is mid-animation. The answers are real AI
+  answers, not mocks.
+- **Check 1, inventory:**
+  - the Yale Mom Hoodie popup is open, and the chat is asked "How many do
+    you have in medium?" → "There are 8 Yale Mom Hoodies in Medium right
+    now"
+  - the popup's size grid shows M · 8, and the database says M = 8
+  - re-shot at 1920 px wide after the first attempt at 1440 px hid the M
+    box behind the chat panel
+- **Check 2, search cards:** "show me hoodies" from Home → the Products page
+  shows "Results from chat · Hoodies · 27 items of 102," matching the
+  database's 27 hoodie-type products.
+- **Check 3, usability:** "Find your fit," with the chest hovered (Yale
+  blue) and clicked → Crewnecks tab, 29 cards, matching the database. A
+  2× close-up of the picker sits beside the full page.
+  - I added a live caption under the figure ("Chest → Crewnecks · 29") so
+    the hover is obvious even though screenshots don't show the mouse
+    pointer.
+  - I switched from the zip collar (a thin strip) to the chest (the
+    biggest zone) for visibility.
+- **`app_check.html`:**
+  - a summary table (check / what it shows / database value / ✓ Pass)
+  - then per check: a numbered heading, the screenshot (click for full
+    size), "What this proves," and the SQL that confirms the number
+  - self-contained CSS with relative image paths
+  - verified by opening it as a `file://` page: all 4 images load
+- **Photo fix found while reviewing screenshots:** border trimming had a
+  blind spot. Navy garments shot on black looked like border all the way
+  to the middle. There are now three cases: 70 photos trimmed, 3 framed in
+  black, 29 already clean. The safety margin was widened to remove a
+  leftover hairline.
+- **Known limit:** a couple of photos (e.g. Basic Hoodie Big Yale) are a
+  black-background shot pasted onto a white canvas, with no edge to trim.
+  This comes from the source images.
+- `output/usability.md` improvement 2 is now **"Category selection: tabs +
+  Find your fit figure"**, covering what was added, why, the shopper and
+  business benefits, how to see it, how it's built, and new verification
+  rows for the hover and click. The at-a-glance table was updated too.

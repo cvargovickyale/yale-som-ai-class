@@ -46,8 +46,11 @@ export default function FitPicker({ counts, active, onPick, compact }: Props) {
     )
   }
 
+  const litZone = ZONES.find((z) => z.category === lit)
+
   return (
     <div className={`fit-picker${compact ? ' compact' : ''}`}>
+      <div className="fit-stage">
       <svg viewBox="0 0 220 300" className="fit-figure" aria-label="Clothing picker">
         {/* not clickable: head, legs */}
         <path className="fit-base" d="M76 206 h68 l-6 86 h-22 l-6 -60 l-6 60 h-22 z" />
@@ -69,6 +72,17 @@ export default function FitPicker({ counts, active, onPick, compact }: Props) {
         {zone('Quarter-Zips', <path d="M101 88 h18 v40 l-9 6 l-9 -6 Z" />)}
         <line className="fit-zipline" x1="110" y1="92" x2="110" y2="128" />
       </svg>
+      {/* Live caption: names the zone under the pointer (or the selected one). */}
+      <p className={`fit-caption${litZone ? ' on' : ''}`} aria-live="polite">
+        {litZone ? (
+          <>
+            {litZone.label} → <strong>{litZone.hint}</strong> · {counts.get(litZone.category) ?? 0}
+          </>
+        ) : (
+          'Tap part of the outfit'
+        )}
+      </p>
+      </div>
 
       <ul className="fit-legend">
         {ZONES.map((z) => (

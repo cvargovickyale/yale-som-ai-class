@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Campus Customs: App Check (HW4 P11)</title>
+<style>
+  :root { --yale: #00356b; --ink: #1b2430; --muted: #5d6673; --line: #e3e6ea; --ok: #1a7f37; --paper: #f7f5f0; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.55 -apple-system, "Segoe UI", Inter, system-ui, sans-serif; color: var(--ink); background: #fff; }
+  header { background: var(--yale); color: #fff; padding: 2rem 1.5rem; }
+  header h1 { margin: 0 0 0.25rem; font: 700 1.9rem/1.2 Georgia, "Times New Roman", serif; }
+  header p { margin: 0; opacity: 0.85; }
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+  h2 { font: 700 1.4rem/1.25 Georgia, "Times New Roman", serif; color: var(--yale); margin: 0 0 0.75rem; }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.95rem; }
+  th, td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--paper); font-weight: 600; }
+  .pass { color: var(--ok); font-weight: 700; white-space: nowrap; }
+  .check { border: 1px solid var(--line); border-radius: 12px; padding: 1.5rem; margin: 2rem 0; }
+  .check .num { display: inline-block; background: var(--yale); color: #fff; border-radius: 999px; padding: 0.1rem 0.65rem; font-size: 0.85rem; font-weight: 700; margin-right: 0.4rem; vertical-align: 0.2rem; }
+  figure { margin: 0 0 1rem; }
+  figure a { display: block; }
+  figure img { width: 100%; height: auto; display: block; border: 1px solid var(--line); border-radius: 8px; }
+  figcaption { font-size: 0.85rem; color: var(--muted); margin-top: 0.4rem; }
+  .pair { display: grid; grid-template-columns: 3fr 1fr; gap: 1rem; align-items: start; }
+  .proves { margin: 0 0 0.6rem; }
+  .db { margin: 0; padding: 0.6rem 0.8rem; background: var(--paper); border-left: 3px solid var(--yale); border-radius: 4px; font-size: 0.9rem; }
+  code { font: 0.85em ui-monospace, Menlo, Consolas, monospace; background: #eef1f5; padding: 0.05rem 0.3rem; border-radius: 4px; }
+  .note { color: var(--muted); font-size: 0.9rem; }
+  @media (max-width: 760px) { .pair { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Campus Customs: App Check</h1>
+  <p>HW4 · Problem 11 · Site testing · Captured October 6, 2026 from the running app</p>
+</header>
+
+<main>
+  <h2>Summary</h2>
+  <table>
+    <tr><th>#</th><th>Check</th><th>What the screenshot shows</th><th>Database</th><th>Result</th></tr>
+    <tr><td>1</td><td>Chat checks an item's inventory from the database</td><td>Handsome Dan: "8 Yale Mom Hoodies in Medium"</td><td>M = 8</td><td class="pass">✓ Pass</td></tr>
+    <tr><td>2</td><td>A category question in chat makes search-result cards appear</td><td>"show me hoodies" → page shows "Hoodies · 27 items of 102"</td><td>27 hoodie-type products</td><td class="pass">✓ Pass</td></tr>
+    <tr><td>3</td><td>Usability feature: "Find your fit" body-part picker</td><td>Chest hovered (Yale blue) → Crewnecks tab, 29 cards</td><td>29 crewneck-type products</td><td class="pass">✓ Pass</td></tr>
+  </table>
+  <p class="note">
+    How these were captured: the app ran locally exactly as the README describes (backend
+    <code>uvicorn main:app --reload --port 8000</code>, website <code>npm run dev</code> on port 5173). It was
+    driven by a script in headless Chrome at 1920×1080 as a logged-out guest, with real AI answers (no mocks).
+    Every number below was then checked against <code>data/campus_customs.db</code> with SQL. Click any
+    screenshot to open it full size.
+  </p>
+
+  <!-- Check 1 -->
+  <section class="check" id="check-1">
+    <h2><span class="num">1</span>Chat checks the inventory level of an item from the database</h2>
+    <figure>
+      <a href="app_check_images/inventory.png"><img src="app_check_images/inventory.png" alt="Yale Mom Hoodie popup open with its size grid; the chat panel beside it answers 'There are 8 Yale Mom Hoodies in Medium right now.'" /></a>
+      <figcaption>With the Yale Mom Hoodie open, the shopper asks "How many do you have in medium?" without naming the product.</figcaption>
+    </figure>
+    <p class="proves"><strong>What this proves:</strong> the agent looked up live stock with its <code>check_stock</code> tool
+      and answered "8 in Medium." That matches the product's own size grid on screen (M · 8 in stock). It also
+      knew which product "you" meant from the page the shopper was on.</p>
+    <p class="db"><strong>Database:</strong> <code>SELECT quantity FROM inventory WHERE product_id='yale-mom-hoodie' AND size='M'</code> → <strong>8</strong> ✓</p>
+  </section>
+
+  <!-- Check 2 -->
+  <section class="check" id="check-2">
+    <h2><span class="num">2</span>Dynamic search-result cards appear after a category question ("hoodies")</h2>
+    <figure>
+      <a href="app_check_images/search_results.png"><img src="app_check_images/search_results.png" alt="Products page filtered to 'Results from chat: Hoodies, 27 items of 102' with hoodie cards; the chat panel shows 'show me hoodies' and the agent's reply." /></a>
+      <figcaption>Asked from the Home page: "show me hoodies." The site switched to the Products page on its own.</figcaption>
+    </figure>
+    <p class="proves"><strong>What this proves:</strong> the agent returned structured product results (IDs plus the label
+      "Hoodies"), and the website rendered them as cards (image, name, price, short description) under "Results
+      from chat · Hoodies · 27 items of 102." The chat reply gives the count and a few highlights rather than
+      listing all 27.</p>
+    <p class="db"><strong>Database:</strong> <code>SELECT COUNT(*) FROM catalogue WHERE garment_type LIKE '%hood%'</code> → <strong>27</strong>, the same 27 products shown ✓</p>
+  </section>
+
+  <!-- Check 3 -->
+  <section class="check" id="check-3">
+    <h2><span class="num">3</span>Usability feature: "Find your fit" body-part picker</h2>
+    <div class="pair">
+      <figure>
+        <a href="app_check_images/find_your_fit.png"><img src="app_check_images/find_your_fit.png" alt="Products page filtered to Crewnecks, 29 items, with the Crewnecks tab active and the Find your fit figure in the sidebar." /></a>
+        <figcaption>Full page after tapping the figure's chest.</figcaption>
+      </figure>
+      <figure>
+        <a href="app_check_images/find_your_fit_closeup.png"><img src="app_check_images/find_your_fit_closeup.png" alt="Close-up of the Find your fit figure with the chest zone hovered in Yale blue and the caption 'Chest → Crewnecks · 29'." /></a>
+        <figcaption>Close-up, mouse hovering the chest.</figcaption>
+      </figure>
+    </div>
+    <p class="proves"><strong>What this proves:</strong> shoppers can filter by tapping part of an outfit instead of
+      reading a menu. Hovering the chest turns it Yale blue and names it ("Chest → Crewnecks · 29"); tapping it
+      filtered the page to the 29 crewnecks, with the matching tab and legend highlighted. It's built on the
+      same category selection as the tabs, so the two always agree.</p>
+    <p class="db"><strong>Database:</strong> products whose <code>garment_type</code> maps to Crewnecks (crewneck, raglan, mockneck) → <strong>29</strong> ✓</p>
+  </section>
+
+  <p class="note">More detail: <code>output/usability.md</code> (all usability improvements) ·
+    <code>output/harness.md</code> (how the agent, tools, and data work) · <code>output/design.md</code> (visual design).</p>
+</main>
+</body>
+</html>

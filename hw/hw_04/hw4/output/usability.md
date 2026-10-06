@@ -9,7 +9,7 @@ the business, how to see it in the running app, and how it was verified.
 | # | Improvement | Helps the shopper | Helps the business | See it in the app |
 |---|---|---|---|---|
 | 1 | Product pages open as a popup | Keeps their place; browsing feels quick, not jarring | More products viewed per visit; fewer shoppers lost between pages | Click any product card |
-| 2 | Category tabs | One click to "T-Shirts"; no typing, no waiting | Browsing by type costs $0 in AI; the messy catalogue labels become clean categories | Top of the Products page |
+| 2 | Category selection: tabs + "Find your fit" figure | One click to "T-Shirts", or tap the part of the outfit you want; no typing, no waiting | Browsing by type costs $0 in AI; the messy catalogue labels become clean categories; a memorable, playful way to shop | Products page (tabs on top, figure on the left); Home page "Find your fit" section |
 | 3 | Chat rate limit | The chat stays available; a clear "try again in N seconds" | Caps AI spending; bots and abusers can't run up the bill | Send 6 chat messages within a minute as a guest |
 | 4 | One database read per fact, per message | Faster answers; never yesterday's price | 32% fewer AI tokens on price questions; fewer database reads | The backend terminal line for each chat message; "Earlier chat" divider when logged in |
 
@@ -66,37 +66,66 @@ focus moved into it, and the page behind locked from scrolling.
 | Pasted product URL | Popup over All products; closes to `/products` |
 | Card in chat search results | Popup over the results; Esc returns to them |
 
-## 2. Category tabs (front end)
+## 2. Category selection: tabs + "Find your fit" figure (front end)
 
-**What was added.** A row of tabs across the top of the Products page, each
-with a count: **All 102 · Hoodies 27 · Crewnecks 29 · T-Shirts 25 ·
-Quarter-Zips 11 · Jackets 8 · Long Sleeves 2**.
+**What was added.** Two ways to pick a category, sharing one category
+system:
+
+- **Category tabs** across the top of the Products page, each with a count:
+  **All 102 · Hoodies 27 · Crewnecks 29 · T-Shirts 25 · Quarter-Zips 11 ·
+  Jackets 8 · Long Sleeves 2** (P9).
+- **"Find your fit"** (added in P10 on top of the same categories): a simple
+  figure where you tap the part of the outfit you're shopping for. Hood →
+  Hoodies, zip collar → Quarter-Zips, chest → Crewnecks, short sleeves →
+  T-Shirts, long sleeves → Long Sleeves, outer layer → Jackets.
+  - Hovering a zone turns it Yale blue, and a caption names it ("Chest →
+    Crewnecks · 29").
+  - Tapping it filters the page.
+  - It's pinned beside the product grid on wide screens and has its own
+    section on the Home page. On narrow screens the tabs take over.
 
 **Why.** Before, the only ways to narrow 102 products were scrolling or
 asking the chat. "Just show me t-shirts" meant typing a message and waiting
 about 4 seconds for the AI. The catalogue's own `garment_type` labels were
 too messy to filter on directly: 22 different labels for about 6 kinds of
-garment (P2).
+garment (P2). The tabs fixed the speed; the figure makes choosing visual,
+for shoppers who think "something with a hood," not "the Hoodies
+category."
 
 **How it helps.**
-- **Shopper:** one click to the kind of item they want, with an instant
-  result and a count before they click. The selected tab is in the URL, so
-  the Back button, reloads, and shared links keep it. Tabs scroll sideways
-  on a phone instead of wrapping into several rows.
-- **Business:** category browsing now uses **no AI at all**. A chat search
-  for "hoodies" costs about 7,000 tokens; a tab click costs nothing, so
+- **Shopper:** one click (or tap) to the kind of item they want, with an
+  instant result and a count shown first. The figure is quicker to read
+  than a list of garment names, and fun to use. The selection is in the
+  URL, so the Back button, reloads, and shared links keep it. Tabs swipe
+  sideways on a phone instead of wrapping into several rows.
+- **Business:** category browsing uses **no AI at all**. A chat search for
+  "hoodies" costs about 7,000 tokens; a tab or figure tap costs nothing, so
   routine browsing is free and the chat is left for real questions. The
+  figure is a distinctive touch that makes the shop memorable. The
   backend's clean category mapping is shared with the agent, which knows
   which tab is open ("which of these come in XXL?" on the Jackets tab
-  works). The same mapping can feed reports and merchandising later.
+  works), and can feed reports and merchandising later.
 
-**See it in the app.** Products page → click **T-Shirts**: 25 cards, and
-the address bar shows `?category=t-shirts`. Click **All** to go back.
+**See it in the app.**
+1. Products page → click **T-Shirts**: 25 cards, and the address bar shows
+   `?category=t-shirts`.
+2. On the left, hover the figure's **chest**. It turns blue, and the caption
+   reads "Chest → Crewnecks · 29." Click it: 29 crewnecks, with the
+   Crewnecks tab highlighted.
+3. Home page → "Find your fit" section: tap the **hood** to jump to
+   Hoodies.
 
-**How it's built.** `backend/main.py` maps each product's `garment_type` to
-one of six categories (`CATEGORY_RULES`) and adds a `category` field to
-every product. All 102 products are covered, and none fall into "Other."
-The website builds the tabs and counts from that field.
+Screenshots: `output/app_check.html`, check 3.
+
+**How it's built.**
+- `backend/main.py` maps each product's `garment_type` to one of six
+  categories (`CATEGORY_RULES`) and adds a `category` field to every
+  product. All 102 products are covered, and none fall into "Other."
+- The tabs and the figure (`frontend/src/components/FitPicker.tsx`) both
+  read that field and set the same `?category=` filter, so they always
+  agree.
+- The figure is one small SVG drawing whose zones are keyboard-accessible
+  buttons: no images, no extra downloads.
 
 **Verified.**
 
@@ -104,6 +133,9 @@ The website builds the tabs and counts from that field.
 |---|---|
 | Tab counts | 27 + 29 + 25 + 11 + 8 + 2 = 102 ✓ |
 | T-Shirts tab | Exactly 25 cards, all t-shirts; URL `?category=t-shirts` |
+| Hover the figure's chest | Zone filled Yale blue (`rgb(0, 53, 107)`); caption "Chest → Crewnecks · 29" |
+| Click the chest | `?category=crewnecks`, 29 cards, Crewnecks tab and legend highlighted |
+| Click the zip collar | `?category=quarter-zips`, 11 cards |
 | Agent on the Jackets tab: "which of these come in XXL?" | 5, matching the database |
 
 ## 3. Chat rate limit (agent/backend)
