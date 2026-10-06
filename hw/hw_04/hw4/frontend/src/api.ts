@@ -45,3 +45,8 @@ export const sendBored = () => post<ChatResponse>('/api/chat/bored')
 
 export const formatPrice = (price: number) =>
   price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+
+// The Products page reads chat search results from the URL, so filtered
+// views survive reloads, the back button, and opening a single item.
+export const resultsUrl = (label: string, productIds: string[]) =>
+  `/products?${new URLSearchParams({ q: label, ids: productIds.join(',') })}`

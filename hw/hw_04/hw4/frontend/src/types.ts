@@ -45,4 +45,7 @@ export interface SignupInput {
 export interface ChatResponse {
   reply: string
   products: ProductSummary[]
+  // Set when the shopper was browsing/searching: the Products page filters
+  // to exactly `products` under this heading. Null = answer only.
+  results_label: string | null
 }

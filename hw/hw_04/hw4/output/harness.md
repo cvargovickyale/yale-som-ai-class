@@ -2,7 +2,8 @@
 
 How the Campus Customs website and its chatbot are put together: the data
 they rely on, how accounts work, how the website talks to the backend, the
-agent and its structured outputs, its tools, its safety rules,
+agent and its structured outputs, its tools, how chat search updates the
+page, its safety rules,
 and its limits. Built up one problem at a time, then consolidated at the end.
 
 ## 1. Data (`data/campus_customs.db`)
@@ -200,25 +201,27 @@ POST /api/chat
 3. Builds the agent's context (`AgentDeps`): the logged-in shopper's first
    name and the database location.
 4. Calls `run_agent(message, deps)` in `agent.py` and gets back an
-   `AgentReply`: `{reply, product_ids}`.
+   `AgentReply`: `{reply, product_ids, results_label}`.
 5. Looks up each product ID in the database itself (`lookup_products`), so
    names, prices, and image URLs come from the database, never from the
-   model's text. Unknown IDs are dropped and duplicates removed. At most 8
-   products are returned.
-6. Responds:
+   model's text. Unknown IDs are dropped and duplicates removed. At most 40
+   products are returned, enough for a whole category.
+6. Responds with a `ChatResponse` (the full contract is in section 7):
 
 ```json
 {
-  "reply": "Hi Woody! ...",
+  "reply": "I found 27 hoodies, now showing them on the page. ...",
   "products": [
     { "product_id": "yale-mom-hoodie", "name": "Yale Mom Hoodie", "price": 68.0,
       "image_url": "/images/yale-mom-hoodie.jpg", "short_description": "...", "total_stock": 76, ... }
-  ]
+  ],
+  "results_label": "Hoodies"
 }
 ```
 
-The chat panel shows `reply`, plus each product as a small linked thumbnail
-with its name and price.
+If `results_label` is set, the website filters the Products page to those
+cards (section 7). If it's null, the chat panel shows the products as small
+linked thumbnails and the page doesn't change.
 
 **Failures the shopper might see:**
 
@@ -295,10 +298,10 @@ memory is P8.
 | `SignupRequest` / `LoginRequest` | Account forms | see §2 |
 | `UserOut` / `AuthResponse` | What the site may know about a user | `id`, `first_name`, `last_name`, `email` (never the hash) + `token` |
 | `ChatRequest` | Message from the website | `message` (1–2,000 characters) |
-| `ChatResponse` | Reply to the website | `reply`, `products: list[ProductSummary]` |
+| `ChatResponse` | Reply to the website (the chat API contract, section 7) | `reply`, `products: list[ProductSummary]`, `results_label` |
 | `AgentDeps` | Context given to the agent per message | `db_path`, `first_name` (no email, no ID, no token) |
-| `AgentReply` | The agent's required output | `reply`, `product_ids` |
-| `ProductMatch` | `find_products` result (one per hit) | see section 6 |
+| `AgentReply` | The agent's required output | `reply`, `product_ids`, `results_label` |
+| `SearchResults` / `ProductMatch` | `find_products` result: how it matched, plus one entry per hit | see section 6 |
 | `ProductInfo` | `get_product_info` result | see section 6 |
 | `StockReport` / `SizeStatus` | `check_stock` result (one per product / per size) | see section 6 |
 
@@ -334,9 +337,9 @@ purchase decisions (`inventory`).
 
 | Tool | Answers | Reads | Typical use |
 |---|---|---|---|
-| `find_products(query)` | "Which products match these words?" | `catalogue` + `inventory` totals | First call whenever a product is named or described |
+| `find_products(query, max_price?, in_stock_size?)` | "Which products match these words (and budget/size)?" | `catalogue` + `inventory` | First call whenever a product is named, described, or browsed |
 | `get_product_info(product_id)` | "What is this product, and what does it cost?" | `catalogue` | Describing a product, quoting a price |
-| `check_stock(product_ids, size?)` | "Is it available, and in which sizes?" | `inventory` | Any availability question; compare up to 10 products at once |
+| `check_stock(product_ids, size?)` | "Is it available, and in which sizes?" | `inventory` | Any availability question; compare up to 20 products at once |
 
 Typical flow: `find_products` → `get_product_info` and/or `check_stock` →
 answer. A price question doesn't need `check_stock`; a "which sizes?"
@@ -344,13 +347,21 @@ question doesn't need `get_product_info`.
 
 ### What each tool returns, and why those fields
 
-**`find_products` → list of `ProductMatch` (up to 10)**
+**`find_products` → `SearchResults`**
+
+| Field | Why it's included |
+|---|---|
+| `matched_on` | How solid the matches are: `all words` (every search word matched), `some words` (nothing matched everything, so these are loose), `filters only` (budget/size with no words), or `nothing`. Lets the agent say "close matches" or "we don't carry that" honestly. |
+| `total_found` | How many products matched before the 40-item cap, so the agent can say "I found 27 hoodies" accurately. |
+| `products` | Up to 40 `ProductMatch` entries, best first (fields below). 40 covers any whole category on the page; the biggest search, "crewnecks", returns 30. |
+
+Each **`ProductMatch`**:
 
 | Field | Why it's included |
 |---|---|
 | `product_id` | The key every other tool needs, and what the agent puts in `product_ids` so the page can show cards. |
 | `name` | Lets the agent tell similar matches apart (e.g. Yale Mom Hoodie vs. Yale Mom Crewneck) and name them to the shopper. |
-| `garment_type` | Lets the agent reject false matches. Search matches words anywhere, so "hat" finds a *hoodie* whose bulldog graphic wears a sailor hat. `garment_type` shows it isn't a hat. |
+| `garment_type` | Lets the agent confirm each match is the kind of item asked for and drop near misses, e.g. the one crew-neck *t-shirt* in a "crewnecks" search. (In P6 this caught a hoodie with a sailor-hat graphic in a "hat" search; P7's search rules now stop that match outright.) |
 | `price` | Answers "what's under $50?" or compares a list without a second call per product. |
 | `total_stock` | A quick signal (0 means sold out in every size) so the agent can skip or flag dead options before checking sizes. |
 
@@ -391,14 +402,25 @@ above).
   exist, the tool raises `ModelRetry` ("Unknown product_id… use
   find_products"), which sends the model back to search instead of letting
   it guess.
-- **Bounded.** Search returns at most 10 matches, and `check_stock` takes
-  at most 10 products per call. Combined with the per-message limits in
+- **Bounded.** Search returns at most 40 matches, and `check_stock` takes
+  at most 20 products per call. Combined with the per-message limits in
   section 4, a single question can't run away.
 - **Whole-word search.** Matching is on whole words with simple plurals
   trimmed ("hoodies" → "hoodie"). Common words like "the" and words on
   nearly every product ("Yale", "Campus Customs") are ignored. An early
   version matched word fragments ("hat" inside "that") and was fixed in P6
   testing.
+- **All words must match (P7).** "navy crewneck" means navy *and*
+  crewneck. Only if nothing matches every word does search fall back to
+  partial matches, and it says so (`matched_on: "some words"`).
+- **Garment names in any form (P7).** "tee", "t-shirt", and "tshirt" are
+  the same word to search, as are "hoodie"/"hooded", "quarter zip"/"1-4
+  zip"/"quarter-zip", and "crewneck"/"crew neck". Before this, "tees" found
+  6 of the 25 t-shirts, and "quarter zip" also returned every full-zip.
+- **Garment words must be in the name or garment type (P7).** "crewneck"
+  only matches products that *are* crewnecks, not t-shirts whose
+  description mentions a crew-neck collar. Same for "hat", which no longer
+  matches a hoodie whose graphic shows a sailor hat.
 
 ### Verified (P6, against the database)
 
@@ -413,13 +435,104 @@ above).
 
 ### Known limits
 
-- Search is keyword-based. It doesn't know synonyms ("sweatshirt" vs.
-  "crewneck") and doesn't understand vibes ("something warm for the
-  Harvard game"). Smarter chat search is P7.
+- Search is still keyword-based. It understands garment names in common
+  forms but not vibes ("something warm for the Harvard game"). For those,
+  the agent has to pick concrete words to search for.
+- Category counts follow the catalogue's own labels. "Crewnecks" returns
+  30, including a crew-neck t-shirt and one item named "crewneck" but
+  labeled a quarter-zip. The agent can drop those using `garment_type`.
 - Stock can change between the check and checkout. The agent says so
   rather than promising.
 
-## 7. Safety — *full write-up in P12*
+## 7. Chat search that updates the page
+
+When a shopper asks about a *type* of item ("show me hoodies"), the
+Products page filters to exactly the matching products as cards (image,
+name, price, short description), and every card still opens its
+single-item page.
+
+### What "API contract" means here
+
+An **API contract** is the agreed shape of the data passed between two
+pieces of software: the field names, their types, and what each one means.
+Both sides build to the same agreement. Neither needs to know how the other
+works inside, only what it will send and receive. If one side changes the
+shape without the other, things break, so the contract is written down in
+code:
+
+- **Agent → backend:** `AgentReply` in `backend/models.py`. PydanticAI
+  enforces it: the model's answer must fit this shape, or it's asked to
+  retry.
+- **Backend → website:** `ChatResponse` in `backend/models.py`, mirrored in
+  `frontend/src/types.ts`. FastAPI checks every response against it, and
+  TypeScript checks the website reads it correctly.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `reply` | text | The agent's message for the chat panel. |
+| `products` | list of `ProductSummary` (`product_id`, `name`, `price`, `image_url`, `short_description`, `garment_type`, `total_stock`) | The cards to render, in the agent's order. Filled from the database by `main.py`. The model only chose the IDs. |
+| `results_label` | text or null | **Set** (e.g. "Hoodies"): the shopper was browsing/searching, so filter the Products page to `products` under this heading. **Null**: an answer about specific products, so show small cards in the chat and leave the page alone. |
+
+### How search results reach the page
+
+```
+Shopper types "show me hoodies" in the chat panel
+  │  POST /api/chat  {"message": "show me hoodies"}
+  ▼
+main.py → agent (prompt.md + tools)
+  │  find_products("hoodies") → 27 matches from the database
+  │  agent returns AgentReply:
+  │    reply="I found 27 hoodies…", product_ids=[27 IDs], results_label="Hoodies"
+  ▼
+main.py → lookup_products(ids): real name/price/image/description from the DB,
+  │        unknown IDs dropped, max 40
+  │  ChatResponse {reply, products: [27 cards], results_label: "Hoodies"}
+  ▼
+ChatWidget (frontend)
+  │  results_label is set → navigate to
+  │  /products?q=Hoodies&ids=basic-hoodie-big-yale,…  (27 IDs)
+  │  chat shows the reply plus a "View 'Hoodies' on the page →" link
+  ▼
+Products page reads q and ids from the URL
+  │  shows "Results from chat · Hoodies · 27 items of 102"
+  │  and only those cards, in that order, with a "Show all products" button
+  ▼
+Shopper clicks a card → /products/<id> single-item page
+  │  "← Back to results" returns to the same filtered view
+```
+
+**Why the results live in the URL:** the filtered view is just a web
+address, so it survives a page reload, the browser's Back button, and
+opening a single-item page and coming back. Nothing has to be remembered
+in memory. The Products page fetches the normal product list and shows only
+the IDs in the URL, so the cards come from the same database endpoint as
+always. An ID that doesn't exist is simply skipped.
+
+### When the page changes and when it doesn't
+
+The prompt (`prompts/prompt.md`, "Showing products on the page") tells the
+agent:
+
+| Shopper says | `product_ids` | `results_label` | What the shopper sees |
+|---|---|---|---|
+| "show me hoodies", "Saybrook gear", "crewnecks under $60 in medium" | **every** relevant match, best first, false matches dropped | short heading | Products page filters; chat gives the count and 1–3 highlights, not the whole list |
+| "how much is the Yale Mom hoodie?", "is the Champion crewneck in small?" | the 1–2 products discussed | null | Answer plus small cards in the chat; page unchanged |
+| "do you sell hats?" (nothing found) | empty | null | "Couldn't find any"; page unchanged |
+
+### Verified (P7)
+
+| Test | Result | Check against the database |
+|---|---|---|
+| "show me hoodies" from the Home page | Went to Products, 27 cards under "Hoodies"; reply gave the count + 3 highlights | Identical to the 27 products whose `garment_type` is a hoodie type ✓ (the P2 reference chat had claimed 8, "all $68"; the set includes $45 and $88 hoodies) |
+| "crewnecks under $60 that are in stock in medium" | 21 cards under "Crewnecks under $60 in Medium" | Identical to the 21 crewneck-type products ≤ $60 with M > 0 ✓, including "Squash Left Chest Tennis" (a crewneck by `garment_type`) and the "creqneck" typo product |
+| "what Saybrook stuff do you have?" | 3 cards under "Saybrook gear" | 3 Saybrook products ✓ |
+| "How much is the Yale Mom hoodie?" while on All products | $68.00, one card in chat, page stayed at 102 | ✓ |
+| "do you sell hats?" | No hats; no filter | ✓ |
+| Click a filtered card → single-item page | Opened, $45.00 with sizes; "← Back to results" and the browser Back button both returned to the 27 hoodies | ✓ |
+| Open a results URL directly (like a reload), including a fake ID | 3 Saybrook cards; fake ID skipped | ✓ |
+| "Show all products" | Back to all 102 | ✓ |
+
+## 8. Safety — *full write-up in P12*
 
 Safety layers in place so far, from the outside in:
 
@@ -440,4 +553,4 @@ Safety layers in place so far, from the outside in:
    the database; hallucinated IDs are dropped; per-message request, tool,
    and time limits apply.
 
-## 8. Specs and limits — *to come (P12)*
+## 9. Specs and limits — *to come (P12)*

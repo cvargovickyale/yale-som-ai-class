@@ -296,3 +296,77 @@ explain why the fields were chosen for the lookup results in there too
   - known limits
 
   Sections 4 and 5 were updated to point to it.
+
+## Problem 7 — Chat search that updates the page
+
+**Prompt:** p7 feature is when a user asks about a type of item like
+hoodies, the agent should show those matching items as product cards,
+dynamically filtering to whoe the image name price and short descrip
+
+This is an API contract (explain what that means to me) - agent needs to
+return structured products that match the chat so the front end can render.
+
+when things dynamically filter make sure the opening of single item pages
+still works. prompt.md and harness.md should clearly show how search
+results reach the frontend
+
+**Notes:**
+
+- **API contract** = the agreed data shape between two pieces of software,
+  written in code so both sides build to it:
+  - `AgentReply` (agent → backend), enforced by PydanticAI
+  - `ChatResponse` (backend → website) in `models.py`, mirrored in
+    `types.ts`; FastAPI checks the response and TypeScript checks the
+    reader
+- **Contract change:** both shapes gained `results_label` (e.g.
+  "Hoodies"). When it's set, the website filters the Products page to
+  exactly the returned products. When it's null, it's an answer about
+  specific items: small cards in the chat, page unchanged. Cards are still
+  filled from the database by `main.py`; the model only picks IDs.
+- **Search had to improve first.** Measured against the database before
+  building:
+  - it capped at 10 results (there are 27 hoodies)
+  - "tees" found 6 of 25 t-shirts
+  - "quarter zip" returned 20 items instead of 11 (it counted every
+    full-zip)
+- **Search fixes:**
+  - garment names unified ("tee" = "t-shirt", "1-4 zip" = "quarter-zip")
+  - all words must match, falling back to partial matches labeled as
+    `matched_on: "some words"`
+  - garment words must appear in the name or garment type
+  - optional `max_price` and `in_stock_size` filters
+  - the cap raised to 40, and `find_products` now also returns
+    `matched_on` and `total_found`
+
+  After the fixes: hoodies 27/27, tees 25/25, quarter-zips 11/11,
+  jackets 8/8.
+- **Frontend:**
+  - the chat navigates to `/products?q=<label>&ids=...`
+  - the Products page shows a "Results from chat" heading, a count, and
+    "Show all products"
+  - cards remember where they were opened from, so the single-item page
+    shows "← Back to results"
+  - keeping results in the URL means reloads and the Back button keep the
+    filter
+- **`prompt.md`** gained a "Showing products on the page" section:
+  - browsing → every relevant match plus a label, with a short reply
+    (count + 1–3 highlights)
+  - specific question → no label
+- **Verified against the database:**
+  - "show me hoodies" → exactly the 27 hoodie-type products (the P2
+    reference chat had said 8)
+  - "crewnecks under $60 in stock in medium" → exactly the 21 matching
+    products
+  - Saybrook → 3
+  - a specific price question left the page at 102
+  - "hats" → none
+  - a filtered card opens its page, and "Back to results" plus the browser
+    Back button both return to the filter
+  - a results URL with a fake ID skips it
+  - "Show all products" → 102
+- **Testing note:** another session's Lecture 11 servers were using ports
+  8000 and 5173, so the HW4 preview ran on 8010/5183. `vite.config.ts`
+  now accepts `HW4_BACKEND` for that case; the defaults are unchanged.
+- `output/harness.md` gained section 7 (API contract table, step-by-step
+  flow diagram from chat to page to single item, when the page changes vs.
+  doesn't, verified tests). Sections 3, 5, and 6 were updated.

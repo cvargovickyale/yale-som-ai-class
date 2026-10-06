@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
-import { formatPrice, sendBored, sendChat } from '../api'
+import { Link, useNavigate } from 'react-router-dom'
+import { formatPrice, resultsUrl, sendBored, sendChat } from '../api'
 import type { ProductSummary } from '../types'
 
 interface Message {
   role: 'user' | 'assistant'
   content: string
   products?: ProductSummary[]
+  resultsLink?: { label: string; url: string } // search replies: link to the filtered page
 }
 
 const GREETING: Message = {
@@ -26,6 +27,7 @@ export default function ChatWidget() {
   const [sending, setSending] = useState(false)
   const [boredStreak, setBoredStreak] = useState(0)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -55,7 +57,15 @@ export default function ChatWidget() {
     setSending(true)
     try {
       const res = await sendChat(text)
-      setMessages((m) => [...m, { role: 'assistant', content: res.reply, products: res.products }])
+      if (res.results_label && res.products.length > 0) {
+        // Search: filter the Products page to exactly these cards.
+        const url = resultsUrl(res.results_label, res.products.map((p) => p.product_id))
+        setMessages((m) => [...m, { role: 'assistant', content: res.reply, resultsLink: { label: res.results_label!, url } }])
+        navigate(url)
+      } else {
+        // Answer about specific products: small cards in the chat, page unchanged.
+        setMessages((m) => [...m, { role: 'assistant', content: res.reply, products: res.products }])
+      }
     } catch (err) {
       const reason = err instanceof Error ? err.message : 'unknown error'
       setMessages((m) => [...m, { role: 'assistant', content: `*whimpers* Couldn't reach the store (${reason}).` }])
@@ -84,6 +94,11 @@ export default function ChatWidget() {
         {messages.map((m, i) => (
           <div key={i} className={`chat-msg ${m.role}`}>
             {m.content}
+            {m.resultsLink && (
+              <Link className="chat-results-link" to={m.resultsLink.url}>
+                View “{m.resultsLink.label}” on the page →
+              </Link>
+            )}
             {m.products && m.products.length > 0 && (
               <ul className="chat-products">
                 {m.products.map((p) => (

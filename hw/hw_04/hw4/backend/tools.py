@@ -5,7 +5,7 @@ description) must come from a tool here, which reads the database. The model
 never answers those from memory (see prompts/prompt.md, "Honesty rules").
 
 Three tools, one question each:
-  find_products     shopper's words -> matching product IDs (+ price, total stock)
+  find_products     shopper's words (+ optional price/size filters) -> matching products
   get_product_info  product ID      -> description, colors, price
   check_stock       product IDs     -> live stock per size, with a clear status
 
@@ -24,7 +24,7 @@ from datetime import datetime, timezone
 
 from pydantic_ai import ModelRetry, RunContext
 
-from models import AgentDeps, ProductInfo, ProductMatch, SizeStatus, StockReport
+from models import AgentDeps, ProductInfo, ProductMatch, SearchResults, SizeStatus, StockReport
 
 SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"]
 SIZE_ALIASES = {
@@ -36,8 +36,8 @@ SIZE_ALIASES = {
     "xxl": "XXL", "2xl": "XXL", "xx-large": "XXL", "xxlarge": "XXL", "2x": "XXL",
     "double xl": "XXL", "extra extra large": "XXL",
 }
-MAX_SEARCH_RESULTS = 10
-MAX_STOCK_PRODUCTS = 10
+MAX_SEARCH_RESULTS = 40  # enough for a whole category (27 hoodies) on the page
+MAX_STOCK_PRODUCTS = 20
 
 STOPWORDS = {
     "a", "an", "the", "and", "or", "for", "with", "in", "of", "to", "do", "you",
@@ -59,9 +59,38 @@ def normalize_size(raw: str) -> str:
     return SIZE_ALIASES.get(key, raw.strip().upper())
 
 
+# Garment names written several ways collapse to one search word, applied to
+# both the shopper's words and the product text (P7). Without this, "tees"
+# missed most t-shirts and "quarter zip" also matched every full-zip.
+PHRASES = [
+    (r"\b(?:quarter|1/4|1 4|1-4)[\s-]*zip\w*", "quarterzip"),
+    (r"\bfull[\s-]*zip\w*", "fullzip"),
+    (r"\bt[\s-]?shirts?\b|\btees?\b", "tshirt"),
+    (r"\bcrew[\s-]?necks?\b", "crewneck"),
+    (r"\bmock[\s-]?necks?\b", "mockneck"),
+    (r"\bsweat[\s-]?shirts?\b", "sweatshirt"),
+    (r"\bhoodies?\b|\bhoody\b|\bhooded\b", "hoodie"),
+    (r"\blong[\s-]?sleeves?\b", "longsleeve"),
+    (r"\bshort[\s-]?sleeves?\b", "shortsleeve"),
+]
+
+
 def _words(text: str) -> set[str]:
-    """Whole words, lowercased, with simple plurals trimmed (hoodies -> hoodie)."""
-    return {w[:-1] if len(w) > 3 and w.endswith("s") else w for w in re.findall(r"[a-z0-9]+", text.lower())}
+    """Whole words, lowercased, garment phrases unified, simple plurals trimmed."""
+    text = text.lower()
+    for pattern, word in PHRASES:
+        text = re.sub(pattern, f" {word} ", text)
+    return {w[:-1] if len(w) > 3 and w.endswith("s") else w for w in re.findall(r"[a-z0-9]+", text)}
+
+
+# Garment words must appear in the product's name or garment type, not just
+# its description — otherwise "crewneck" also finds t-shirts described as
+# having a "crew-neck collar".
+GARMENT_WORDS = {
+    "hoodie", "tshirt", "crewneck", "mockneck", "quarterzip", "fullzip", "sweatshirt",
+    "jacket", "fleece", "pullover", "bomber", "longsleeve", "shortsleeve", "shirt",
+    "hat", "cap", "beanie", "scarf",
+}
 
 
 def _terms(query: str) -> list[str]:
@@ -79,54 +108,80 @@ def _require_products(conn: sqlite3.Connection, product_ids: list[str]) -> dict[
     return found
 
 
-def find_products(ctx: RunContext[AgentDeps], query: str) -> list[ProductMatch]:
-    """Search the catalogue with the shopper's own words.
+def find_products(
+    ctx: RunContext[AgentDeps],
+    query: str,
+    max_price: float | None = None,
+    in_stock_size: str | None = None,
+) -> SearchResults:
+    """Search the catalogue with the shopper's own words, optionally filtered.
 
-    Use this first whenever the shopper names or describes a product
-    (e.g. "Yale Mom hoodie", "navy crewneck", "Saybrook t-shirt"), to get the
-    real product_id before calling get_product_info or check_stock.
+    Use this first whenever the shopper names, describes, or browses products
+    ("Yale Mom hoodie", "hoodies", "navy crewnecks under $60", "Saybrook
+    gear"), to get real product_ids.
 
-    Matches words against product name, garment type, description, colors,
-    and tags. Returns up to 10 best matches with price and total units in
-    stock across all sizes. An empty list means nothing matched; say so,
-    don't guess.
+    Matching: a product matches if ALL the search words appear in its name,
+    garment type, description, colors, or tags. If nothing matches all words,
+    products matching SOME words are returned instead and `matched_on` says
+    "some words"; treat those as loose matches. Garment names are understood
+    in common forms (tee/t-shirt, hoodie/hooded, quarter-zip/1-4 zip).
 
     Args:
-        query: The shopper's words describing what they want.
+        query: The shopper's words, e.g. "hoodies" or "navy crewneck".
+        max_price: Only products at or below this price.
+        in_stock_size: Only products with this size in stock right now
+            ("medium", "M", "xl" all work).
     """
     terms = _terms(query)
-    if not terms:
-        return []
+    size = normalize_size(in_stock_size) if in_stock_size else None
     with closing(open_db(ctx)) as conn:
         rows = conn.execute(
             """SELECT c.product_id, c.name, c.garment_type, c.price,
-                      lower(c.name || ' ' || c.garment_type || ' ' || c.description || ' ' ||
-                            c.colors || ' ' || c.search_tags) AS haystack,
-                      lower(c.name) AS lname,
-                      COALESCE(SUM(i.quantity), 0) AS total_stock
+                      c.name || ' ' || c.garment_type || ' ' || c.description || ' ' ||
+                          c.colors || ' ' || c.search_tags AS haystack,
+                      c.name || ' ' || c.garment_type AS title,
+                      COALESCE(SUM(i.quantity), 0) AS total_stock,
+                      COALESCE(SUM(CASE WHEN i.size = ? THEN i.quantity END), 0) AS size_stock
                FROM catalogue c LEFT JOIN inventory i ON i.product_id = c.product_id
-               GROUP BY c.product_id"""
+               GROUP BY c.product_id""",
+            (size,),
         ).fetchall()
 
-    scored = []
-    for r in rows:
-        hay, name = _words(r["haystack"]), _words(r["lname"])
-        hits = sum(1 for t in terms if t in hay)
-        if hits == 0:
-            continue
-        name_hits = sum(1 for t in terms if t in name)
-        scored.append((hits, name_hits, r))
-    scored.sort(key=lambda x: (-x[0], -x[1], x[2]["name"]))
-    return [
-        ProductMatch(
-            product_id=r["product_id"],
-            name=r["name"],
-            garment_type=r["garment_type"],
-            price=r["price"],
-            total_stock=r["total_stock"],
-        )
-        for _, _, r in scored[:MAX_SEARCH_RESULTS]
+    candidates = [
+        r for r in rows
+        if (max_price is None or r["price"] <= max_price) and (size is None or r["size_stock"] > 0)
     ]
+    if not terms:  # e.g. "anything under $40" — filters only
+        scored = [(0, 0, r) for r in candidates]
+        matched_on = "filters only"
+    else:
+        scored = []
+        for r in candidates:
+            hay, title, name = _words(r["haystack"]), _words(r["title"]), _words(r["name"])
+            hits = sum(1 for t in terms if t in (title if t in GARMENT_WORDS else hay))
+            if hits:
+                scored.append((hits, sum(1 for t in terms if t in name), r))
+        all_words = [x for x in scored if x[0] == len(terms)]
+        if all_words:
+            scored, matched_on = all_words, "all words"
+        else:
+            matched_on = "some words" if scored else "nothing"
+    scored.sort(key=lambda x: (-x[0], -x[1], x[2]["name"]))
+
+    return SearchResults(
+        matched_on=matched_on,
+        total_found=len(scored),
+        products=[
+            ProductMatch(
+                product_id=r["product_id"],
+                name=r["name"],
+                garment_type=r["garment_type"],
+                price=r["price"],
+                total_stock=r["total_stock"],
+            )
+            for _, _, r in scored[:MAX_SEARCH_RESULTS]
+        ],
+    )
 
 
 def get_product_info(ctx: RunContext[AgentDeps], product_id: str) -> ProductInfo:
@@ -157,7 +212,7 @@ def check_stock(
 
     Use this for ANY question about availability: "is it in stock?", "do you
     have a medium?", "which sizes are left?". Pass several product_ids at once
-    to compare (max 10). If the shopper named a size, pass it as `size`
+    to compare (max 20). If the shopper named a size, pass it as `size`
     ("medium", "M", "xl" are all fine) and read `requested_size_status`:
       - "in stock": quantity > 0 right now
       - "sold out": the product comes in that size, but none are left

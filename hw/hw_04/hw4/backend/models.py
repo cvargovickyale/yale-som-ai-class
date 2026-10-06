@@ -82,12 +82,21 @@ class ChatRequest(BaseModel):
 
 
 class ChatResponse(BaseModel):
-    """What /api/chat sends the website: the agent's reply plus the products
-    it refers to. Product details are looked up from the database by
-    main.py, never taken from the model's text."""
+    """What /api/chat sends the website (the chat API contract).
+
+    - `reply`: the agent's message for the chat panel.
+    - `products`: product cards the reply is about, in the agent's order.
+      Every field is looked up from the database by main.py, never taken
+      from the model's text.
+    - `results_label`: set when the shopper was browsing/searching (e.g.
+      "Hoodies"). The website then filters the Products page to exactly
+      `products` under that heading. Null means "answer only": the cards
+      stay in the chat panel and the page doesn't change.
+    """
 
     reply: str
     products: list[ProductSummary] = []
+    results_label: str | None = None
 
 
 # --------------------------------------------------------------------------
@@ -119,6 +128,16 @@ class ProductMatch(BaseModel):
     garment_type: str
     price: float
     total_stock: int
+
+
+class SearchResults(BaseModel):
+    """find_products: the matches plus how they were matched."""
+
+    matched_on: Literal["all words", "some words", "filters only", "nothing"] = Field(
+        description="'some words' means no product matched every word; treat results as loose."
+    )
+    total_found: int = Field(description="How many products matched (products is capped at 40).")
+    products: list[ProductMatch]
 
 
 class ProductInfo(BaseModel):
@@ -160,5 +179,11 @@ class AgentReply(BaseModel):
     product_ids: list[str] = Field(
         default_factory=list,
         description="Catalogue product_ids from tool results that the reply is about, "
-        "in the order mentioned. Empty if no tool returned products.",
+        "in the order to display them. Empty if no tool returned products.",
+    )
+    results_label: str | None = Field(
+        default=None,
+        description="Short heading like 'Hoodies' or 'Saybrook gear in Large' when the shopper "
+        "is browsing or searching and product_ids should be shown on the page as search "
+        "results. Null when answering about one or two specific products.",
     )

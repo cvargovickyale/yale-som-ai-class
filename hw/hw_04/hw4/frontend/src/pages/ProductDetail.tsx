@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { formatPrice, getProduct } from '../api'
 import type { ProductDetail as Product } from '../types'
 
 export default function ProductDetail() {
   const { productId = '' } = useParams()
+  // Opened from a filtered results view? Link back to it instead of the full list.
+  const from = (useLocation().state as { from?: string } | null)?.from
+  const backTo = from?.startsWith('/products?') ? from : '/products'
   // Tag each result with the id it was fetched for, so navigating to another
   // product shows "Loading…" instead of the previous item.
   const [result, setResult] = useState<{ id: string; product?: Product; error?: string } | null>(null)
@@ -21,8 +24,8 @@ export default function ProductDetail() {
 
   return (
     <>
-      <Link to="/products" className="back-link">
-        ← All products
+      <Link to={backTo} className="back-link">
+        {backTo === '/products' ? '← All products' : '← Back to results'}
       </Link>
       <article className="detail">
         <div className="detail-image">

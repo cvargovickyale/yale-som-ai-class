@@ -304,7 +304,7 @@ def me(user: UserOut = Depends(get_current_user)):
 # Chat — the website's chat panel POSTs {"message": ...} here
 # --------------------------------------------------------------------------
 
-MAX_CHAT_PRODUCTS = 8
+MAX_CHAT_PRODUCTS = 40  # a whole category, e.g. all 27 hoodies
 
 
 def lookup_products(product_ids: list[str]) -> list[ProductSummary]:
@@ -356,7 +356,10 @@ async def chat(body: ChatRequest, user: UserOut | None = Depends(get_optional_us
     except Exception:
         log.exception("Agent run failed")
         raise HTTPException(status_code=502, detail="The shopping assistant hit a snag. Please try again.")
-    return ChatResponse(reply=out.reply, products=lookup_products(out.product_ids))
+    products = lookup_products(out.product_ids)
+    # Only filter the page when there's something to show.
+    label = out.results_label.strip() if out.results_label and products else None
+    return ChatResponse(reply=out.reply, products=products, results_label=label)
 
 
 # The bulldog's idle behavior from P4: no AI call, just a random dog action
