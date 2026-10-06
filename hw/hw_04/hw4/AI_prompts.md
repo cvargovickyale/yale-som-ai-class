@@ -786,3 +786,37 @@ these features in app check are useful
   check in `output/app_check.html` (shopper and business value). Re-verified
   the page at 1280, 840, and 375 px: no sideways scroll, no overlap, all
   images load.
+
+## Problem 13 — Push to GitHub and submit the URL
+
+**Prompt:** alright p13. you've already seen it
+
+**Notes:**
+
+- **Public repo:** https://github.com/cvargovickyale/campus-customs-hw4
+  (the name was confirmed before anything was published). The repo root
+  contains only `hw4/`, matching the required layout; 47 files, 2 MB.
+- **Pre-flight before publishing:**
+  - every file in the required tree is present
+  - no `.env`, database, product images, `data/`, `node_modules`, or
+    `.venv`
+  - the real API key appears in zero files, and `.env.example` has
+    placeholders only
+  - I masked one real person's email that my own harness test table had
+    quoted
+- **How it's published:** `hw/hw_04/publish_hw4.sh` (in my private
+  workspace, not the public repo) exports only the files git tracks in
+  `hw4/`, refuses to publish if it finds `.env`, a database, `data/`,
+  `node_modules`, or `.venv`, then commits and pushes. It can be rerun for
+  any later fix.
+- **Grader test on a fresh clone:**
+  - cloned the public repo into an empty folder and placed the data pack
+  - followed the README: new venv + `pip install -r requirements.txt`,
+    `npm ci`, `uvicorn main:app --reload` from `backend/`, `vite`
+  - results through the website: 102 products in 6 categories, images
+    served, correct per-size stock, test-user login and its 6 saved
+    messages, Handsome Dan answering a stock question (8 in Medium) and a
+    hoodie search (27 cards), the audit trail appending (12 → 14), the
+    one-time database column added, no backend errors
+  - test servers stopped afterward
+- **Submission:** I submit the repo URL on Canvas myself.

@@ -65,7 +65,7 @@ reach it.
 | P10 | Style the website | Visual design based on yalebulldogblue.com. ⚠ May conflict with the workspace Gateway 2000 default; the assignment wins, so decide with Christopher. | `frontend/`, `output/design.md` (likely) |
 | P11 | Site testing (app check) | ✅ 3 checks (chat inventory, chat search cards, Find your fit picker) with screenshots + DB proof | `output/app_check.html`, `output/app_check_images/` ✅ |
 | P12 | Audit trail, safety, finish harness | ✅ append-only audit from real message history; HW3-inspired safety rules in prompt.md; harness finalized (sections 0–13) | `output/audit_trail.json`, `output/harness.md`, `agent.py`, `models.py`, `prompt.md` ✅ |
-| P13 | Push to GitHub, submit URL | Create the public repo, push `hw4/`, verify a fresh clone has no secrets, DB, or images. Christopher submits on Canvas. | README final, repo |
+| P13 | Push to GitHub, submit URL | ✅ Public repo https://github.com/cvargovickyale/campus-customs-hw4 (root = `hw4/` only); fresh-clone grader test passed. Republish after any fix: `hw/hw_04/publish_hw4.sh "message"` (local clone at `../campus-customs-hw4`). Christopher submits the URL on Canvas. | repo |
 
 ## Decisions (resolve when we reach each problem)
 
