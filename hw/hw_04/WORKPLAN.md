@@ -64,7 +64,7 @@ reach it.
 | P9 | Usability improvements | 2 front-end (product popup, category tabs) ✅ + 2 agent/backend (chat rate limit; one database read per fact per message, with freshness guards) ✅ | `frontend/`, `backend/main.py`, `output/usability.md` ✅ confirmed |
 | P10 | Style the website | Visual design based on yalebulldogblue.com. ⚠ May conflict with the workspace Gateway 2000 default; the assignment wins, so decide with Christopher. | `frontend/`, `output/design.md` (likely) |
 | P11 | Site testing (app check) | ✅ 3 checks (chat inventory, chat search cards, Find your fit picker) with screenshots + DB proof | `output/app_check.html`, `output/app_check_images/` ✅ |
-| P12 | Audit trail, safety, finish harness | Audit trail built from real message history (HW3 pattern), safety rules and limits, consolidated harness doc. | `output/audit_trail.json`, `output/harness.md`, `agent.py` |
+| P12 | Audit trail, safety, finish harness | ✅ append-only audit from real message history; HW3-inspired safety rules in prompt.md; harness finalized (sections 0–13) | `output/audit_trail.json`, `output/harness.md`, `agent.py`, `models.py`, `prompt.md` ✅ |
 | P13 | Push to GitHub, submit URL | Create the public repo, push `hw4/`, verify a fresh clone has no secrets, DB, or images. Christopher submits on Canvas. | README final, repo |
 
 ## Decisions (resolve when we reach each problem)

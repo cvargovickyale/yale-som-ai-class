@@ -14,3 +14,6 @@ dist/
 __pycache__/
 *.pyc
 .DS_Store
+
+# Audit trail temp file (written then atomically renamed)
+*.json.tmp

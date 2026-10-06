@@ -715,3 +715,67 @@ it's obvious
   - **Why the P10 mobile check missed it:** it measured sideways overflow
     at 375 and 1280 px only, never vertical overlap, and never the mid
     widths where the bug lived.
+
+## Problem 12 — Audit trail, safety, finish harness
+
+**Prompt:** p12: output/audit_trail.json needs to have agent-loop activity
+(tool name time short arguments result stop reason) don't wipe it between
+runs. reference hw3 safety rules as inspiration and put them in
+prompts/prompt.md. at the end, finish ouput/harness.md to be clear about
+how the system works. models.py shows fields and why we chose them, tools,
+abilities, safety rules, specs (loop limits, result caps, models, how to run
+the frontend and backend)
+
+**Notes:**
+
+- **Audit trail** (`agent.py`, with `AuditEntry` and `AuditStep` in
+  `models.py`):
+  - one entry per chat message, built from the run's real message history
+    (the HW3 pattern; never self-reported), captured even when a run fails
+  - each tool call records its round trip, tool name, call time, duration,
+    shortened arguments, a one-line result summary, and outcome (`ok` or
+    `retry`)
+  - each entry records its stop reason (`final_result`, `usage_limit`,
+    `timeout`, `content_filter`, `model_error`, `agent_unavailable`,
+    `rate_limited`), the provider's finish reason, tokens, and database
+    queries
+  - `who` is `guest` or `user:<id>`; messages and replies are capped and
+    masked (card-like numbers, emails, "password is …")
+- **Never wiped:**
+  - append-only JSON list, atomic temp-file-then-replace writes, a lock
+  - an unreadable file is moved aside, not overwritten
+  - verified: 11 → 12 entries across a server restart with the first entry
+    unchanged, and a deliberately corrupted file was preserved aside
+- **Live runs recorded:**
+  - stock check on a product page
+  - a made-up product ID (logged as `retry`)
+  - a question about whether another person is a customer
+  - hoodie search, product description, jailbreak (`content_filter`), a
+    card number (masked), XXL stock
+  - the rate-limit refusal (`rate_limited`)
+- **Safety rules in `prompt.md`, adapted from HW3's** "photos of real
+  people" rules: use only the personal information the task needs, never
+  speculate about who someone is, never ask for, repeat, or store
+  sensitive details, other customers don't exist to the agent, and an
+  incomplete-but-safe answer is correct. Existing rules were kept and
+  grouped: can't-do (no orders or promises), staying in role, admit to
+  being an AI, no demeaning content.
+- **Found by the audit:** asked "is my friend <email> a customer?", the
+  agent refused correctly but first **searched the catalogue for the
+  person's name**. I added the rule "tools are for products, never people."
+  Retested twice: the name no longer goes to a tool (a leftover pointless
+  "Yale" search is the known small-talk habit).
+- **`output/harness.md` finalized:**
+  - new section 0 ("How the system works": diagram, one message start to
+    finish, file map) and a contents list
+  - section 5 rewritten as fields and **why** for every model
+  - new section 9 (abilities, can and can't), section 10 (safety layers
+    table, prompt rules, tested attempts), section 11 (audit trail fields,
+    a real entry, never-wiped guarantees, privacy trade-off), section 12
+    (models and versions, loop limits, result caps, rate limits, how to
+    run backend and frontend, environment variables), and section 13
+    (consolidated known limitations)
+  - all cross-references checked
+- **Open decision:** one audit entry from before the new rule contains a
+  real person's name as a tool argument. It needs a decision before the
+  public push (P13).

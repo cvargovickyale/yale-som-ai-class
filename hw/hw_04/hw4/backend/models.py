@@ -245,3 +245,58 @@ class AgentReply(BaseModel):
         "is browsing or searching and product_ids should be shown on the page as search "
         "results. Null when answering about one or two specific products.",
     )
+
+
+# --------------------------------------------------------------------------
+# Audit trail (P12): one AuditEntry per chat message, appended to
+# output/audit_trail.json and never overwritten. Built by agent.py from the
+# agent's actual message history, not from the model describing itself.
+# --------------------------------------------------------------------------
+
+StopReason = Literal[
+    "final_result",  # the agent returned its structured answer (normal)
+    "usage_limit",  # hit the per-message request / tool-call limit
+    "timeout",  # took longer than the per-message time limit
+    "content_filter",  # the AI provider's safety filter blocked the message
+    "model_error",  # any other error from the model or a tool
+    "agent_unavailable",  # no API key configured, so the agent never ran
+    "rate_limited",  # refused before any AI call (too many messages)
+]
+
+
+class AuditStep(BaseModel):
+    """One tool call inside the agent loop."""
+
+    round_trip: int = Field(description="Which model request (1, 2, …) asked for this tool.")
+    tool: str
+    called_at: str = Field(description="UTC time the model's request for the tool arrived.")
+    duration_ms: int | None = Field(default=None, description="Tool run time, from request to result.")
+    args: dict = Field(description="Arguments, shortened: long lists show the first few + a count.")
+    result: str = Field(description="Short human-readable summary of what the tool returned.")
+    outcome: Literal["ok", "retry"] = Field(
+        description="'retry' = the tool rejected the call (e.g. an unknown product ID) and asked the model to fix it."
+    )
+
+
+class AuditEntry(BaseModel):
+    """One chat message's complete run, successful or not."""
+
+    run_id: str = Field(description="Short unique ID for matching this entry to the server log.")
+    started_at: str
+    duration_ms: int
+    who: str = Field(description="'guest' or 'user:<id>'. Never a name or email.")
+    page: str = Field(description="What was on screen, e.g. 'product:yale-mom-hoodie'.")
+    message: str = Field(description="The shopper's message, first 200 characters, sensitive details masked.")
+    model: str
+    steps: list[AuditStep] = Field(default_factory=list)
+    stop_reason: StopReason
+    finish_reason: str | None = Field(default=None, description="The provider's own reason on the last model response.")
+    model_round_trips: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
+    db_queries: int = Field(default=0, description="Database queries the tools ran (see MessageLookups).")
+    db_reused: int = Field(default=0, description="Tool requests answered from this message's lookup record.")
+    reply: str = Field(default="", description="The reply shown, first 200 characters.")
+    products_returned: int = 0
+    results_label: str | None = None
+    error: str | None = Field(default=None, description="Short error description when stop_reason isn't final_result.")

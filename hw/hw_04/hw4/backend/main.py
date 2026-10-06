@@ -43,7 +43,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.staticfiles import StaticFiles
 from pydantic_ai.exceptions import ModelHTTPError
 
-from agent import AgentUnavailable, run_agent
+from agent import AgentUnavailable, is_content_filter, record_rate_limited, run_agent
 from tools import clean_description
 from models import (
     AgentDeps,
@@ -561,14 +561,8 @@ CONTENT_FILTER_REPLY = (
 )
 
 
-def _is_content_filter(exc: ModelHTTPError) -> bool:
-    body = exc.body if isinstance(exc.body, dict) else {}
-    return body.get("code") == "content_filter" or "content_filter" in str(exc.body)
-
-
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(request: Request, body: ChatRequest, user: UserOut | None = Depends(get_optional_user)):
-    enforce_chat_rate_limit(request, user)  # before any AI cost
     deps = AgentDeps(
         db_path=DB_PATH,
         user_id=user.id if user else None,
@@ -577,6 +571,11 @@ async def chat(request: Request, body: ChatRequest, user: UserOut | None = Depen
         email=user.email if user else None,
         page=build_page_view(body.page_path),
     )
+    try:
+        enforce_chat_rate_limit(request, user)  # before any AI cost
+    except HTTPException:
+        record_rate_limited(body.message, deps)  # blocked messages are audited too
+        raise
     history = load_history(user.id, HISTORY_FOR_AGENT) if user else []  # guests: no memory
     try:
         out, usage = await run_agent(body.message, deps, history)
@@ -594,7 +593,7 @@ async def chat(request: Request, body: ChatRequest, user: UserOut | None = Depen
     except AgentUnavailable as exc:
         raise HTTPException(status_code=503, detail=f"The shopping assistant is offline: {exc}")
     except ModelHTTPError as exc:
-        if not _is_content_filter(exc):
+        if not is_content_filter(exc):
             log.exception("Agent run failed")
             raise HTTPException(status_code=502, detail="The shopping assistant hit a snag. Please try again.")
         # The AI provider's own safety filter blocked the message before the
