@@ -406,3 +406,12 @@ sure you can prove which one said what."
     *CoS translation:* layered controls are a feature. Design for each
     layer to fail gracefully instead of trying to get around the one in
     your way.
+
+11. **A measurement can be right and the diagnosis still wrong.** "74 of
+    102 photos have dark edges" was accurate, but my first reading of it
+    ("black backgrounds, so give them black frames") wasn't. A second, more
+    specific measurement (how wide is the dark area, and where?) showed
+    they were normal product shots boxed in black borders. The right fix
+    was to trim the borders, not frame them. *CoS translation:* a correct
+    number can support the wrong story. Before acting on a metric, ask
+    what else would produce the same number.
