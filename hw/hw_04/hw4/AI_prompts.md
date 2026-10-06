@@ -702,3 +702,16 @@ it's obvious
   Find your fit figure"**, covering what was added, why, the shopper and
   business benefits, how to see it, how it's built, and new verification
   rows for the hover and click. The at-a-glance table was updated too.
+- **Bug I reported after P11 (home page photos overlapping the text):**
+  - **Cause:** in the one-column layout (under 860 px wide) the hero
+    collage box had a fixed 300 px height, but its photo cards are sized as
+    a % of the width. At 840 px each card was 437 px tall, spilled 38 px up
+    over the text, and covered both buttons.
+  - **Fix:** the collage box is now sized by shape (`aspect-ratio: 4 / 3`,
+    max 560 px wide), so the cards and their box always scale together.
+  - **Verified at 7 widths** (375, 600, 760, 840, 880, 1024, 1440 px): no
+    text overlap, no covered buttons, nothing spilling into the next
+    section.
+  - **Why the P10 mobile check missed it:** it measured sideways overflow
+    at 375 and 1280 px only, never vertical overlap, and never the mid
+    widths where the bug lived.

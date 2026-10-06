@@ -415,3 +415,11 @@ sure you can prove which one said what."
     was to trim the borders, not frame them. *CoS translation:* a correct
     number can support the wrong story. Before acting on a metric, ask
     what else would produce the same number.
+
+12. **A passing check only covers what it measures.** The P10 mobile test
+    passed ("no horizontal overflow at 375 px and 1280 px"), and
+    Christopher still found the home page photos covering the headline. The
+    check measured the wrong failure (sideways overflow, not overlap) at
+    the wrong sizes (the bug lived around 760–860 px). *CoS translation:*
+    when a test says "pass," ask what it actually looked at. A green
+    dashboard is a statement about its own coverage, not about the product.
