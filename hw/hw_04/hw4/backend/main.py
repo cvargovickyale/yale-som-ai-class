@@ -44,6 +44,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic_ai.exceptions import ModelHTTPError
 
 from agent import AgentUnavailable, run_agent
+from tools import clean_description
 from models import (
     AgentDeps,
     AuthResponse,
@@ -172,7 +173,7 @@ def to_summary(row: sqlite3.Row) -> ProductSummary:
         name=row["name"],
         garment_type=row["garment_type"],
         price=row["price"],
-        short_description=short_description(row["description"]),
+        short_description=short_description(clean_description(row["description"])),
         image_url=image_url(row["image_file_path"]),
         total_stock=row["total_stock"],
         category=category_for(row["garment_type"]),
@@ -216,7 +217,7 @@ def get_product(product_id: str):
     )
     return ProductDetail(
         **to_summary(row).model_dump(),
-        description=row["description"],
+        description=clean_description(row["description"]),
         colors=json.loads(row["colors"]),
         search_tags=json.loads(row["search_tags"]),
         sizes=sizes,

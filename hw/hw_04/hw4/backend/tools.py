@@ -54,6 +54,18 @@ STOPWORDS = {
 }
 
 
+# Three products in the provided catalogue have a placeholder instead of a
+# description ("... Vision blocked; filename-based stub."). Never show that to
+# shoppers or let the agent quote it; the database itself is left unchanged.
+PLACEHOLDER_DESCRIPTION = re.compile(r"vision blocked|filename-based stub", re.IGNORECASE)
+NO_DESCRIPTION = "Description coming soon."
+
+
+def clean_description(text: str) -> str:
+    """The real description, or NO_DESCRIPTION if the catalogue has a placeholder."""
+    return NO_DESCRIPTION if PLACEHOLDER_DESCRIPTION.search(text or "") else text
+
+
 def open_db(ctx: RunContext[AgentDeps]) -> sqlite3.Connection:
     """Read-only connection for tools; the agent can never write to the database."""
     conn = sqlite3.connect(f"{ctx.deps.db_path.as_uri()}?mode=ro", uri=True)
@@ -196,7 +208,9 @@ def find_products(
         rows.append(
             {
                 **r,
-                "haystack": " ".join([r["name"], r["garment_type"], r["description"], r["colors"], r["search_tags"]]),
+                "haystack": " ".join(
+                    [r["name"], r["garment_type"], clean_description(r["description"]), r["colors"], r["search_tags"]]
+                ),
                 "title": f"{r['name']} {r['garment_type']}",
                 "total_stock": sum(q for _, q in stock),
                 "size_stock": sum(q for s_, q in stock if s_ == size),
@@ -256,7 +270,7 @@ def get_product_info(ctx: RunContext[AgentDeps], product_id: str) -> ProductInfo
         product_id=row["product_id"],
         name=row["name"],
         garment_type=row["garment_type"],
-        description=row["description"],
+        description=clean_description(row["description"]),
         colors=json.loads(row["colors"]),
         price=row["price"],
     )
