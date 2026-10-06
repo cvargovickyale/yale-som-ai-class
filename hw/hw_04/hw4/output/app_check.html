@@ -28,7 +28,15 @@
   .db { margin: 0; padding: 0.6rem 0.8rem; background: var(--paper); border-left: 3px solid var(--yale); border-radius: 4px; font-size: 0.9rem; }
   code { font: 0.85em ui-monospace, Menlo, Consolas, monospace; background: #eef1f5; padding: 0.05rem 0.3rem; border-radius: 4px; }
   .note { color: var(--muted); font-size: 0.9rem; }
+  .table-wrap { overflow-x: auto; }
   @media (max-width: 760px) { .pair { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) {
+    main { padding: 1rem; }
+    .check { padding: 1rem; }
+    table { font-size: 0.82rem; }
+    th, td { padding: 0.45rem 0.4rem; }
+    .db code { word-break: break-all; }
+  }
 </style>
 </head>
 <body>
@@ -39,12 +47,14 @@
 
 <main>
   <h2>Summary</h2>
+  <div class="table-wrap">
   <table>
     <tr><th>#</th><th>Check</th><th>What the screenshot shows</th><th>Database</th><th>Result</th></tr>
     <tr><td>1</td><td>Chat checks an item's inventory from the database</td><td>Handsome Dan: "8 Yale Mom Hoodies in Medium"</td><td>M = 8</td><td class="pass">✓ Pass</td></tr>
     <tr><td>2</td><td>A category question in chat makes search-result cards appear</td><td>"show me hoodies" → page shows "Hoodies · 27 items of 102"</td><td>27 hoodie-type products</td><td class="pass">✓ Pass</td></tr>
     <tr><td>3</td><td>Usability feature: "Find your fit" body-part picker</td><td>Chest hovered (Yale blue) → Crewnecks tab, 29 cards</td><td>29 crewneck-type products</td><td class="pass">✓ Pass</td></tr>
   </table>
+  </div>
   <p class="note">
     How these were captured: the app ran locally exactly as the README describes (backend
     <code>uvicorn main:app --reload --port 8000</code>, website <code>npm run dev</code> on port 5173). It was
