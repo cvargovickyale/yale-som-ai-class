@@ -310,6 +310,18 @@ one message can make at most 6 model requests, and nobody can send more
 than these rates. Counts are in memory (they reset on restart). Details are
 in `output/usability.md`.
 
+### Per-message cost line (P9)
+
+After each chat message the backend prints one line, e.g.:
+
+```
+INFO:     [campus_customs] chat guest: 2 model round trips, 6804 input / 88 output tokens, 2 DB queries (0 reused from this message)
+```
+
+It makes the cost of every answer visible while the app runs: round trips
+and tokens from PydanticAI's usage counters, database queries from the
+per-message lookup record (section 6). The full audit trail is P12.
+
 ### What the agent remembers
 
 Logged-in customers: their last 20 saved messages, across visits (section

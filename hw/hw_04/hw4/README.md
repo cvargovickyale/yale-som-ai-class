@@ -59,6 +59,30 @@ the backend on port 8000, so start the backend first. (If the backend runs
 on another port, start the frontend with
 `HW4_BACKEND=http://127.0.0.1:<port> npm run dev`.)
 
+## Try the features
+
+With both servers running, open http://localhost:5173:
+
+1. **Browse by category.** Products page → tabs across the top (Hoodies,
+   T-Shirts, …).
+2. **Product popup.** Click any product. It opens over the page you were
+   on; Esc, ×, or a click on the gray area closes it back to the same spot.
+3. **Chat search.** Click "🐶 Chat with us" and ask "show me hoodies". The
+   Products page filters to the matching cards.
+4. **Page-aware answers.** Open a product and ask the chat "is this in stock
+   in medium?" or "do you have this in blue?"
+5. **Accounts and memory.** Log in with `test@campuscustoms.yale.edu` /
+   `password` (or create an account). Your chat is saved and reloads next
+   time, under an "Earlier chat · prices may have changed" divider.
+6. **Rate limit.** As a guest, send 6 chat messages within a minute. The
+   6th is politely refused ("Try again in N seconds") without calling the
+   AI.
+7. **Cost visibility.** Each chat message prints one line in the backend
+   terminal: model round trips, tokens, and database queries.
+
+Details for each improvement: `output/usability.md`. How everything works:
+`output/harness.md`.
+
 ## Project layout
 
 ```

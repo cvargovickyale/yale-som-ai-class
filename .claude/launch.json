@@ -40,26 +40,20 @@
         "--reload-dir",
         "hw/hw_04/hw4/backend",
         "--port",
-        "8010"
+        "8000"
       ],
-      "port": 8010
+      "port": 8000
     },
     {
       "name": "hw4-frontend",
-      "runtimeExecutable": "env",
+      "runtimeExecutable": "npm",
       "runtimeArgs": [
-        "HW4_BACKEND=http://127.0.0.1:8010",
-        "npm",
         "--prefix",
         "hw/hw_04/hw4/frontend",
         "run",
-        "dev",
-        "--",
-        "--port",
-        "5183",
-        "--strictPort"
+        "dev"
       ],
-      "port": 5183
+      "port": 5173
     }
   ]
 }

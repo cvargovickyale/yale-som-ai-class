@@ -32,7 +32,7 @@ from pydantic_ai import Agent, RunContext
 from pydantic_ai.messages import ModelMessage, ModelRequest, ModelResponse, TextPart, UserPromptPart
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.openai import OpenAIProvider
-from pydantic_ai.usage import UsageLimits
+from pydantic_ai.usage import RunUsage, UsageLimits
 
 from models import AgentDeps, AgentReply
 from tools import TOOLS
@@ -155,7 +155,7 @@ def to_model_history(saved: list[dict]) -> list[ModelMessage]:
 agent = build_agent()
 
 
-async def run_agent(message: str, deps: AgentDeps, history: list[dict] | None = None) -> AgentReply:
+async def run_agent(message: str, deps: AgentDeps, history: list[dict] | None = None) -> tuple[AgentReply, RunUsage]:
     if agent is None:
         raise AgentUnavailable("PORTKEY_API_KEY is not set (see .env.example)")
     result = await asyncio.wait_for(
@@ -167,4 +167,4 @@ async def run_agent(message: str, deps: AgentDeps, history: list[dict] | None = 
         ),
         timeout=RUN_TIMEOUT_SECONDS,
     )
-    return result.output
+    return result.output, result.usage  # usage: model round trips and tokens, for the server log

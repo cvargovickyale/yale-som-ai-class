@@ -78,6 +78,12 @@ SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"]
 SHORT_DESCRIPTION_CHARS = 90
 
 log = logging.getLogger("campus_customs")
+log.setLevel(logging.INFO)
+if not log.handlers:  # print our own INFO lines next to uvicorn's request log
+    _handler = logging.StreamHandler()
+    _handler.setFormatter(logging.Formatter("%(levelname)s:     [campus_customs] %(message)s"))
+    log.addHandler(_handler)
+    log.propagate = False
 
 app = FastAPI(title="Campus Customs API", version="0.3.0")
 app.add_middleware(
@@ -572,7 +578,14 @@ async def chat(request: Request, body: ChatRequest, user: UserOut | None = Depen
     )
     history = load_history(user.id, HISTORY_FOR_AGENT) if user else []  # guests: no memory
     try:
-        out = await run_agent(body.message, deps, history)
+        out, usage = await run_agent(body.message, deps, history)
+        # One line per message so cost and database use are visible while the app runs.
+        log.info(
+            "chat %s: %d model round trips, %d input / %d output tokens, %d DB queries (%d reused from this message)",
+            f"user {user.id}" if user else "guest",
+            usage.requests, usage.input_tokens, usage.output_tokens,
+            deps.lookups.db_queries, deps.lookups.reused,
+        )
         products = lookup_products(out.product_ids)
         # Only filter the page when there's something to show.
         label = out.results_label.strip() if out.results_label and products else None
