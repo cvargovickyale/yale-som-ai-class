@@ -7,9 +7,14 @@ assistant. React + Vite + TypeScript frontend, Python FastAPI backend.
 > Status: P7. Website, product API, accounts, and a PydanticAI chat agent
 > (via Portkey) with database tools for product search, product info, and
 > live stock by size. Asking the chat for a type of item ("show me hoodies")
-> filters the Products page to the matching cards.
+> filters the Products page to the matching cards. Logged-in customers' chats
+> are saved and reload when they return; the agent knows who's chatting and
+> what page they're on ("do you have this in blue?").
 
 Seed test account: `test@campuscustoms.yale.edu` / `password`.
+
+Note: on first start the backend adds one nullable column
+(`chat_messages.results_label`) to the local database if it's missing.
 
 ## 1. Place the data pack (not in git)
 
@@ -81,7 +86,8 @@ hw4/
 | POST | `/api/auth/signup` | Create account (first/last name, email, password + confirm) → login token + user |
 | POST | `/api/auth/login` | Email + password → login token + user |
 | GET | `/api/auth/me` | The logged-in user (needs `Authorization: Bearer <token>`) |
-| POST | `/api/chat` | `{ "message": "..." }` → `{ "reply": "...", "products": [ ... ], "results_label": "Hoodies" or null }` from the agent |
+| POST | `/api/chat` | `{ "message": "...", "page_path": "/products/<id>" }` → `{ "reply": "...", "products": [ ... ], "results_label": "Hoodies" or null }` from the agent |
+| GET | `/api/chat/history` | The logged-in customer's saved chat (login required) |
 | POST | `/api/chat/bored` | The bulldog's idle action (wags tail, brings a ball) |
 
 Passwords are hashed with PBKDF2-SHA256 (120,000 iterations), the same

@@ -1,4 +1,4 @@
-import type { AuthResponse, ChatResponse, ProductDetail, ProductSummary, SignupInput, User } from './types'
+import type { AuthResponse, ChatHistoryMessage, ChatResponse, ProductDetail, ProductSummary, SignupInput, User } from './types'
 
 const TOKEN_KEY = 'cc_token'
 
@@ -40,7 +40,10 @@ export const login = (email: string, password: string) => post<AuthResponse>('/a
 export const signup = (input: SignupInput) => post<AuthResponse>('/api/auth/signup', input)
 export const getMe = () => request<User>('/api/auth/me')
 
-export const sendChat = (message: string) => post<ChatResponse>('/api/chat', { message })
+// pagePath tells the agent what's on screen (e.g. "/products/yale-mom-hoodie").
+export const sendChat = (message: string, pagePath: string) =>
+  post<ChatResponse>('/api/chat', { message, page_path: pagePath })
+export const getChatHistory = () => request<ChatHistoryMessage[]>('/api/chat/history')
 export const sendBored = () => post<ChatResponse>('/api/chat/bored')
 
 export const formatPrice = (price: number) =>

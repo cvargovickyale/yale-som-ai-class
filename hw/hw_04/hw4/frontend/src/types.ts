@@ -49,3 +49,11 @@ export interface ChatResponse {
   // to exactly `products` under this heading. Null = answer only.
   results_label: string | null
 }
+
+export interface ChatHistoryMessage {
+  role: 'user' | 'assistant'
+  content: string
+  products: ProductSummary[]
+  results_label: string | null
+  created_at: string
+}

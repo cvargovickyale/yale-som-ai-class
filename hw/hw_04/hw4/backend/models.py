@@ -79,6 +79,10 @@ class AuthResponse(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=2000)
+    # The page the shopper is on when they send the message, e.g.
+    # "/products/yale-mom-hoodie" or "/products?q=Hoodies&ids=a,b,c".
+    # Untrusted input: main.py parses and validates it against the database.
+    page_path: str | None = Field(default=None, max_length=3000)
 
 
 class ChatResponse(BaseModel):
@@ -99,21 +103,53 @@ class ChatResponse(BaseModel):
     results_label: str | None = None
 
 
+class ChatHistoryMessage(BaseModel):
+    """One saved message, as /api/chat/history returns it to the website."""
+
+    role: Literal["user", "assistant"]
+    content: str
+    products: list[ProductSummary] = []
+    results_label: str | None = None
+    created_at: str
+
+
 # --------------------------------------------------------------------------
 # Agent contract
 # --------------------------------------------------------------------------
 
 
+class ProductRef(BaseModel):
+    product_id: str
+    name: str
+
+
+class PageView(BaseModel):
+    """What the shopper is looking at, built and validated by main.py from
+    the page path the website sends (never trusted as-is)."""
+
+    kind: Literal["home", "catalogue", "search_results", "product", "about", "login", "signup", "other"]
+    product: ProductRef | None = None  # kind == "product"
+    results_label: str | None = None  # kind == "search_results"
+    result_products: list[ProductRef] = []  # kind == "search_results" (validated IDs only)
+
+
 @dataclass
 class AgentDeps:
-    """Per-request context handed to the agent and its tools.
+    """Per-message context handed to the agent and its tools ("deps").
 
-    Deliberately minimal: the agent gets the shopper's first name and a path
-    to the database. Never emails, password hashes, or login tokens.
+    Built fresh by main.py for every message. The dynamic instructions in
+    agent.py turn the customer and page fields into text for the model;
+    tools read `db_path`. Never contains passwords, hashes, or login tokens.
     """
 
     db_path: Path
+    # The logged-in customer (all None for a guest)
+    user_id: int | None = None
     first_name: str | None = None
+    last_name: str | None = None
+    email: str | None = None
+    # What's on the shopper's screen right now
+    page: PageView | None = None
 
 
 # --- What the agent's tools return (P6). Everything here comes straight

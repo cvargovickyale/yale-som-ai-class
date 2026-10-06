@@ -22,11 +22,13 @@ import json
 import logging
 import os
 import random
+import re
 import secrets
 import sqlite3
 from contextlib import closing
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 import jwt
 from dotenv import load_dotenv
@@ -42,10 +44,13 @@ from agent import AgentUnavailable, run_agent
 from models import (
     AgentDeps,
     AuthResponse,
+    ChatHistoryMessage,
     ChatRequest,
     ChatResponse,
     LoginRequest,
+    PageView,
     ProductDetail,
+    ProductRef,
     ProductSummary,
     SignupRequest,
     SizeStock,
@@ -301,7 +306,7 @@ def me(user: UserOut = Depends(get_current_user)):
 
 
 # --------------------------------------------------------------------------
-# Chat — the website's chat panel POSTs {"message": ...} here
+# Chat — the website's chat panel POSTs {"message": ..., "page_path": ...} here
 # --------------------------------------------------------------------------
 
 MAX_CHAT_PRODUCTS = 40  # a whole category, e.g. all 27 hoodies
@@ -325,6 +330,119 @@ def lookup_products(product_ids: list[str]) -> list[ProductSummary]:
     return [by_id[i] for i in ids if i in by_id]
 
 
+# --- Page context: the website sends the page path; we work out what's on
+# --- screen and validate every ID against the database (never trust the URL).
+
+STATIC_PAGES = {"/": "home", "/about": "about", "/login": "login", "/signup": "signup"}
+MAX_LABEL_CHARS = 60
+
+
+def product_refs(product_ids: list[str]) -> list[ProductRef]:
+    return [ProductRef(product_id=p.product_id, name=p.name) for p in lookup_products(product_ids)]
+
+
+def build_page_view(page_path: str | None) -> PageView | None:
+    if not page_path:
+        return None
+    url = urlsplit(page_path)
+    path = url.path.rstrip("/") or "/"
+    if path in STATIC_PAGES:
+        return PageView(kind=STATIC_PAGES[path])
+    if path == "/products":
+        query = parse_qs(url.query)
+        ids = [i for i in query.get("ids", [""])[0].split(",") if i]
+        if not ids:
+            return PageView(kind="catalogue")
+        label = re.sub(r"[^\w $&'.,()-]", "", query.get("q", [""])[0])[:MAX_LABEL_CHARS].strip()
+        return PageView(kind="search_results", results_label=label or None, result_products=product_refs(ids))
+    if path.startswith("/products/"):
+        refs = product_refs([path.removeprefix("/products/")])
+        return PageView(kind="product", product=refs[0]) if refs else PageView(kind="other")
+    return PageView(kind="other")
+
+
+# --- Chat history: logged-in customers only, in the chat_messages table.
+
+HISTORY_FOR_AGENT = 20  # most recent messages sent to the model as context
+HISTORY_FOR_PAGE = 50  # most recent messages shown when the chat panel reloads
+
+
+def ensure_chat_schema() -> None:
+    """Add a nullable results_label column to chat_messages if it's missing.
+
+    Additive only: existing rows and columns are untouched. It lets a reloaded
+    search reply keep its "View 'Hoodies' on the page" link.
+    """
+    with closing(get_write_connection()) as conn:
+        cols = {r["name"] for r in conn.execute("PRAGMA table_info(chat_messages)")}
+        if "results_label" not in cols:
+            conn.execute("ALTER TABLE chat_messages ADD COLUMN results_label TEXT")
+            conn.commit()
+
+
+ensure_chat_schema()
+
+
+def _saved_ids(products_json: str | None) -> list[str]:
+    """product_ids from a saved products_json (also reads the seed data's format)."""
+    try:
+        items = json.loads(products_json or "[]")
+    except json.JSONDecodeError:
+        return []
+    return [i["product_id"] for i in items if isinstance(i, dict) and i.get("product_id")]
+
+
+def load_history(user_id: int, limit: int) -> list[dict]:
+    with closing(get_connection()) as conn:
+        rows = conn.execute(
+            """SELECT role, content, products_json, results_label, created_at FROM (
+                   SELECT * FROM chat_messages WHERE user_id = ? ORDER BY id DESC LIMIT ?
+               ) ORDER BY id""",
+            (user_id, limit),
+        ).fetchall()
+    return [
+        {
+            "role": r["role"],
+            "content": r["content"],
+            "product_ids": _saved_ids(r["products_json"]),
+            "results_label": r["results_label"],
+            "created_at": r["created_at"],
+        }
+        for r in rows
+    ]
+
+
+def save_exchange(user_id: int, message: str, response: ChatResponse) -> None:
+    """Save the shopper's message and the reply together (one transaction)."""
+    products_json = json.dumps([p.model_dump() for p in response.products])
+    with closing(get_write_connection()) as conn:
+        conn.execute(
+            "INSERT INTO chat_messages (user_id, role, content) VALUES (?, 'user', ?)", (user_id, message)
+        )
+        conn.execute(
+            "INSERT INTO chat_messages (user_id, role, content, products_json, results_label) "
+            "VALUES (?, 'assistant', ?, ?, ?)",
+            (user_id, response.reply, products_json, response.results_label),
+        )
+        conn.commit()
+
+
+@app.get("/api/chat/history", response_model=list[ChatHistoryMessage])
+def chat_history(user: UserOut = Depends(get_current_user)):
+    """The logged-in customer's saved chat, oldest first. Product cards are
+    re-read from the database, so prices and stock are current."""
+    return [
+        ChatHistoryMessage(
+            role=m["role"],
+            content=m["content"],
+            products=lookup_products(m["product_ids"]),
+            results_label=m["results_label"],
+            created_at=m["created_at"],
+        )
+        for m in load_history(user.id, HISTORY_FOR_PAGE)
+    ]
+
+
 CONTENT_FILTER_REPLY = (
     "Woof… I can't help with that one. I'm here for Campus Customs gear, sizing, "
     "and the shop. What can I help you find?"
@@ -338,9 +456,21 @@ def _is_content_filter(exc: ModelHTTPError) -> bool:
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(body: ChatRequest, user: UserOut | None = Depends(get_optional_user)):
-    deps = AgentDeps(db_path=DB_PATH, first_name=user.first_name if user else None)
+    deps = AgentDeps(
+        db_path=DB_PATH,
+        user_id=user.id if user else None,
+        first_name=user.first_name if user else None,
+        last_name=user.last_name if user else None,
+        email=user.email if user else None,
+        page=build_page_view(body.page_path),
+    )
+    history = load_history(user.id, HISTORY_FOR_AGENT) if user else []  # guests: no memory
     try:
-        out = await run_agent(body.message, deps)
+        out = await run_agent(body.message, deps, history)
+        products = lookup_products(out.product_ids)
+        # Only filter the page when there's something to show.
+        label = out.results_label.strip() if out.results_label and products else None
+        response = ChatResponse(reply=out.reply, products=products, results_label=label)
     except AgentUnavailable as exc:
         raise HTTPException(status_code=503, detail=f"The shopping assistant is offline: {exc}")
     except ModelHTTPError as exc:
@@ -350,16 +480,16 @@ async def chat(body: ChatRequest, user: UserOut | None = Depends(get_optional_us
         # The AI provider's own safety filter blocked the message before the
         # model saw it (e.g. a jailbreak attempt). Answer politely in character.
         log.warning("Provider content filter blocked a chat message")
-        return ChatResponse(reply=CONTENT_FILTER_REPLY, products=[])
+        response = ChatResponse(reply=CONTENT_FILTER_REPLY, products=[])
     except asyncio.TimeoutError:
         raise HTTPException(status_code=504, detail="The shopping assistant took too long. Please try again.")
     except Exception:
         log.exception("Agent run failed")
         raise HTTPException(status_code=502, detail="The shopping assistant hit a snag. Please try again.")
-    products = lookup_products(out.product_ids)
-    # Only filter the page when there's something to show.
-    label = out.results_label.strip() if out.results_label and products else None
-    return ChatResponse(reply=out.reply, products=products, results_label=label)
+
+    if user:
+        save_exchange(user.id, body.message, response)
+    return response
 
 
 # The bulldog's idle behavior from P4: no AI call, just a random dog action

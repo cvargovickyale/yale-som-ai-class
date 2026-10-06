@@ -370,3 +370,73 @@ results reach the frontend
 - `output/harness.md` gained section 7 (API contract table, step-by-step
   flow diagram from chat to page to single item, when the page changes vs.
   doesn't, verified tests). Sections 3, 5, and 6 were updated.
+
+## Problem 8 — Customer memory
+
+**Prompt:** p8 we need to save each user who is logged in's chat history in
+the db and reload it when they return. agent needs to have who is chatting
+by name and emial and have that in agent deps (what's deps) and or tools
+that can be called by the agent. agent needs to have page context so it can
+respond to questions about what's on the page. put dynamic code in the agent
+context (that's the prompt.md file, right?) so it can respond to questions
+like "do you have this in blue"
+
+Guests can chat without saved history. then show in harness.md how we store
+the user chat history in db, the customer fields the agent sees, and how the
+agent gets this page context through the dynamic code
+
+**Notes:**
+
+- **Answers to my questions:**
+  - **Deps** = a per-message Python object (`AgentDeps`) that `main.py`
+    builds and hands to the agent and its tools: the database path, the
+    customer, and the page. It isn't prompt text.
+  - **Dynamic code is not `prompt.md`.** `prompt.md` is static (the same
+    rules every message). The dynamic part is `dynamic_context()` in
+    `agent.py`, which writes "who you're talking to" and "what's on their
+    screen" from the deps for each message. PydanticAI sends both
+    together. No new tool was needed; deps covered it.
+- **History:**
+  - logged-in exchanges are saved to `chat_messages` (one transaction per
+    message and reply)
+  - the agent gets the last 20 messages as conversation history, with a
+    `[Products shown: …]` note on assistant turns
+  - `GET /api/chat/history` reloads the panel at login, with products
+    re-read from the database
+  - guests are never saved; guests get 401 from the history route
+  - an additive nullable `results_label` column, created at startup if
+    missing, keeps saved search links working
+- **Customer in deps:** `user_id`, first and last name, and email. No
+  passwords, hashes, tokens, or other customers. `prompt.md` now allows
+  telling customers their own account email if they ask.
+- **Page context:**
+  - the chat sends `page_path` with each message
+  - `main.py` turns it into a validated `PageView` (home / catalogue /
+    search results / product page / …), checking every ID against the
+    database, dropping fake IDs, and cleaning and capping the label
+  - `prompt.md` gained a "Customer and page context" section ("this" on a
+    product page = that product; "those" on results = the on-screen list)
+- **Bug found and fixed:** the agent refused to tell Woody his own email
+  even though it was in the context. The cause was that **the server was
+  still running the old `prompt.md`**: `uvicorn --reload` only restarts on
+  `.py` changes, and the prompt was read once at startup. `agent.py` now
+  re-reads `prompt.md` for every message, so prompt edits apply
+  immediately. Retested: own email shared, another customer's refused, a
+  guest told they're a guest.
+- **Verified:**
+  - guest "do you have this in blue?" on the Champion crewneck page →
+    "light gray with navy blue lettering, isn't a blue sweatshirt," with no
+    rows saved
+  - Woody "which of those come in XXL?" on the hoodie results → 23, exactly
+    matching the database
+  - "is this available in a medium?" on the Yale Mom Hoodie page → 8,
+    matching the page
+  - recall of earlier topics across visits
+  - login reloads 16 saved messages plus "Welcome back"; logout resets
+  - the seed test user's 6 messages reload
+  - a tampered page URL is cleaned
+- `output/harness.md` section 8 covers deps vs. prompt vs. dynamic
+  instructions, the history storage table with write and read paths, the
+  customer fields the agent sees, the page-context flow with a real
+  example of the generated instructions, the verified tests, and known
+  limits. Sections 1–5 and 9 were updated to match.

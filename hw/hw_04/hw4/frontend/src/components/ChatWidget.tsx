@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { formatPrice, resultsUrl, sendBored, sendChat } from '../api'
-import type { ProductSummary } from '../types'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { formatPrice, getChatHistory, resultsUrl, sendBored, sendChat } from '../api'
+import { useAuth } from '../auth'
+import type { ChatHistoryMessage, ProductSummary } from '../types'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -13,6 +14,15 @@ interface Message {
 const GREETING: Message = {
   role: 'assistant',
   content: "Woof! 🐶 I'm the Campus Customs bulldog. Ask me about Yale gear, sizes, or the shop.",
+}
+
+// Saved messages (logged-in customers) render like live ones, minus navigation.
+function fromHistory(m: ChatHistoryMessage): Message {
+  if (m.role === 'assistant' && m.results_label && m.products.length > 0) {
+    const url = resultsUrl(m.results_label, m.products.map((p) => p.product_id))
+    return { role: 'assistant', content: m.content, resultsLink: { label: m.results_label, url } }
+  }
+  return { role: m.role, content: m.content, products: m.products }
 }
 
 // The bulldog gets bored if you go quiet: after BORED_AFTER_MS it wags its
@@ -28,6 +38,31 @@ export default function ChatWidget() {
   const [boredStreak, setBoredStreak] = useState(0)
   const bottomRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
+  const location = useLocation()
+  const { user, ready } = useAuth()
+
+  // Logged in: reload saved history. Logged out / guest: start fresh.
+  useEffect(() => {
+    if (!ready) return
+    let cancelled = false
+    const reset = () => setMessages([GREETING])
+    if (!user) {
+      reset()
+      return
+    }
+    getChatHistory()
+      .then((saved) => {
+        if (cancelled) return
+        const welcome: Message = saved.length
+          ? { role: 'assistant', content: `Woof! Welcome back, ${user.first_name}. Here's our chat so far.` }
+          : { role: 'assistant', content: `Woof! Hi ${user.first_name} 🐶 Ask me about Yale gear, sizes, or the shop.` }
+        setMessages(saved.length ? [...saved.map(fromHistory), welcome] : [welcome])
+      })
+      .catch(reset)
+    return () => {
+      cancelled = true
+    }
+  }, [user, ready])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -56,7 +91,7 @@ export default function ChatWidget() {
     setBoredStreak(0)
     setSending(true)
     try {
-      const res = await sendChat(text)
+      const res = await sendChat(text, location.pathname + location.search)
       if (res.results_label && res.products.length > 0) {
         // Search: filter the Products page to exactly these cards.
         const url = resultsUrl(res.results_label, res.products.map((p) => p.product_id))
@@ -85,7 +120,10 @@ export default function ChatWidget() {
   return (
     <section className="chat-panel" aria-label="Chat with Campus Customs">
       <header className="chat-header">
-        <span>Campus Customs Bulldog</span>
+        <span>
+          Campus Customs Bulldog
+          <small className="chat-saved">{user ? 'Chat saved to your account' : 'Guest chat · not saved'}</small>
+        </span>
         <button className="chat-close" onClick={() => setOpen(false)} aria-label="Close chat">
           ×
         </button>

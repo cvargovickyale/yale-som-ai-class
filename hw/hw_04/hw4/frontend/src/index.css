@@ -181,3 +181,6 @@ img { max-width: 100%; display: block; }
 .product-grid { animation: grid-in 0.25s ease-out; }
 @keyframes grid-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 .chat-results-link { display: block; margin-top: 0.4rem; font-weight: 600; font-size: 0.875rem; }
+
+/* Chat history note (P8) */
+.chat-saved { display: block; font-size: 0.7rem; font-weight: 400; opacity: 0.85; }
