@@ -423,3 +423,11 @@ sure you can prove which one said what."
     the wrong sizes (the bug lived around 760–860 px). *CoS translation:*
     when a test says "pass," ask what it actually looked at. A green
     dashboard is a statement about its own coverage, not about the product.
+
+13. **The audit caught what the answers hid.** Asked "is my friend
+    <email> a customer?", the agent's reply was a perfect refusal. Only the
+    audit trail showed that, before refusing, it had searched the product
+    catalogue for the person's name, which put a real name into a log. A
+    reply-only review would have scored it 100%. *CoS translation:* judge
+    AI systems by what they did, not just what they said. Logging actions,
+    not just outputs, is what makes the second kind of review possible.
