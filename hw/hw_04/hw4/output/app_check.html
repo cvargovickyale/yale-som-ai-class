@@ -24,7 +24,7 @@
   figure img { width: 100%; height: auto; display: block; border: 1px solid var(--line); border-radius: 8px; }
   figcaption { font-size: 0.85rem; color: var(--muted); margin-top: 0.4rem; }
   .pair { display: grid; grid-template-columns: 3fr 1fr; gap: 1rem; align-items: start; }
-  .proves { margin: 0 0 0.6rem; }
+  .proves, .useful { margin: 0 0 0.6rem; }
   .db { margin: 0; padding: 0.6rem 0.8rem; background: var(--paper); border-left: 3px solid var(--yale); border-radius: 4px; font-size: 0.9rem; }
   code { font: 0.85em ui-monospace, Menlo, Consolas, monospace; background: #eef1f5; padding: 0.05rem 0.3rem; border-radius: 4px; }
   .note { color: var(--muted); font-size: 0.9rem; }
@@ -73,6 +73,9 @@
     <p class="proves"><strong>What this proves:</strong> the agent looked up live stock with its <code>check_stock</code> tool
       and answered "8 in Medium." That matches the product's own size grid on screen (M · 8 in stock). It also
       knew which product "you" meant from the page the shopper was on.</p>
+    <p class="useful"><strong>Why it's useful:</strong> shoppers get a fast, trustworthy answer without reading
+      a size grid, and the store never promises stock it doesn't have, which means fewer disappointed customers
+      and cancelled orders.</p>
     <p class="db"><strong>Database:</strong> <code>SELECT quantity FROM inventory WHERE product_id='yale-mom-hoodie' AND size='M'</code> → <strong>8</strong> ✓</p>
   </section>
 
@@ -87,6 +90,9 @@
       "Hoodies"), and the website rendered them as cards (image, name, price, short description) under "Results
       from chat · Hoodies · 27 items of 102." The chat reply gives the count and a few highlights rather than
       listing all 27.</p>
+    <p class="useful"><strong>Why it's useful:</strong> one plain-English question replaces scrolling through
+      102 products, and every match shows up with its photo and price, one click from its page. The cards come
+      from the database, so the prices on screen are always the real ones.</p>
     <p class="db"><strong>Database:</strong> <code>SELECT COUNT(*) FROM catalogue WHERE garment_type LIKE '%hood%'</code> → <strong>27</strong>, the same 27 products shown ✓</p>
   </section>
 
@@ -107,6 +113,8 @@
       reading a menu. Hovering the chest turns it Yale blue and names it ("Chest → Crewnecks · 29"); tapping it
       filtered the page to the 29 crewnecks, with the matching tab and legend highlighted. It's built on the
       same category selection as the tabs, so the two always agree.</p>
+    <p class="useful"><strong>Why it's useful:</strong> it's the quickest way to say "something with a hood":
+      no typing, no waiting, and no AI cost. It also makes the shop memorable and a little fun to browse.</p>
     <p class="db"><strong>Database:</strong> products whose <code>garment_type</code> maps to Crewnecks (crewneck, raglan, mockneck) → <strong>29</strong> ✓</p>
   </section>
 

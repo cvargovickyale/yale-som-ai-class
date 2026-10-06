@@ -726,6 +726,9 @@ how the system works. models.py shows fields and why we chose them, tools,
 abilities, safety rules, specs (loop limits, result caps, models, how to run
 the frontend and backend)
 
+**Follow-up prompt used:** 3. and add a few words/few short sentences on why
+these features in app check are useful
+
 **Notes:**
 
 - **Audit trail** (`agent.py`, with `AuditEntry` and `AuditStep` in
@@ -776,6 +779,10 @@ the frontend and backend)
     run backend and frontend, environment variables), and section 13
     (consolidated known limitations)
   - all cross-references checked
-- **Open decision:** one audit entry from before the new rule contains a
-  real person's name as a tool argument. It needs a decision before the
-  public push (P13).
+- **Decision (mine):** the one audit entry from before the new rule, which
+  contains a real person's name as a tool argument, is **left as is**. The
+  audit stays exactly as recorded.
+- **Also added from my follow-up:** a short "Why it's useful" line for each
+  check in `output/app_check.html` (shopper and business value). Re-verified
+  the page at 1280, 840, and 375 px: no sideways scroll, no overlap, all
+  images load.
