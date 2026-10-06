@@ -12,6 +12,13 @@ Three tools, one question each:
 All tools open the database read-only, so the agent can never change it.
 The function docstrings below are what the model reads to decide when and
 how to call each tool.
+
+Per-message lookups (P9): every read goes through ctx.deps.lookups, a record
+created fresh for each chat message. A product's catalogue row (price
+included) and its stock are read from the database at most once per
+message; repeat requests in the same message are answered from the record.
+The next message starts with an empty record, so nothing is ever reused
+across messages, and every number in one reply comes from one snapshot.
 """
 
 from __future__ import annotations
@@ -19,6 +26,7 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+from collections import defaultdict
 from contextlib import closing
 from datetime import datetime, timezone
 
@@ -97,15 +105,58 @@ def _terms(query: str) -> list[str]:
     return sorted(_words(query) - STOPWORDS)
 
 
-def _require_products(conn: sqlite3.Connection, product_ids: list[str]) -> dict[str, sqlite3.Row]:
-    marks = ",".join("?" * len(product_ids))
-    rows = conn.execute(f"SELECT * FROM catalogue WHERE product_id IN ({marks})", product_ids).fetchall()
-    found = {r["product_id"]: r for r in rows}
-    missing = [pid for pid in product_ids if pid not in found]
-    if missing:
+def _mark_read(ctx: RunContext[AgentDeps], queries: int) -> None:
+    lookups = ctx.deps.lookups
+    lookups.db_queries += queries
+    lookups.read_at = lookups.read_at or datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def _load_everything(ctx: RunContext[AgentDeps]) -> None:
+    """Search needs every product: read catalogue + inventory once per message."""
+    lookups = ctx.deps.lookups
+    if lookups.complete:
+        lookups.reused += 1
+        return
+    with closing(open_db(ctx)) as conn:
+        catalogue = conn.execute("SELECT * FROM catalogue").fetchall()
+        inventory = conn.execute("SELECT product_id, size, quantity FROM inventory").fetchall()
+    _mark_read(ctx, 2)
+    stock: dict[str, list[tuple[str, int]]] = defaultdict(list)
+    for r in inventory:
+        stock[r["product_id"]].append((r["size"], r["quantity"]))
+    for r in catalogue:
+        # setdefault: anything already read earlier in this message wins, so
+        # one reply never mixes two different readings of the same product.
+        lookups.products.setdefault(r["product_id"], dict(r))
+        lookups.stock.setdefault(r["product_id"], stock.get(r["product_id"], []))
+    lookups.complete = True
+
+
+def _products(ctx: RunContext[AgentDeps], product_ids: list[str]) -> dict[str, dict]:
+    """Catalogue rows for these IDs: from this message's record, else one query."""
+    lookups = ctx.deps.lookups
+    missing = [pid for pid in product_ids if pid not in lookups.products]
+    if missing and not lookups.complete:
+        marks = ",".join("?" * len(missing))
+        with closing(open_db(ctx)) as conn:
+            rows = conn.execute(f"SELECT * FROM catalogue WHERE product_id IN ({marks})", missing).fetchall()
+            inv = conn.execute(
+                f"SELECT product_id, size, quantity FROM inventory WHERE product_id IN ({marks})", missing
+            ).fetchall()
+        _mark_read(ctx, 2)
+        stock: dict[str, list[tuple[str, int]]] = defaultdict(list)
+        for r in inv:
+            stock[r["product_id"]].append((r["size"], r["quantity"]))
+        for r in rows:
+            lookups.products.setdefault(r["product_id"], dict(r))
+            lookups.stock.setdefault(r["product_id"], stock.get(r["product_id"], []))
+    elif not missing:
+        lookups.reused += 1
+    unknown = [pid for pid in product_ids if pid not in lookups.products]
+    if unknown:
         # Sent back to the model so it can correct itself instead of guessing.
-        raise ModelRetry(f"Unknown product_id(s): {missing}. Use find_products to get real IDs.")
-    return found
+        raise ModelRetry(f"Unknown product_id(s): {unknown}. Use find_products to get real IDs.")
+    return {pid: lookups.products[pid] for pid in product_ids}
 
 
 def find_products(
@@ -118,7 +169,10 @@ def find_products(
 
     Use this first whenever the shopper names, describes, or browses products
     ("Yale Mom hoodie", "hoodies", "navy crewnecks under $60", "Saybrook
-    gear"), to get real product_ids.
+    gear"), to get real product_ids. Not for greetings or small talk: if no
+    product is mentioned, don't call this. Each result's `price` and `total_stock`
+    are live from the database: enough to answer "how much is X?" or "what
+    do you have?" with no further call.
 
     Matching: a product matches if ALL the search words appear in its name,
     garment type, description, colors, or tags. If nothing matches all words,
@@ -134,18 +188,20 @@ def find_products(
     """
     terms = _terms(query)
     size = normalize_size(in_stock_size) if in_stock_size else None
-    with closing(open_db(ctx)) as conn:
-        rows = conn.execute(
-            """SELECT c.product_id, c.name, c.garment_type, c.price,
-                      c.name || ' ' || c.garment_type || ' ' || c.description || ' ' ||
-                          c.colors || ' ' || c.search_tags AS haystack,
-                      c.name || ' ' || c.garment_type AS title,
-                      COALESCE(SUM(i.quantity), 0) AS total_stock,
-                      COALESCE(SUM(CASE WHEN i.size = ? THEN i.quantity END), 0) AS size_stock
-               FROM catalogue c LEFT JOIN inventory i ON i.product_id = c.product_id
-               GROUP BY c.product_id""",
-            (size,),
-        ).fetchall()
+    _load_everything(ctx)
+    lookups = ctx.deps.lookups
+    rows = []
+    for pid, r in lookups.products.items():
+        stock = lookups.stock.get(pid, [])
+        rows.append(
+            {
+                **r,
+                "haystack": " ".join([r["name"], r["garment_type"], r["description"], r["colors"], r["search_tags"]]),
+                "title": f"{r['name']} {r['garment_type']}",
+                "total_stock": sum(q for _, q in stock),
+                "size_stock": sum(q for s_, q in stock if s_ == size),
+            }
+        )
 
     candidates = [
         r for r in rows
@@ -187,14 +243,15 @@ def find_products(
 def get_product_info(ctx: RunContext[AgentDeps], product_id: str) -> ProductInfo:
     """Get the catalogue facts for one product: full description, colors, and price.
 
-    Use this before describing a product or quoting its price. Does NOT include
-    stock; use check_stock for that.
+    Use this for a product's description or colors. Don't call it just for
+    the price if find_products already returned that product in this
+    message; that price is the same database value. Does NOT include stock;
+    use check_stock for that.
 
     Args:
         product_id: An exact product_id from find_products.
     """
-    with closing(open_db(ctx)) as conn:
-        row = _require_products(conn, [product_id])[product_id]
+    row = _products(ctx, [product_id])[product_id]
     return ProductInfo(
         product_id=row["product_id"],
         name=row["name"],
@@ -228,20 +285,16 @@ def check_stock(
     if len(ids) > MAX_STOCK_PRODUCTS:
         raise ModelRetry(f"Check at most {MAX_STOCK_PRODUCTS} products at a time.")
     wanted = normalize_size(size) if size else None
-    checked_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    products = _products(ctx, ids)  # also loads their stock into this message's record
+    checked_at = ctx.deps.lookups.read_at or datetime.now(timezone.utc).isoformat(timespec="seconds")
 
-    with closing(open_db(ctx)) as conn:
-        products = _require_products(conn, ids)
-        marks = ",".join("?" * len(ids))
-        stock_rows = conn.execute(
-            f"SELECT product_id, size, quantity FROM inventory WHERE product_id IN ({marks})", ids
-        ).fetchall()
-
-    by_product: dict[str, list[SizeStatus]] = {pid: [] for pid in ids}
-    for s in stock_rows:
-        by_product[s["product_id"]].append(
-            SizeStatus(size=s["size"], quantity=s["quantity"], status="in stock" if s["quantity"] > 0 else "sold out")
-        )
+    by_product: dict[str, list[SizeStatus]] = {
+        pid: [
+            SizeStatus(size=size_, quantity=qty, status="in stock" if qty > 0 else "sold out")
+            for size_, qty in ctx.deps.lookups.stock.get(pid, [])
+        ]
+        for pid in ids
+    }
 
     reports = []
     for pid in ids:

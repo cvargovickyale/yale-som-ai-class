@@ -5,7 +5,7 @@ import { useAuth } from '../auth'
 import type { ChatHistoryMessage, ProductSummary } from '../types'
 
 interface Message {
-  role: 'user' | 'assistant'
+  role: 'user' | 'assistant' | 'divider'
   content: string
   products?: ProductSummary[]
   resultsLink?: { label: string; url: string } // search replies: link to the filtered page
@@ -14,6 +14,22 @@ interface Message {
 const GREETING: Message = {
   role: 'assistant',
   content: "Woof! 🐶 I'm the Campus Customs bulldog. Ask me about Yale gear, sizes, or the shop.",
+}
+
+// A divider before each day of reloaded history, so old prices and stock in
+// past replies read as old. (The cards under them are re-read and current.)
+function withDayDividers(saved: ChatHistoryMessage[]): Message[] {
+  const out: Message[] = []
+  let lastDay = ''
+  for (const m of saved) {
+    const day = new Date(m.created_at.replace(' ', 'T') + 'Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    if (day !== lastDay) {
+      out.push({ role: 'divider', content: `Earlier chat · ${day} · prices and stock may have changed since` })
+      lastDay = day
+    }
+    out.push(fromHistory(m))
+  }
+  return out
 }
 
 // Saved messages (logged-in customers) render like live ones, minus navigation.
@@ -56,7 +72,7 @@ export default function ChatWidget() {
         const welcome: Message = saved.length
           ? { role: 'assistant', content: `Woof! Welcome back, ${user.first_name}. Here's our chat so far.` }
           : { role: 'assistant', content: `Woof! Hi ${user.first_name} 🐶 Ask me about Yale gear, sizes, or the shop.` }
-        setMessages(saved.length ? [...saved.map(fromHistory), welcome] : [welcome])
+        setMessages(saved.length ? [...withDayDividers(saved), welcome] : [welcome])
       })
       .catch(reset)
     return () => {
@@ -133,7 +149,12 @@ export default function ChatWidget() {
         </button>
       </header>
       <div className="chat-messages">
-        {messages.map((m, i) => (
+        {messages.map((m, i) =>
+          m.role === 'divider' ? (
+            <div key={i} className="chat-divider">
+              {m.content}
+            </div>
+          ) : (
           <div key={i} className={`chat-msg ${m.role}`}>
             {m.content}
             {m.resultsLink && (
@@ -155,7 +176,8 @@ export default function ChatWidget() {
               </ul>
             )}
           </div>
-        ))}
+          ),
+        )}
         {sending && <div className="chat-msg assistant typing">…</div>}
         <div ref={bottomRef} />
       </div>

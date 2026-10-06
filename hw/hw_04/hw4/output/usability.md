@@ -144,20 +144,87 @@ and the idle tail-wag (no AI) are never limited.
   Being fast doesn't mean being free, which is the case for limiting by
   count.
 
-## Agent/backend improvement 2: *to choose*
+## Agent/backend improvement 2: one database read per fact, per message ✅
 
-Remaining candidates, ranked:
+**Problem.** The agent made the same database lookup twice in one answer.
+For "How much is the Yale Mom hoodie?" it searched (which already returned
+the live price), then fetched the product again just to read the same
+price: an extra model round trip that re-sent all ~3,000 tokens of
+instructions. Even "hi" triggered a catalogue search. Requirement set by
+Christopher: the same price may be read from the database **only once per
+message**, and freshness must never be traded away. A returning customer
+must never get yesterday's price.
 
-1. **Fewer model round trips.** Biggest win for both time and tokens (see
-   the baseline above; even a plain "hi" took 2 round trips because the
-   agent ran a pointless catalogue search first).
-2. **A token budget for instructions and history.** A shorter prompt;
-   history capped by size rather than message count; and the provider's
-   prompt caching for the unchanging first part of the instructions.
-3. **Don't block the server on database calls.** The chat handler runs
+**Change, in two layers:**
+
+1. **Enforced in code: a per-message lookup record** (`MessageLookups`,
+   inside `AgentDeps`). `main.py` creates a new, empty one for every chat
+   message. Every tool reads through it. A product's catalogue row (price
+   included) and its stock are read from the database at most once per
+   message; any repeat request in that message is answered from the record.
+   The next message starts empty, so nothing is reused across messages.
+   Bonus: every number in one reply comes from one consistent snapshot.
+2. **Guided by the prompt and tool descriptions:**
+   - search results already carry the live price, so price questions can
+     answer right away
+   - `get_product_info` is only for description or colors, and
+     `check_stock` only for per-size availability
+   - no tool for greetings or small talk
+   - "Using your tools" was rewritten tighter, so the prompt stayed about
+     the same length (9,153 vs. 9,038 characters)
+
+**Freshness guards (so "fewer lookups" never means "older data"):**
+- The prompt says only lookups made *while answering the current message*
+  count. Earlier messages, including the agent's own past replies, are
+  never evidence for a price or stock count.
+- Each saved reply in the agent's history is labeled with its time and
+  "any price or stock in it may be out of date; look it up again."
+- In the chat panel, reloaded history starts with a divider: "Earlier chat
+  · Oct 6 · prices and stock may have changed since." Product cards under
+  old replies were already re-read from the database.
+
+**Before → after** (same messages, live `gpt-5.6-luna`):
+
+| Message | Round trips | Input tokens | Time | Database reads |
+|---|---|---|---|---|
+| "How much is the Yale Mom hoodie?" | 3 → **2** | 9,311 → **6,290 (−32%)** | 6.4 s → **3.4 s** | search + a second read of the same row → **one read** |
+| "hi" | 2 → **1** | 8,412 → **3,115 (−63%)** | — | a pointless search → **none** |
+| "is this in stock in small?" (product page) | 2 → 2 | 6,298 → 6,484 | 3.8 s → 3.6 s | one |
+| "show me hoodies" | 2 → 2 | 7,133 → 7,319 | 3.9 s → 4.1 s | one |
+| Woody "show me t-shirts" (9 saved replies) | 2 → 2 | 8,949 → 9,981 | 4.9 s → 4.3 s | one |
+
+The ~190-token rise on already-efficient messages is the new rules. The
+~1,000-token rise for Woody is the time-stamp labels on his 9 saved replies:
+a deliberate cost of the freshness guard.
+
+**Acceptance test: no stale prices.** On a test copy of the database the
+Yale Mom Hoodie was changed to **$74.00** with Medium **sold out**, while
+Woody's real saved history still said "$68.00" and "8 available." Six runs:
+
+| Question (asked twice each) | Answer, both times |
+|---|---|
+| "How much was the Yale Mom hoodie again?" | "$74.00 right now" |
+| "Is it still available in medium?" | "sold out in Medium right now" (one database read for search + stock) |
+| "You told me $68 earlier, right? Just confirm that price." | "I checked just now: … $74.00, not $68.00." |
+
+6 of 6 fresh; 0 stale.
+
+**Known limit.** Skipping the search on small talk is up to the model, and
+it doesn't always comply. "hi" now skips it, but "hello!", "thanks," and
+"where is your store?" still sometimes run one pointless search (2 round
+trips, about 8,000 tokens, still one database read). Fixing that reliably
+would take a code-level shortcut for obvious small talk rather than more
+prompt wording.
+
+## Agent/backend: other candidates (not built)
+
+1. **A token budget for instructions and history.** History capped by size
+   rather than message count; the provider's prompt caching for the
+   unchanging first part of the instructions.
+2. **Don't block the server on database calls.** The chat handler runs
    SQLite queries directly inside an async function, so under many
    simultaneous shoppers one slow query stalls everyone.
-4. **Indexed search.** `find_products` scans every product in Python on
-   each call. That's fine at 102 products, slow at 100,000 (SQLite FTS5).
-5. **Lighter pages.** The website downloads the full product list on every
+3. **Indexed search.** Search loads the whole catalogue once per message.
+   That's fine at 102 products, slow at 100,000 (SQLite FTS5).
+4. **Lighter pages.** The website downloads the full product list on every
    visit to Home or Products, and serves full-size images.

@@ -61,7 +61,7 @@ reach it.
 | P6 | Tools: product info and stock | DB-backed tools so price and stock answers come from SQLite, never from the model's memory. | `tools.py`, `models.py`, `agent.py` |
 | P7 | Chat search that updates the page | Agent returns matching `product_id`s; frontend filters or highlights the grid. Chat panel UI plus a `/chat` endpoint. | `tools.py`, `models.py`, `main.py`, `frontend/` |
 | P8 | Customer memory | Per-user chat history (the DB already has a `chat_messages` table with a `products_json` column) fed back into the agent. | `main.py`, `agent.py`, `frontend/` |
-| P9 | Usability improvements | 2 front-end (product popup, category tabs) ✅ + 2 agent/backend (Christopher choosing from the measured list in usability.md) | `frontend/`, `backend/main.py`, `output/usability.md` ✅ confirmed |
+| P9 | Usability improvements | 2 front-end (product popup, category tabs) ✅ + 2 agent/backend (chat rate limit; one database read per fact per message, with freshness guards) ✅ | `frontend/`, `backend/main.py`, `output/usability.md` ✅ confirmed |
 | P10 | Style the website | Visual design based on yalebulldogblue.com. ⚠ May conflict with the workspace Gateway 2000 default; the assignment wins, so decide with Christopher. | `frontend/`, `output/design.md` (likely) |
 | P11 | Site testing (app check) | Drive the running site, take screenshots, write an HTML report. | `output/app_check.html`, `output/app_check_images/` |
 | P12 | Audit trail, safety, finish harness | Audit trail built from real message history (HW3 pattern), safety rules and limits, consolidated harness doc. | `output/audit_trail.json`, `output/harness.md`, `agent.py` |

@@ -239,3 +239,6 @@ img { max-width: 100%; display: block; }
   .modal-backdrop { padding: 0.75rem; }
   .modal { padding: 1.25rem; max-height: calc(100vh - 1.5rem); }
 }
+
+/* P9: divider above reloaded (older) chat messages */
+.chat-divider { align-self: stretch; text-align: center; font-size: 0.72rem; color: var(--muted); border-top: 1px solid var(--border); padding-top: 0.35rem; margin-top: 0.25rem; }

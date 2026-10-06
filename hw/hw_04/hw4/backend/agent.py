@@ -133,15 +133,19 @@ def dynamic_context(ctx: RunContext[AgentDeps]) -> str:
 def to_model_history(saved: list[dict]) -> list[ModelMessage]:
     """Saved chat rows -> PydanticAI message history.
 
-    Assistant turns carry a note of which product IDs were shown, so a
-    follow-up like "which of those come in XXL?" can be resolved.
+    Assistant turns carry two notes: when they were said (so old prices or
+    stock in them read as old, never as current evidence) and which product
+    IDs were shown (so "which of those come in XXL?" can be resolved).
     """
     history: list[ModelMessage] = []
     for m in saved:
         if m["role"] == "user":
             history.append(ModelRequest(parts=[UserPromptPart(content=m["content"])]))
         else:
-            text = m["content"]
+            text = (
+                f"[Earlier reply, {m.get('created_at', 'unknown time')} UTC. Any price or stock "
+                f"in it may be out of date; look it up again before stating it.]\n{m['content']}"
+            )
             if m.get("product_ids"):
                 text += f"\n[Products shown: {', '.join(m['product_ids'])}]"
             history.append(ModelResponse(parts=[TextPart(content=text)]))

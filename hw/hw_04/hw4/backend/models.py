@@ -8,7 +8,7 @@ PydanticAI agent.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Annotated, Literal
 
@@ -135,6 +135,25 @@ class PageView(BaseModel):
 
 
 @dataclass
+class MessageLookups:
+    """What this message's tools have already read from the database.
+
+    A fresh, empty one is created for every chat message (inside AgentDeps),
+    so a value read here is reused only within the same message and never
+    carries over to the next one. Guarantees each product's catalogue row
+    (price included) and stock are read from the database at most once per
+    message.
+    """
+
+    products: dict[str, dict] = field(default_factory=dict)  # product_id -> catalogue row
+    stock: dict[str, list[tuple[str, int]]] = field(default_factory=dict)  # product_id -> [(size, qty)]
+    complete: bool = False  # True once the whole catalogue + inventory has been read
+    read_at: str | None = None  # when this message first read the database (UTC)
+    db_queries: int = 0  # how many database queries this message's tools ran
+    reused: int = 0  # tool requests answered from this record with no new query
+
+
+@dataclass
 class AgentDeps:
     """Per-message context handed to the agent and its tools ("deps").
 
@@ -151,6 +170,8 @@ class AgentDeps:
     email: str | None = None
     # What's on the shopper's screen right now
     page: PageView | None = None
+    # Per-message lookup record (new and empty for every message)
+    lookups: MessageLookups = field(default_factory=MessageLookups)
 
 
 # --- What the agent's tools return (P6). Everything here comes straight

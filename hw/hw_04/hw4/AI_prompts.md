@@ -518,3 +518,31 @@ wasn't it built that way originally
   - a plain "hi" took 2 round trips because the agent ran a pointless
     `find_products("Yale gear")` first; this is evidence for the
     round-trips improvement
+- **Agent/backend improvement 2, one database read per fact per message:**
+  - **Requirement I set:** the same price may be read from the database
+    only once per message, and a logged-in customer must never get old
+    price data from an earlier day. Freshness is limited to the current
+    message.
+  - **Built:**
+    - `MessageLookups` in `AgentDeps`: a fresh record per message that all
+      tools read through, so each product's row and stock are read at most
+      once per message and nothing carries over
+    - a tighter "Using your tools" prompt section (price comes from search,
+      info only for description/colors, stock only per size, no tool for
+      small talk)
+    - time-stamped "may be out of date" labels on history replies
+    - an "Earlier chat · date · prices may have changed" divider in the
+      reloaded chat panel
+  - **Before → after:**
+    - price question: 3 → 2 round trips, 9,311 → 6,290 tokens (−32%),
+      6.4 → 3.4 s, one database read
+    - "hi": 2 → 1 round trip, 8,412 → 3,115 tokens
+    - other messages within about 200 tokens; Woody +1,000 from the
+      freshness labels
+  - **Acceptance test:** on a test database with the price changed to $74
+    and Medium sold out, Woody's history said $68 and 8 available. 6 of 6
+    answers were fresh, including "You told me $68 earlier, right?" → "$74,
+    not $68."
+  - **Known limit:** the model still sometimes searches on "hello" or
+    "thanks." Prompt rules are requests; a code-level small-talk shortcut
+    would be needed to guarantee it.
