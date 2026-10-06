@@ -1,8 +1,8 @@
 # Usability Improvements (P9)
 
-Two front-end improvements (built and verified), plus a measured baseline
-of agent/backend cost and speed to choose the two agent/backend
-improvements from.
+Two front-end improvements and two agent/backend improvements, each
+built and verified, plus the measured baseline of agent cost and speed
+that the backend choices were based on.
 
 ## Front-end improvement 1: product pages open as a popup
 
@@ -98,25 +98,66 @@ What the numbers show:
 - **Saved history is added to every request.** Woody's 18 messages added
   about 1,800 input tokens to each round trip.
 
-## Agent/backend improvements: *to choose*
+## Agent/backend improvement 1: rate-limit the chat ✅
 
-Candidates, ranked by what would hurt first if the site grew:
+**Problem.** Every accepted chat message costs roughly 6,000–9,000 AI input
+tokens, and `/api/chat` had no limit. Anyone, including an anonymous guest
+or a script, could send unlimited messages and run up the bill. At scale,
+this breaks first: the cost, not the servers.
 
-1. **Fewer model round trips.** Biggest win for both time and tokens. Let
-   simple price/stock answers finish in 2 round trips instead of 3 (use the
-   price `find_products` already returns, or one combined
-   "details + stock" tool).
-2. **Rate-limit the chat.** The first thing that breaks at scale is the
-   bill. `/api/chat` has no limit, and anyone, including guests, can send
-   unlimited messages at about 6,000–9,000 tokens each.
-3. **A token budget for instructions and history.** A shorter prompt;
+**Change.** `main.py` checks limits **before** the agent runs, so a blocked
+message costs nothing:
+
+| Who | Limit | Keyed by |
+|---|---|---|
+| Guest | 5 messages per minute, 30 per day | IP address |
+| Logged-in customer | 10 per minute, 200 per day | account |
+| The whole site | 60 messages per minute total | everyone combined, which caps total spend even if someone rotates IPs or accounts |
+
+Over a limit, the API returns **429 Too Many Requests** with a `Retry-After`
+header and a message in the bulldog's voice ("Woof! You're chatting faster
+than I can fetch. Try again in 53 seconds."). The chat panel shows it as-is
+instead of "couldn't reach the store." Browsing, product pages, accounts,
+and the idle tail-wag (no AI) are never limited.
+
+**Verified.**
+
+| Test | Result |
+|---|---|
+| Fake-clock test: 7 guest messages 1 s apart | 5 allowed, then 429 "wait 55 s"; allowed again after 60 s |
+| Fake-clock test: a guest pacing 1 message every 13 s | Allowed 30, then blocked by the daily window |
+| Another guest while one is blocked | Unaffected |
+| Live: 6 quick guest messages | 1–5 → 200; 6th → 429 in 0.002 s (no AI call), `Retry-After: 53` |
+| Live: logged-in Woody right after | 200 (separate limit) |
+| Live: product list and the idle endpoint | 200 |
+
+**Limits of this version.**
+- Counts live in server memory, so they reset on restart and aren't shared
+  between server processes. A multi-server deployment would keep them in a
+  shared store like Redis.
+- Behind a reverse proxy, every guest would appear to come from the proxy's
+  address, so production would read the proxy's `X-Forwarded-For` header.
+  (In local dev, Vite's proxy also makes all guests share one address.)
+- Found while testing: identical repeated messages sometimes came back in
+  under half a second, but **were still billed in full** (6,050 input tokens
+  each). Portkey reported no cache hit, and the cause wasn't confirmed.
+  Being fast doesn't mean being free, which is the case for limiting by
+  count.
+
+## Agent/backend improvement 2: *to choose*
+
+Remaining candidates, ranked:
+
+1. **Fewer model round trips.** Biggest win for both time and tokens (see
+   the baseline above; even a plain "hi" took 2 round trips because the
+   agent ran a pointless catalogue search first).
+2. **A token budget for instructions and history.** A shorter prompt;
    history capped by size rather than message count; and the provider's
    prompt caching for the unchanging first part of the instructions.
-4. **Don't block the server on database calls.** The chat handler runs
+3. **Don't block the server on database calls.** The chat handler runs
    SQLite queries directly inside an async function, so under many
-   simultaneous shoppers one slow query stalls everyone. Longer term,
-   SQLite allows one writer at a time for chat history.
-5. **Indexed search.** `find_products` scans every product in Python on
+   simultaneous shoppers one slow query stalls everyone.
+4. **Indexed search.** `find_products` scans every product in Python on
    each call. That's fine at 102 products, slow at 100,000 (SQLite FTS5).
-6. **Lighter pages.** The website downloads the full product list on every
+5. **Lighter pages.** The website downloads the full product list on every
    visit to Home or Products, and serves full-size images.

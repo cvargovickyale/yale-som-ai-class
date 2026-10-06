@@ -457,6 +457,10 @@ I'm thinking through what two agent/backend usability improvements to
 suggest next - what is taking too much time or tokens than it needs to? like
 if this website were to scale, what would cause problems first?
 
+**Follow-up prompt used:** I like the rate limit. don't want bad actors
+running up the bill. and how does the fewer round trips thing work - why
+wasn't it built that way originally
+
 **Notes:**
 
 - **Front-end improvement 1, product popup:**
@@ -499,3 +503,18 @@ if this website were to scale, what would cause problems first?
 - `output/usability.md` created. Harness sections 5, 7, and 8 were updated
   (the `category` field, the popup replacing "Back to results", and
   category page context).
+- **Agent/backend improvement 1, rate limiting (chosen):**
+  - checked before the agent runs, so blocked messages cost nothing
+  - guests 5/min and 30/day per IP; customers 10/min and 200/day per
+    account; site-wide 60/min
+  - 429 + `Retry-After` with a bulldog-voice message the chat panel shows
+    as-is
+  - verified with a fake-clock test and live: the 6th guest message is
+    blocked in 0.002 s, Woody is unaffected, browsing is never limited
+- **Found while testing:**
+  - identical messages sometimes return in under 0.5 s but are still
+    billed in full; Portkey reports no cache hit, and the cause is
+    unconfirmed
+  - a plain "hi" took 2 round trips because the agent ran a pointless
+    `find_products("Yale gear")` first; this is evidence for the
+    round-trips improvement

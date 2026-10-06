@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { formatPrice, getChatHistory, resultsUrl, sendBored, sendChat } from '../api'
+import { ApiError, formatPrice, getChatHistory, resultsUrl, sendBored, sendChat } from '../api'
 import { useAuth } from '../auth'
 import type { ChatHistoryMessage, ProductSummary } from '../types'
 
@@ -102,8 +102,12 @@ export default function ChatWidget() {
         setMessages((m) => [...m, { role: 'assistant', content: res.reply, products: res.products }])
       }
     } catch (err) {
-      const reason = err instanceof Error ? err.message : 'unknown error'
-      setMessages((m) => [...m, { role: 'assistant', content: `*whimpers* Couldn't reach the store (${reason}).` }])
+      // 429 = rate limit: the server's message already says when to try again.
+      const content =
+        err instanceof ApiError && err.status === 429
+          ? `🐾 ${err.message}`
+          : `*whimpers* Couldn't reach the store (${err instanceof Error ? err.message : 'unknown error'}).`
+      setMessages((m) => [...m, { role: 'assistant', content }])
     } finally {
       setSending(false)
     }

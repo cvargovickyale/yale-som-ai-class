@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import math
+import time
 import hmac
 import json
 import logging
@@ -25,6 +27,7 @@ import random
 import re
 import secrets
 import sqlite3
+from collections import defaultdict, deque
 from contextlib import closing
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -478,6 +481,73 @@ def chat_history(user: UserOut = Depends(get_current_user)):
     ]
 
 
+# --- Rate limiting (P9): every accepted chat message costs ~6,000-9,000 AI
+# --- tokens, so cap how fast anyone can spend them. Checked BEFORE the agent
+# --- runs, so a blocked message costs nothing.
+
+# (max messages, window in seconds)
+RATE_LIMITS = {
+    "guest": [(5, 60), (30, 24 * 3600)],  # per IP address
+    "customer": [(10, 60), (200, 24 * 3600)],  # per logged-in account
+    "everyone": [(60, 60)],  # whole site: caps total spend even if many IPs/accounts are used
+}
+
+
+class RateLimiter:
+    """Sliding-window message counts per key, kept in memory.
+
+    Resets when the server restarts and isn't shared between server
+    processes. Fine for one server; a multi-server deployment would keep
+    these counts in a shared store such as Redis.
+    """
+
+    def __init__(self) -> None:
+        self.hits: dict[str, deque[float]] = defaultdict(deque)
+
+    def retry_after(self, key: str, limits: list[tuple[int, int]], now: float) -> tuple[float, int] | None:
+        """(seconds until allowed, window hit) if `key` is over a limit, else None."""
+        q = self.hits[key]
+        longest = max(window for _, window in limits)
+        while q and now - q[0] >= longest:
+            q.popleft()
+        for max_hits, window in limits:
+            recent = [t for t in q if now - t < window]
+            if len(recent) >= max_hits:
+                return window - (now - recent[0]), window
+        return None
+
+    def record(self, key: str, now: float) -> None:
+        self.hits[key].append(now)
+
+
+chat_limiter = RateLimiter()
+
+
+def enforce_chat_rate_limit(request: Request, user: UserOut | None) -> None:
+    now = time.monotonic()
+    # Behind a reverse proxy every guest would share the proxy's address; a
+    # production deployment would read the proxy's X-Forwarded-For instead.
+    own_key, own_limits = (
+        (f"user:{user.id}", RATE_LIMITS["customer"]) if user
+        else (f"ip:{request.client.host if request.client else 'unknown'}", RATE_LIMITS["guest"])
+    )
+    for key, limits, whose in ((own_key, own_limits, "you"), ("everyone", RATE_LIMITS["everyone"], "everyone")):
+        blocked = chat_limiter.retry_after(key, limits, now)
+        if blocked:
+            wait, window = blocked
+            seconds = max(1, math.ceil(wait))
+            if window >= 3600:
+                msg = "Woof! That's the chat limit for today. Browsing and product pages still work."
+            elif whose == "everyone":
+                msg = f"Woof! The shop is extra busy right now. Please try again in {seconds} seconds."
+            else:
+                msg = f"Woof! You're chatting faster than I can fetch. Try again in {seconds} seconds."
+            log.warning("Chat rate limit hit (%s, %ss window)", key, window)
+            raise HTTPException(status_code=429, detail=msg, headers={"Retry-After": str(seconds)})
+    chat_limiter.record(own_key, now)
+    chat_limiter.record("everyone", now)
+
+
 CONTENT_FILTER_REPLY = (
     "Woof… I can't help with that one. I'm here for Campus Customs gear, sizing, "
     "and the shop. What can I help you find?"
@@ -490,7 +560,8 @@ def _is_content_filter(exc: ModelHTTPError) -> bool:
 
 
 @app.post("/api/chat", response_model=ChatResponse)
-async def chat(body: ChatRequest, user: UserOut | None = Depends(get_optional_user)):
+async def chat(request: Request, body: ChatRequest, user: UserOut | None = Depends(get_optional_user)):
+    enforce_chat_rate_limit(request, user)  # before any AI cost
     deps = AgentDeps(
         db_path=DB_PATH,
         user_id=user.id if user else None,

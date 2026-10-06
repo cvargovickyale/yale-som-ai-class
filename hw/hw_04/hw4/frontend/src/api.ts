@@ -6,6 +6,14 @@ export const getToken = () => localStorage.getItem(TOKEN_KEY)
 export const setToken = (token: string | null) =>
   token ? localStorage.setItem(TOKEN_KEY, token) : localStorage.removeItem(TOKEN_KEY)
 
+export class ApiError extends Error {
+  status: number
+  constructor(message: string, status: number) {
+    super(message)
+    this.status = status
+  }
+}
+
 // FastAPI errors are either {detail: "message"} or {detail: [{field, msg}, ...]}.
 function errorMessage(body: unknown, status: number): string {
   const detail = (body as { detail?: unknown } | null)?.detail
@@ -23,7 +31,7 @@ async function request<T>(url: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(url, { ...init, headers })
   if (!res.ok) {
     const body = await res.json().catch(() => null)
-    throw new Error(errorMessage(body, res.status))
+    throw new ApiError(errorMessage(body, res.status), res.status)
   }
   return res.json() as Promise<T>
 }
