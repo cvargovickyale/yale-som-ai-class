@@ -201,11 +201,17 @@ destructive commands and preserve unrelated user work.
   not duplicated here. Course-level facts learned while working on it (model
   roster, sandbox gotchas, zip artifacts) are folded into the relevant
   general sections above instead; reusable technical patterns are below.
-- `hw/hw_04/`: **in progress (started 2026-10-05)** — Campus Customs customer
-  website: React + Vite TS frontend, FastAPI backend, PydanticAI agent over
-  `campus_customs.db`. Submitted as a **public GitHub repo URL** (no zip),
-  with code in a folder named `hw4/`. See `hw/hw_04/WORKPLAN.md` for the
-  P1–P13 map, final file tree, and submission plan.
+- `hw/hw_04/`: **built and published (2026-10-06); Christopher submits the
+  repo URL on Canvas.** Campus Customs website: React + Vite TS frontend,
+  FastAPI backend, PydanticAI agent ("Handsome Dan") over
+  `campus_customs.db`. Submitted as a **public GitHub repo**:
+  https://github.com/cvargovickyale/campus-customs-hw4 (root contains only
+  `hw4/`). Edit in `hw/hw_04/hw4/`, commit to the private workspace repo,
+  then republish with `hw/hw_04/publish_hw4.sh "message"` (exports only
+  git-tracked files, refuses `.env`/db/data/node_modules; local clone at
+  `../campus-customs-hw4`). `hw/hw_04/WORKPLAN.md` has the P1–P13 map;
+  `hw4/output/harness.md` section 0 is the system overview. Treat it as
+  frozen once graded, like HW1–HW3.
 - `hw/hw_05/` and `hw/hw_06/`: future homework slots; do not assume their
   requirements or create content until the user provides the assignment.
 
