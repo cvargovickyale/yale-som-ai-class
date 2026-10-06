@@ -4,14 +4,15 @@ A customer website for Campus Customs (Yale Bulldog Blue): browse products,
 open a single-item page with live per-size stock, and chat with a shopping
 assistant. React + Vite + TypeScript frontend, Python FastAPI backend.
 
-> Status: P7. Website, product API, accounts, and a PydanticAI chat agent
+> Status: P10. Website, product API, accounts, and a PydanticAI chat agent
 > (via Portkey) with database tools for product search, product info, and
 > live stock by size. Asking the chat for a type of item ("show me hoodies")
 > filters the Products page to the matching cards. Logged-in customers' chats
 > are saved and reload when they return; the agent knows who's chatting and
 > what page they're on ("do you have this in blue?").
-> Products can be browsed by category tab, and each product opens as a popup
-> over the page you clicked from.
+> Products can be browsed by category tab or by tapping a garment zone on the
+> "Find your fit" figure, and each product opens as a popup over the page you
+> clicked from. The chat assistant is Handsome Dan.
 
 Seed test account: `test@campuscustoms.yale.edu` / `password`.
 
@@ -64,10 +65,11 @@ on another port, start the frontend with
 With both servers running, open http://localhost:5173:
 
 1. **Browse by category.** Products page → tabs across the top (Hoodies,
-   T-Shirts, …).
+   T-Shirts, …), or tap the hood / zip / sleeves on the "Find your fit"
+   figure (Home page, and beside the grid on wide screens).
 2. **Product popup.** Click any product. It opens over the page you were
    on; Esc, ×, or a click on the gray area closes it back to the same spot.
-3. **Chat search.** Click "🐶 Chat with us" and ask "show me hoodies". The
+3. **Chat search.** Click "🐶 Ask Handsome Dan" and ask "show me hoodies". The
    Products page filters to the matching cards.
 4. **Page-aware answers.** Open a product and ask the chat "is this in stock
    in medium?" or "do you have this in blue?"
@@ -80,7 +82,8 @@ With both servers running, open http://localhost:5173:
 7. **Cost visibility.** Each chat message prints one line in the backend
    terminal: model round trips, tokens, and database queries.
 
-Details for each improvement: `output/usability.md`. How everything works:
+Details for each improvement: `output/usability.md`. Visual design:
+`output/design.md`. How everything works:
 `output/harness.md`.
 
 ## Project layout

@@ -90,8 +90,9 @@ reach it.
 4. **Models.** Default `gpt-5.6-luna`. The assignment allows 5.6/6 series and
    hints at "a smarter model for harder agent steps." Log any upgrade
    (e.g. `terra`/`sol` for search reasoning) in `AI_prompts.md`.
-5. **Styling.** yalebulldogblue.com look vs. Gateway 2000. (Decide at P10,
-   but P3 layout choices affect it.)
+5. ~~**Styling.**~~ **Done (P10):** real-merch-site look per the assignment
+   (Christopher set Gateway 2000 aside for HW4). Collegiate serif + Inter, Yale
+   blue, product-photo imagery, "Find your fit" figure, Handsome Dan.
 
 ## Known facts from a first look at the data (P2 will confirm)
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { formatPrice, getProduct } from '../api'
+import { matchFrameToPhoto } from '../imageTone'
 import type { ProductDetail as Product } from '../types'
 
 // The single-item page, shown as a popup over the page it was opened from
@@ -61,7 +62,7 @@ export default function ProductDetail() {
         ) : (
           <article className="detail">
             <div className="detail-image">
-              <img src={product.image_url} alt={product.name} />
+              <img src={product.image_url} alt={product.name} onLoad={matchFrameToPhoto} />
             </div>
             <div className="detail-info">
               <p className="eyebrow">{product.garment_type}</p>

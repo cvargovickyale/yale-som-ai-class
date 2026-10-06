@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { getProducts } from '../api'
+import FitPicker from '../components/FitPicker'
 import ProductCard from '../components/ProductCard'
 import type { ProductSummary } from '../types'
 
@@ -42,12 +43,24 @@ export default function Products() {
   }, [products, ids, activeCategory])
 
   if (error) return <p className="status error">Couldn't load products: {error}</p>
-  if (!shown || !products) return <p className="status">Loading products…</p>
+  if (!shown || !products)
+    return (
+      <div className="product-grid" aria-busy="true" aria-label="Loading products">
+        {Array.from({ length: 8 }, (_, i) => (
+          <div key={i} className="skeleton-card" />
+        ))}
+      </div>
+    )
 
   const tabs = [{ name: 'All', count: products.length }, ...CATEGORIES.filter((c) => counts.get(c)).map((c) => ({ name: c, count: counts.get(c)! }))]
 
   return (
-    <>
+    <div className="shop-layout">
+      <aside className="shop-sidebar">
+        <p className="eyebrow">Find your fit</p>
+        <FitPicker compact counts={counts} active={activeCategory} onPick={(c) => setParams({ category: slug(c) })} />
+      </aside>
+      <div className="shop-main">
       <nav className="category-tabs" aria-label="Product categories">
         {tabs.map((t) => {
           const active = t.name === 'All' ? !ids && !activeCategory : t.name === activeCategory
@@ -89,10 +102,11 @@ export default function Products() {
         </div>
       )}
       <div className="product-grid" key={params.toString()}>
-        {shown.map((p) => (
-          <ProductCard key={p.product_id} product={p} />
+        {shown.map((p, i) => (
+          <ProductCard key={p.product_id} product={p} index={i} />
         ))}
       </div>
-    </>
+      </div>
+    </div>
   )
 }

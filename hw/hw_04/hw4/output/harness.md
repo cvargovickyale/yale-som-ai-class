@@ -78,6 +78,16 @@ not store data.)
   size rows are 0.
 - **Links between tables are not enforced** (SQLite foreign keys are off).
   There are no orphan rows today.
+- **Three products have a placeholder instead of a description**
+  ("Campus Customs product photo (…). Vision blocked; filename-based
+  stub."), and no colors: `benjamin-franklin-t-shirt`,
+  `berkeley-sweater-fleece-jacket`, `timothy-dwight-college-crewneck`.
+  `clean_description()` in `tools.py` replaces it with "Description coming
+  soon." everywhere (cards, product pages, and the agent's tools), and the
+  prompt tells the agent not to invent details. The database is unchanged.
+- **73 of 102 product photos have black borders** (product shot boxed
+  inside black bars, 5–29% per side). The website trims them on load
+  (`frontend/src/imageTone.ts`, CSS `clip-path`); the files are unchanged.
 - **One product ID has a built-in typo** (`yale-sports-creqneck-field-hockey`).
   The image file uses the same spelling, so leave it.
 
@@ -249,7 +259,7 @@ Four files under `backend/` make up the agent:
 
 | File | Role |
 |---|---|
-| `prompts/prompt.md` | Who the agent is, its voice, honesty rules, safety rules, and output format |
+| `prompts/prompt.md` | Who the agent is (**Handsome Dan**, the Campus Customs bulldog, named for Yale's mascot; P10), its voice, honesty rules, safety rules, and output format |
 | `agent.py` | Loads the key, connects to Portkey, assembles the agent, runs it with limits |
 | `models.py` | The agent's contract: `AgentDeps` (what it's given) and `AgentReply` (what it must return) |
 | `tools.py` | Three read-only database tools: `find_products`, `get_product_info`, `check_stock` (see section 6) |

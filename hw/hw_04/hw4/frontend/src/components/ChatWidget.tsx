@@ -13,7 +13,7 @@ interface Message {
 
 const GREETING: Message = {
   role: 'assistant',
-  content: "Woof! 🐶 I'm the Campus Customs bulldog. Ask me about Yale gear, sizes, or the shop.",
+  content: "Woof! 🐶 I'm Handsome Dan, the Campus Customs bulldog. Ask me about Yale gear, sizes, or the shop.",
 }
 
 // A divider before each day of reloaded history, so old prices and stock in
@@ -71,7 +71,7 @@ export default function ChatWidget() {
         if (cancelled) return
         const welcome: Message = saved.length
           ? { role: 'assistant', content: `Woof! Welcome back, ${user.first_name}. Here's our chat so far.` }
-          : { role: 'assistant', content: `Woof! Hi ${user.first_name} 🐶 Ask me about Yale gear, sizes, or the shop.` }
+          : { role: 'assistant', content: `Woof! Hi ${user.first_name}, I'm Handsome Dan 🐶 Ask me about Yale gear, sizes, or the shop.` }
         setMessages(saved.length ? [...withDayDividers(saved), welcome] : [welcome])
       })
       .catch(reset)
@@ -132,16 +132,16 @@ export default function ChatWidget() {
   if (!open) {
     return (
       <button className="chat-launcher" onClick={() => setOpen(true)}>
-        🐶 Chat with us
+        🐶 Ask Handsome Dan
       </button>
     )
   }
 
   return (
-    <section className="chat-panel" aria-label="Chat with Campus Customs">
+    <section className="chat-panel" aria-label="Chat with Handsome Dan">
       <header className="chat-header">
         <span>
-          Campus Customs Bulldog
+          Handsome Dan · Campus Customs
           <small className="chat-saved">{user ? 'Chat saved to your account' : 'Guest chat · not saved'}</small>
         </span>
         <button className="chat-close" onClick={() => setOpen(false)} aria-label="Close chat">
@@ -178,7 +178,13 @@ export default function ChatWidget() {
           </div>
           ),
         )}
-        {sending && <div className="chat-msg assistant typing">…</div>}
+        {sending && (
+          <div className="chat-msg assistant typing" aria-label="Handsome Dan is fetching an answer">
+            <span />
+            <span />
+            <span />
+          </div>
+        )}
         <div ref={bottomRef} />
       </div>
       <form className="chat-input" onSubmit={handleSend}>

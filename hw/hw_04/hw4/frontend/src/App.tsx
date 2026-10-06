@@ -1,5 +1,6 @@
 import { matchPath, Route, Routes, useLocation, type Location } from 'react-router-dom'
 import ChatWidget from './components/ChatWidget'
+import Footer from './components/Footer'
 import NavBar from './components/NavBar'
 import About from './pages/About'
 import Home from './pages/Home'
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="*" element={<p className="status">Page not found.</p>} />
         </Routes>
       </main>
+      <Footer />
       {background && (
         <Routes>
           <Route path="/products/:productId" element={<ProductDetail />} />

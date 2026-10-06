@@ -24,9 +24,12 @@ export default function NavBar() {
   }
 
   return (
+    <>
+    <div className="announce-bar">Officially licensed Yale apparel · Family-run in New Haven since 1975 · Ask Handsome Dan 🐶</div>
     <header className="navbar">
       <Link to="/" className="brand">
-        Campus Customs <span className="brand-sub">Yale Bulldog Blue</span>
+        <span className="brand-name">Campus Customs</span>
+        <span className="brand-sub">Yale Bulldog Blue</span>
       </Link>
       <nav className="nav-links">
         {MAIN_PAGES.map((p) => (
@@ -52,5 +55,6 @@ export default function NavBar() {
         )}
       </nav>
     </header>
+    </>
   )
 }

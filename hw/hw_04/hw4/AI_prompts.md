@@ -565,3 +565,71 @@ wasn't it built that way originally
   `timothy-dwight-college-crewneck`) have placeholder descriptions in the
   provided database ("Vision blocked; filename-based stub.") and no colors.
   Shoppers can see that text on the cards and product pages.
+
+## Problem 10 — Style the website
+
+**Prompt:** yeah do option 2. then Problem 10: we already did the cute dog
+chat. maybe we rename the chat handsome dan? but I think we need some
+motion/animations (what's good bang for your buck from a processing
+perspective?) and images like the real yale bulldog blue site has a bunch of
+posed stock photos of kids in yale merch.. generally take a pass at dialing
+up the professionalism - fonts but also making it feel more like a real
+merch website. being imaginative and innovative should maybe have a garment
+picker visualizer so instead of just the categories you see a person mockup
+and you can click part of them to style them. but that's too much to make
+look really good. let me know what's efficient but also innovative. then
+once we decide on this write output/design.md (keep it short) on what people
+will like about the site
+
+**Notes:**
+
+- **"Option 2" (carried over from P9):** the 3 placeholder catalogue
+  descriptions are hidden as "Description coming soon." on cards, product
+  pages, and in the agent's tools, with a prompt rule not to invent details.
+  The database is unchanged.
+- **Decisions** (picked from a short multiple-choice list):
+  - the clickable silhouette ("Find your fit")
+  - our own product photos for imagery (no generated or stock photos)
+  - rename the chat to Handsome Dan
+  - a collegiate serif with a clean sans-serif
+- **Motion, chosen for cost:** only `transform` and `opacity` are animated,
+  since the GPU composites those with no layout recalculation. No animation
+  library; it's all CSS.
+  - card lift and image zoom, staggered grid fade-in
+  - sliding nav underline, popup scale-in
+  - chat bubble pop, typing dots, loading shimmer, hero drift
+  - everything off under `prefers-reduced-motion`
+- **Professional polish:**
+  - Libre Baskerville + Inter, self-hosted via `@fontsource`
+  - Yale blue `#00356B`, an announcement bar, and a footer with the store
+    address and a "class project demo" note
+  - a home hero collage and category photo tiles
+  - "Only N left" badges from live stock (≤ 25 units, 8 products)
+  - loading placeholders
+- **"Find your fit":** one SVG figure whose hood, zip collar, chest, short
+  sleeves, long sleeves, and outer layer are keyboard-accessible buttons
+  for the 6 categories. It's on Home and as a sticky sidebar on Products,
+  hidden under 1100 px where the tabs take over.
+- **Photo problem found by measuring, not by eye:** 73 of 102 catalogue
+  photos are boxed in black borders (5–29% per side), with no fully black
+  backgrounds.
+  - My first fix (black frames for "dark" photos) was based on the wrong
+    diagnosis.
+  - The real fix: measure each photo's borders from a 64 px copy on load
+    and clip them off with CSS `clip-path`. All 11 quarter-zips now render
+    clean.
+  - The hero and tiles use the 28 photos that have clean white backgrounds.
+- **Verified:**
+  - fonts render
+  - hero collage: 4 clean photos
+  - clicking the zip collar → Quarter-Zips (tab, legend, and URL in sync;
+    11/11 photos trimmed)
+  - hovering the hood → highlighted
+  - Handsome Dan's greeting, typing dots, and a correct answer (Yale Mom
+    Hoodie in XL, $68.00)
+  - mobile at 375 px: no horizontal overflow, 2 tiles per row, sidebar
+    hidden, tabs swipe, popup fits
+  - production build: CSS 5 KB and JS 90 KB gzipped; lint clean
+- `output/design.md` written (what people will like, cost-conscious
+  choices, what was deliberately left out). Harness notes added for the
+  persona, the placeholder descriptions, and photo-border trimming.
