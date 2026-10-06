@@ -4,8 +4,9 @@ A customer website for Campus Customs (Yale Bulldog Blue): browse products,
 open a single-item page with live per-size stock, and chat with a shopping
 assistant. React + Vite + TypeScript frontend, Python FastAPI backend.
 
-> Status: P5. Website, product API, accounts, and a PydanticAI chat agent
-> (via Portkey) work. Product-info and stock tools for the agent arrive in P6.
+> Status: P6. Website, product API, accounts, and a PydanticAI chat agent
+> (via Portkey) with database tools for product search, product info, and
+> live stock by size.
 
 Seed test account: `test@campuscustoms.yale.edu` / `password`.
 

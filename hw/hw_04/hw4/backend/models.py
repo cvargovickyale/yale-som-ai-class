@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, EmailStr, Field, StringConstraints, model_validator
 
@@ -105,6 +105,52 @@ class AgentDeps:
 
     db_path: Path
     first_name: str | None = None
+
+
+# --- What the agent's tools return (P6). Everything here comes straight
+# --- from the database; the model only reads it.
+
+
+class ProductMatch(BaseModel):
+    """One search hit from find_products: enough to pick the right product."""
+
+    product_id: str
+    name: str
+    garment_type: str
+    price: float
+    total_stock: int
+
+
+class ProductInfo(BaseModel):
+    """get_product_info: the catalogue facts for one product (no stock)."""
+
+    product_id: str
+    name: str
+    garment_type: str
+    description: str
+    colors: list[str]
+    price: float
+
+
+class SizeStatus(BaseModel):
+    size: str
+    quantity: int
+    status: Literal["in stock", "sold out"]
+
+
+class StockReport(BaseModel):
+    """check_stock: live stock for one product, read from the inventory table."""
+
+    product_id: str
+    name: str
+    checked_at: str = Field(description="When the database was read (UTC). Stock can change after this.")
+    requested_size: str | None = Field(
+        default=None, description="The size asked about, normalized (e.g. 'medium' -> 'M'), if any."
+    )
+    requested_size_status: Literal["in stock", "sold out", "not offered"] | None = None
+    sizes: list[SizeStatus] = Field(description="Every size this product comes in, XS to XXL.")
+    in_stock_sizes: list[str]
+    sold_out_sizes: list[str]
 
 
 class AgentReply(BaseModel):

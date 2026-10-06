@@ -229,3 +229,57 @@ should run like this from backend folder: uvicorn main:app --reload --port 8000
   the tools plumbing, and the safety layers so far.
 - Confirmed the server starts with `uvicorn main:app --reload --port 8000`
   run from `backend/`.
+
+## Problem 6 — Tools: product info and stock
+
+**Prompt:** p6 the agent needs tools to go to the db. product description,
+price, and stock by size. use db and do not invent prices or quantities -
+this can go in harness. bc harness is also read by the agent when? every
+time? and if a size is not in stock say so clearly don't make promises you
+can't back up with db evidence. prmopt.md should know how to use these tools
+and types updated in models.py.
+
+explain what tools you suggest and why and what model fields we are
+returning. isn't that obvious though we want product description price and
+stock info. let me know bc next we'll add this tool list field names and
+justification to the harness file section
+
+**Notes:**
+
+- **Harness vs. prompt:** the agent never reads `harness.md`. With every
+  message it receives only `prompts/prompt.md` and the tool descriptions
+  (each tool's docstring and argument types). So the "never invent prices
+  or quantities" rule lives in `prompt.md` and in code. The harness
+  explains it for people.
+- **Three tools in `tools.py`, all read-only:**
+  - `find_products(query)`: turns the shopper's words into real product IDs
+  - `get_product_info(product_id)`: description, colors, price
+  - `check_stock(product_ids, size)`: live per-size stock, with a status of
+    "in stock" / "sold out" / "not offered", a timestamp, and size aliases
+    like "medium" → M
+- **Guardrails:** unknown IDs raise `ModelRetry` so the model corrects
+  itself instead of guessing.
+- **New types in `models.py`:** `ProductMatch`, `ProductInfo`,
+  `SizeStatus`, `StockReport`.
+- **`prompt.md` additions:**
+  - every price and quantity must come from a tool, quoted exactly
+  - stock is "right now," never a promise (no holds, restocks, or delivery
+    claims)
+  - a sold-out size is stated plainly in the first sentence, and "not
+    offered" is kept separate from "sold out"
+  - a "Using your tools" section explains when to call each tool
+- **Bug found in testing:** search first matched word fragments, so "hat"
+  matched inside other words. Switched to whole-word matching. A remaining,
+  legitimate match is a hoodie whose bulldog graphic wears a sailor hat. The
+  prompt tells the agent to check `garment_type`, and it correctly answered
+  "no hats."
+- **Live tests, each checked against the database:**
+  - Yale Mom Hoodie $68.00
+  - Champion crewneck: sold out in Small, in stock in M/XL
+  - Yale Mom Hoodie in 3XL: "doesn't come in" (not offered)
+  - 3 Saybrook items in Medium; in Large, 2 in stock (2 left each) and the
+    tee sold out
+  - "Can you hold one?": declined, "8 available right now," no promise
+  - the browser chat shows product cards with database prices
+- **Prompt fix after testing:** prices are now written as dollars and cents
+  (the agent had written "$58.0").
