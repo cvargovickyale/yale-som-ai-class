@@ -242,7 +242,7 @@ Four files under `backend/` make up the agent:
 | `prompts/prompt.md` | Who the agent is, its voice, honesty rules, safety rules, and output format |
 | `agent.py` | Loads the key, connects to Portkey, assembles the agent, runs it with limits |
 | `models.py` | The agent's contract: `AgentDeps` (what it's given) and `AgentReply` (what it must return) |
-| `tools.py` | Functions the agent can call to read the database (product tools arrive in P6) |
+| `tools.py` | Three read-only database tools: `find_products`, `get_product_info`, `check_stock` (see section 6) |
 
 ### How the agent is loaded
 
@@ -262,7 +262,10 @@ When `uvicorn main:app` starts, `main.py` imports `agent.py`, which:
      shape, and PydanticAI checks it and asks the model to retry (up to 2
      times) if it doesn't.
    - `deps_type` = `AgentDeps`
-   - `tools` = `tools.TOOLS`
+   - `tools` = `tools.TOOLS` (the three functions in section 6). PydanticAI
+     sends each tool's name, docstring, and argument types to the model
+     with every message, which is how the model knows the tools exist and
+     when to use them.
 4. **Adds a dynamic instruction on every run:** "The shopper is logged in.
    Their first name is Woody," or "The shopper is not logged in." That's
    the only personal detail the agent ever receives.
@@ -272,7 +275,7 @@ When `uvicorn main:app` starts, `main.py` imports `agent.py`, which:
 | Limit | Value | Why |
 |---|---|---|
 | Model requests per message | 6 | Stops runaway loops and caps cost |
-| Tool calls per message | 8 | Same, once tools exist |
+| Tool calls per message | 8 | A normal question takes 1–3 tool calls; this stops loops |
 | Time per message | 45 seconds | The shopper isn't left waiting forever |
 | Output retries | 2 | Lets the model fix a malformed answer once or twice |
 
@@ -295,17 +298,126 @@ memory is P8.
 | `ChatResponse` | Reply to the website | `reply`, `products: list[ProductSummary]` |
 | `AgentDeps` | Context given to the agent per message | `db_path`, `first_name` (no email, no ID, no token) |
 | `AgentReply` | The agent's required output | `reply`, `product_ids` |
+| `ProductMatch` | `find_products` result (one per hit) | see section 6 |
+| `ProductInfo` | `get_product_info` result | see section 6 |
+| `StockReport` / `SizeStatus` | `check_stock` result (one per product / per size) | see section 6 |
 
 Why the agent returns **IDs** and not full product details: the model is
 only trusted to pick which products are relevant. Every fact shown about
 them (name, price, image, stock) is fetched by code from the database.
 
-## 6. Tools (`backend/tools.py`) — *product info and stock arrive in P6*
+## 6. Tools (`backend/tools.py`)
 
-P5 sets up the plumbing only: `open_db(ctx)` gives tools a **read-only**
-database connection through the agent's deps, so no tool can ever change
-products, stock, or accounts. `TOOLS` is empty, and the prompt tells the
-agent to say it can't check prices or stock rather than guess.
+The tools are how the agent gets facts. **The agent never reads this
+harness.** With every message it receives only `prompts/prompt.md` and the
+tool descriptions (each function's name, docstring, and argument types).
+So the rules below are enforced in two places: the prompt tells the model
+how to behave, and the tool code limits what it can do.
+
+### The rule: no invented prices or quantities
+
+Every price, stock count, size, color, or product detail the agent states
+must come from a tool result in the same conversation, quoted exactly.
+Stock is a snapshot ("right now"), never a promise: no holds, reservations,
+restock dates, or delivery claims. A sold-out size is stated plainly in the
+first sentence, along with the sizes that are in stock. "Not offered" (the
+product doesn't come in that size) is never called "sold out."
+
+### Why three tools, and why search comes first
+
+Shoppers name products in their own words ("the Yale Mom hoodie"), but the
+database is keyed by `product_id`. Description, price, and stock lookups
+are useless until the agent has the right ID, so the first tool turns words
+into IDs. The other two split along the database's own tables: catalogue
+facts that rarely change (`catalogue`) and stock that changes and drives
+purchase decisions (`inventory`).
+
+| Tool | Answers | Reads | Typical use |
+|---|---|---|---|
+| `find_products(query)` | "Which products match these words?" | `catalogue` + `inventory` totals | First call whenever a product is named or described |
+| `get_product_info(product_id)` | "What is this product, and what does it cost?" | `catalogue` | Describing a product, quoting a price |
+| `check_stock(product_ids, size?)` | "Is it available, and in which sizes?" | `inventory` | Any availability question; compare up to 10 products at once |
+
+Typical flow: `find_products` → `get_product_info` and/or `check_stock` →
+answer. A price question doesn't need `check_stock`; a "which sizes?"
+question doesn't need `get_product_info`.
+
+### What each tool returns, and why those fields
+
+**`find_products` → list of `ProductMatch` (up to 10)**
+
+| Field | Why it's included |
+|---|---|
+| `product_id` | The key every other tool needs, and what the agent puts in `product_ids` so the page can show cards. |
+| `name` | Lets the agent tell similar matches apart (e.g. Yale Mom Hoodie vs. Yale Mom Crewneck) and name them to the shopper. |
+| `garment_type` | Lets the agent reject false matches. Search matches words anywhere, so "hat" finds a *hoodie* whose bulldog graphic wears a sailor hat. `garment_type` shows it isn't a hat. |
+| `price` | Answers "what's under $50?" or compares a list without a second call per product. |
+| `total_stock` | A quick signal (0 means sold out in every size) so the agent can skip or flag dead options before checking sizes. |
+
+Left out on purpose: `description` (long, and not needed to choose),
+`search_tags` (used for matching, not for answers), and `image_file_path`
+(the agent never needs it; `main.py` adds images from the database).
+
+**`get_product_info` → `ProductInfo`**
+
+| Field | Why it's included |
+|---|---|
+| `product_id`, `name` | Confirms which product the facts belong to. |
+| `garment_type` | What kind of item it is, in the catalogue's own words. |
+| `description` | The full text: fabric, fit, graphics, pockets. This is what "tell me about…" questions need. |
+| `colors` | Answers "does it come in pink?" from data. An empty list means the catalogue doesn't record colors for that product (3 products), and the agent should say so rather than guess. |
+| `price` | The one authoritative price. |
+
+Left out on purpose: stock (it has its own tool, so a price question never
+triggers a stock read) and `search_tags`/`image_file_path` (same reasons as
+above).
+
+**`check_stock` → list of `StockReport` (one per product)**
+
+| Field | Why it's included |
+|---|---|
+| `product_id`, `name` | Which product this report is for (several can be checked at once). |
+| `checked_at` | UTC time the database was read. Backs the "right now, not a promise" rule. |
+| `requested_size` | The size asked about, normalized in code ("medium", "med", "M" → `M`; "2XL" → `XXL`), so the model never has to interpret sizes. |
+| `requested_size_status` | The direct answer: `in stock`, `sold out`, or `not offered`. Kept separate because "we're out" and "we don't make that size" are different answers. |
+| `sizes` (each `size`, `quantity`, `status`) | Every size in order XS→XXL with the exact count, so the agent can say "only 2 left" truthfully. |
+| `in_stock_sizes`, `sold_out_sizes` | Ready-made lists, so the agent can offer alternatives ("in stock in M and XL") without doing arithmetic it could get wrong. |
+
+### Guardrails in the tool code
+
+- **Read-only.** Every tool opens the database with `mode=ro`. The agent
+  cannot change products, stock, or accounts.
+- **No made-up IDs.** If the model passes a `product_id` that doesn't
+  exist, the tool raises `ModelRetry` ("Unknown product_id… use
+  find_products"), which sends the model back to search instead of letting
+  it guess.
+- **Bounded.** Search returns at most 10 matches, and `check_stock` takes
+  at most 10 products per call. Combined with the per-message limits in
+  section 4, a single question can't run away.
+- **Whole-word search.** Matching is on whole words with simple plurals
+  trimmed ("hoodies" → "hoodie"). Common words like "the" and words on
+  nearly every product ("Yale", "Campus Customs") are ignored. An early
+  version matched word fragments ("hat" inside "that") and was fixed in P6
+  testing.
+
+### Verified (P6, against the database)
+
+| Question | Agent's answer | Database |
+|---|---|---|
+| Price of the Yale Mom hoodie? | $68.00 | 68.0 ✓ |
+| Champion crewneck in Small? | Sold out in Small right now; in stock in M and XL | S 0, M 12, XL 12 ✓ |
+| Yale Mom hoodie in 3XL? | Doesn't come in 3XL | not offered ✓ |
+| Saybrook items in Large? | Crewneck and fleece 2 in stock; tee sold out | L 2 / 2 / 0 ✓ |
+| Can you hold one until Friday? | Can't hold; 8 available as of just now, no promise | M 8 ✓ |
+| Do you sell hats? | Couldn't find a hat | no hats ✓ |
+
+### Known limits
+
+- Search is keyword-based. It doesn't know synonyms ("sweatshirt" vs.
+  "crewneck") and doesn't understand vibes ("something warm for the
+  Harvard game"). Smarter chat search is P7.
+- Stock can change between the check and checkout. The agent says so
+  rather than promising.
 
 ## 7. Safety — *full write-up in P12*
 

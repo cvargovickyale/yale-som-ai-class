@@ -244,6 +244,9 @@ returning. isn't that obvious though we want product description price and
 stock info. let me know bc next we'll add this tool list field names and
 justification to the harness file section
 
+**Follow-up prompt used:** go ahead and add the tools section to harness.
+explain why the fields were chosen for the lookup results in there too
+
 **Notes:**
 
 - **Harness vs. prompt:** the agent never reads `harness.md`. With every
@@ -283,3 +286,13 @@ justification to the harness file section
   - the browser chat shows product cards with database prices
 - **Prompt fix after testing:** prices are now written as dollars and cents
   (the agent had written "$58.0").
+- `output/harness.md` section 6 (Tools) covers:
+  - the no-invented-prices/quantities rule
+  - why there are three tools and why search comes first
+  - a field-by-field table for each tool's results, saying why each field
+    is included and what's left out on purpose
+  - the guardrails in the code
+  - the verified test table
+  - known limits
+
+  Sections 4 and 5 were updated to point to it.
