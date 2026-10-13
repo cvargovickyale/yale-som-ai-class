@@ -59,23 +59,28 @@ likely: keep it to the listed files).
 
 ## Problem map
 
-Only P1 and P11 are confirmed. P2–P10 are **inferred from the output files**
-(order and names are guesses). Replace each row with the real title as we
-reach it.
+Titles are confirmed (2026-10-12). Which output file belongs to which problem
+is **inferred** from the titles (marked *likely*). Confirm against each
+problem's real text when we reach it.
 
-| P# | Problem (confirmed / *guess*) | What we do | Main files |
+| P# | Problem | What we do | Main files |
 |---|---|---|---|
 | P1 | Vibe coder prompts | ✅ Convention set in `hw5/AI_prompts.md` (header only). Kickoff is **not** logged; entries start at P2. | `AI_prompts.md` ✅ |
-| P2 | *Data / setup* | Move data into `hw5/data/`, make the working copy, reset script, venv, check `gpt-6-luna` through Portkey with one cheap call. **First log entry.** | `data/`, `requirements.txt`, `.env.example`, `.gitignore` |
-| P3 | *MCP server* | Tools for each table; enforce the shop rules in code; smoke-test with no LLM. | `mcp_server/server.py`, `mcp_server/README.md`, `.mcp.json`, `output/mcp_smoke.json` |
-| P4 | *Desk / ticket board* | Show the three open tickets. | `output/desk_tickets.html` |
-| P5 | *Agents + prompts* | Five agents on `gpt-6-luna`, each with its own prompt and tool subset. | `backend/main.py`, `models.py`, `prompts/*.md` |
-| P6 | *Delegation / full connectivity* | Any agent can hand work to any other; depth and loop limits. | `backend/main.py` |
-| P7 | *React dashboard* | Watch agents work live; approval queue. | `frontend/`, `output/design.md` |
-| P8 | *Human approval for payments* | Payment only after a human clicks approve; cash floor enforced by the tool. | `mcp_server/`, `main.py`, `frontend/` |
-| P9 | *Full three-ticket run* | Reset → resolve 101, 102, 103 end to end. | `output/resolved_tickets.json`, `output/resolved_board.html` |
-| P10 | *Audit trail + harness* | Append-only trail from real message history (HW4 v2 pattern); final harness. | `output/audit_trail.json`, `output/harness.md` |
-| P11 | Push to public GitHub | Confirm repo name, publish, grader-test a fresh clone, write URL. | repo, `output/github_url.txt` |
+| P2 | Study the Campus Customs database | Move data into `hw5/data/`, make the working copy, inspect tables/links/quirks against the real rows. **First log entry.** Probably also venv, `.gitignore`, `.env.example`. | `data/`, `AI_prompts.md`; maybe the start of `harness.md` |
+| P3 | Build the MCP server | Read/write tools over `campus_customs_new.db`; shop rules enforced in the tools. | `mcp_server/server.py`, `mcp_server/README.md`, `requirements.txt` |
+| P4 | Add the MCP server to the vibe coder and test each tool | Register it with Claude Code via `.mcp.json`, call every tool directly (no agent), and save the results. | `.mcp.json`, `output/mcp_smoke.json` |
+| P5 | Build the agent team and grow the MCP tools | Five PydanticAI agents on `gpt-6-luna`, one prompt each, bounded delegation; add the tools they turn out to need. | `backend/main.py`, `backend/models.py`, `backend/prompts/*.md`, `mcp_server/server.py` |
+| P6 | Plan the three tickets | Plan for 101/102/103 before acting (who does what, cash order, approvals). | *likely* `output/desk_tickets.html` |
+| P7 | Backend routes | FastAPI endpoints: tickets, run/resolve, agent activity, approvals (approve/reject), reset. | `backend/main.py`, `models.py` |
+| P8 | Agent dashboard | React board: tickets, live agent activity, approval queue. | `frontend/`, *likely* `output/design.md` |
+| P9 | Resolve the tickets | Reset → full three-ticket run with human approvals. | `output/resolved_tickets.json`, `output/resolved_board.html`, `output/audit_trail.json` |
+| P10 | Reflection | **Christopher's voice.** Claude prepares structure only. | *likely* `output/harness.md` (or wherever the problem says) |
+| P11 | Push to public GitHub | Confirm repo name, publish, grader-test a fresh clone, write the URL. | repo, `output/github_url.txt`, `README.md` final |
+
+Open mapping questions: where `harness.md` gets written (HW4 built it up
+across problems, then finished it in P12; here it may be P10 or built
+throughout), and whether `audit_trail.json` starts in P5 when agents first
+run. Default: start logging as soon as agents run.
 
 ## The data (original DB, read-only check 2026-10-12)
 
