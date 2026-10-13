@@ -66,7 +66,7 @@ problem's real text when we reach it.
 | P# | Problem | What we do | Main files |
 |---|---|---|---|
 | P1 | Vibe coder prompts | ✅ Convention set in `hw5/AI_prompts.md` (header only). Kickoff is **not** logged; entries start at P2. | `AI_prompts.md` ✅ |
-| P2 | Study the Campus Customs database | Move data into `hw5/data/`, make the working copy, inspect tables/links/quirks against the real rows. **First log entry.** Probably also venv, `.gitignore`, `.env.example`. | `data/`, `AI_prompts.md`; maybe the start of `harness.md` |
+| P2 | Study the Campus Customs database | ✅ Data at `hw5/data/`, working copy made (same SHA-1 as original), harness §1 Data, `hw5/.gitignore` (DBs committed; only -journal/-wal/-shm ignored). Venv and `.env.example` deferred to P3. | `data/`, `output/harness.md`, `AI_prompts.md` ✅ |
 | P3 | Build the MCP server | Read/write tools over `campus_customs_new.db`; shop rules enforced in the tools. | `mcp_server/server.py`, `mcp_server/README.md`, `requirements.txt` |
 | P4 | Add the MCP server to the vibe coder and test each tool | Register it with Claude Code via `.mcp.json`, call every tool directly (no agent), and save the results. | `.mcp.json`, `output/mcp_smoke.json` |
 | P5 | Build the agent team and grow the MCP tools | Five PydanticAI agents on `gpt-6-luna`, one prompt each, bounded delegation; add the tools they turn out to need. | `backend/main.py`, `backend/models.py`, `backend/prompts/*.md`, `mcp_server/server.py` |
@@ -113,7 +113,7 @@ The puzzle that ties the tickets together:
 
 ## Decisions (resolve when we reach each problem)
 
-1. **Working location.** Build in `hw/hw_05/hw5/`. The DB currently sits at
+1. ~~**Working location.**~~ **Done (P2):** building in `hw/hw_05/hw5/`; the DB was at
    `hw/hw_05/data/` → move it to `hw/hw_05/hw5/data/` in P2.
 2. **Committing the DBs.** The workspace `.gitignore` already ignores
    `*.db-journal`. Add `-wal`/`-shm` too. Which state of
