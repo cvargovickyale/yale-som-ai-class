@@ -81,3 +81,32 @@ is for, the tools, and the db it references
 - Also added `hw5/requirements.txt` (`fastmcp`), `hw5/.env.example`
   (placeholders only; the model is fixed to `gpt-6-luna` in code, so there's
   no model setting), and `mcp_server/README.md`.
+
+## Problem 4 — Add the MCP server to the vibe coder and test each tool
+
+**Prompt:** P4 add the MCP server to claude code and test each tool. what does
+it mean add to this project. the connection should be saved in .mcp.json at
+project root - is that how you save things?
+
+Then test each tool, evidence goes in mcp_smoke.json, including the prompt -
+ok it wants me to run the test for each tool. I think I should ask the
+project to call the mcp server and ask what tools are returned , how they
+should be used and the tool output (that matches the new db) - let me know
+when you're ready and I'll ask about each tool individually to kick off the
+tests
+
+**Follow-up prompt used:** _(to fill in: the per-tool test prompts are
+recorded verbatim in `output/mcp_smoke.json`)_
+
+**Notes:**
+
+- "Add to this project" means a project-scoped MCP server: Claude Code reads
+  `.mcp.json` in the folder a session is opened in, starts the server
+  itself, and its tools show up for the assistant to call. Saved as
+  `hw5/.mcp.json` (stdio: `.venv/bin/python mcp_server/server.py`, relative
+  paths so it works in any clone of `hw5/`).
+- Checked that the config launches and connects over MCP with FastMCP's
+  client (it lists the 3 tools). No tool was called in that check. Turned
+  off FastMCP's startup banner.
+- Claude Code only loads `.mcp.json` at session start from the session's
+  folder, so the tool tests run in a new session opened on `hw5/`.
