@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Customs Desk — Ticket Plans</title>
+<style>
+  :root {
+    --gray: #c0c0c0; --gray-dark: #808080; --gray-darker: #404040; --white: #ffffff;
+    --navy: #000080; --navy-2: #1084d0; --teal: #008080; --ink: #000000;
+    --yellow: #ffffe1; --red: #800000; --green: #006400;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px; background: var(--teal); color: var(--ink);
+    font: 12px/1.45 "MS Sans Serif", Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .window {
+    max-width: 1080px; margin: 0 auto; background: var(--gray);
+    border: 2px solid; border-color: var(--white) var(--gray-darker) var(--gray-darker) var(--white);
+    box-shadow: 1px 1px 0 var(--ink);
+  }
+  .titlebar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(90deg, var(--navy), var(--navy-2));
+    color: var(--white); font-weight: bold; padding: 3px 4px 3px 6px;
+  }
+  .titlebar .btns { display: flex; gap: 2px; }
+  .titlebar .btns span {
+    width: 16px; height: 14px; background: var(--gray); color: var(--ink); font-size: 10px;
+    display: grid; place-items: center; border: 1px solid;
+    border-color: var(--white) var(--gray-darker) var(--gray-darker) var(--white);
+  }
+  .menubar { padding: 2px 6px; border-bottom: 1px solid var(--gray-dark); }
+  .menubar span { margin-right: 14px; } .menubar u { text-decoration: underline; }
+  .body { padding: 10px; }
+  .tabs { display: flex; gap: 0; margin-left: 4px; position: relative; z-index: 1; flex-wrap: wrap; }
+  .tab {
+    font: inherit; padding: 4px 12px 3px; margin-right: -1px; cursor: pointer; background: var(--gray);
+    border: 2px solid; border-bottom: none; border-color: var(--white) var(--gray-darker) transparent var(--white);
+    border-radius: 3px 3px 0 0; position: relative; top: 2px;
+  }
+  .tab[aria-selected="true"] { top: 0; padding-bottom: 5px; font-weight: bold; z-index: 2; }
+  .tab:focus-visible { outline: 1px dotted var(--ink); outline-offset: -4px; }
+  .panel {
+    border: 2px solid; border-color: var(--white) var(--gray-darker) var(--gray-darker) var(--white);
+    padding: 12px; background: var(--gray); min-height: 420px;
+  }
+  .panel[hidden] { display: none; }
+  fieldset {
+    border: 2px groove var(--white); margin: 0 0 12px; padding: 8px 10px 10px;
+  }
+  legend { padding: 0 4px; font-weight: bold; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 6px 14px; }
+  .facts div b { display: block; color: var(--gray-darker); font-weight: normal; }
+  .sunken {
+    background: var(--white); padding: 8px; border: 2px solid;
+    border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+  }
+  .flow { list-style: none; margin: 0; padding: 0; }
+  .step { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 8px; align-items: start; }
+  .step + .step { margin-top: 2px; }
+  .num {
+    width: 28px; height: 28px; display: grid; place-items: center; font-weight: bold; color: var(--white);
+    background: var(--navy); border: 2px solid; border-color: var(--navy-2) var(--ink) var(--ink) var(--navy-2);
+  }
+  .card { min-width: 0;
+    background: var(--white); padding: 6px 8px; border: 1px solid var(--gray-dark);
+    box-shadow: inset -1px -1px 0 var(--gray), inset 1px 1px 0 var(--white);
+  }
+  .arrow { grid-column: 1; text-align: center; color: var(--gray-darker); font-size: 14px; line-height: 14px; }
+  .who { font-weight: bold; }
+  .chip {
+    display: inline-block; padding: 0 5px; margin-right: 4px; border: 1px solid var(--gray-darker);
+    background: var(--gray); font-weight: bold; font-size: 11px;
+  }
+  .chip.boss { background: #000080; color: #fff; }
+  .chip.inventory { background: #c0dcc0; }
+  .chip.accounting { background: #ffff80; }
+  .chip.facilities { background: #c0c0ff; }
+  .chip.cs { background: #ffc0c0; }
+  code { white-space: nowrap; font-family: "Courier New", Courier, monospace; font-size: 12px; background: var(--yellow); padding: 0 3px; border: 1px solid #d8d8b0; }
+  .expect { margin-top: 3px; }
+  .expect li { margin: 1px 0; }
+  ul { margin: 4px 0 0 18px; padding: 0; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 760px) { .two { grid-template-columns: 1fr; } body { padding: 8px; } }
+  .note {
+    background: var(--yellow); border: 1px solid var(--ink); padding: 6px 8px; margin-top: 6px;
+  }
+  .note b { color: var(--red); }
+  table { border-collapse: collapse; width: 100%; background: var(--white); }
+  th, td { border: 1px solid var(--gray-dark); padding: 3px 6px; text-align: left; vertical-align: top; }
+  th { background: var(--gray); }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.floor td { background: #ffe0e0; font-weight: bold; }
+  .placeholder {
+    background: var(--white); border: 2px dashed var(--gray-dark); padding: 18px; text-align: center; color: var(--gray-darker);
+  }
+  .options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+  @media (max-width: 640px) { .options { grid-template-columns: 1fr; } }
+  .opt { background: var(--white); border: 1px solid var(--gray-dark); padding: 6px 8px; }
+  .opt h4 { margin: 0 0 4px; font-size: 12px; }
+  .statusbar {
+    display: flex; gap: 2px; padding: 2px; border-top: 1px solid var(--white);
+  }
+  .statusbar span {
+    flex: 1; padding: 1px 6px; border: 1px solid; border-color: var(--gray-dark) var(--white) var(--white) var(--gray-dark);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  h3 { margin: 0 0 6px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="window" role="application" aria-label="Campus Customs desk ticket plans">
+  <div class="titlebar">
+    <span>Campus Customs Desk — Ticket Plans (expected vs. actual)</span>
+    <span class="btns" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
+  </div>
+  <div class="menubar" aria-hidden="true"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>T</u>ickets</span><span><u>H</u>elp</span></div>
+
+  <div class="body">
+    <div class="tabs" role="tablist" aria-label="Tickets">
+      <button class="tab" role="tab" id="tab-101" aria-controls="p-101" aria-selected="true">Ticket 101</button>
+      <button class="tab" role="tab" id="tab-102" aria-controls="p-102" aria-selected="false" tabindex="-1">Ticket 102</button>
+      <button class="tab" role="tab" id="tab-103" aria-controls="p-103" aria-selected="false" tabindex="-1">Ticket 103</button>
+      <button class="tab" role="tab" id="tab-cash" aria-controls="p-cash" aria-selected="false" tabindex="-1">Cash</button>
+      <button class="tab" role="tab" id="tab-refl" aria-controls="p-refl" aria-selected="false" tabindex="-1">Reflection</button>
+    </div>
+
+    <!-- ===================================================== 101 -->
+    <section class="panel" role="tabpanel" id="p-101" aria-labelledby="tab-101">
+      <fieldset>
+        <legend>Ticket 101 — customer order (open)</legend>
+        <div class="facts">
+          <div><b>Requester</b>Tauhid Zaman</div>
+          <div><b>Request</b>1 × Classic Bulldog Tee (<code>CC-TEE-WHITE</code>), size S</div>
+          <div><b>Linked</b>Invoice 501: Bulldog Print Co, $840.00</div>
+          <div><b>Created</b>2026-08-31 09:15</div>
+        </div>
+        <p style="margin:6px 0 0">Ticket note: "Needs a tee in size S." Shop date (<code>desk.date_today</code>): 2026-08-31.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Expected flow</legend>
+        <ol class="flow">
+          <li class="step"><div class="num">1</div><div class="card">
+            <span class="chip boss">Boss</span> reads the ticket with <code>get_ticket(101)</code>.
+            <ul class="expect"><li>Sees the tee in S and the linked invoice 501: $840, due 2026-08-28, <b>3 days overdue</b>.</li></ul>
+          </div></li>
+          <li class="step"><div class="arrow">↓</div><div></div></li>
+          <li class="step"><div class="num">2</div><div class="card">
+            <span class="chip boss">Boss</span> → <span class="chip inventory">Inventory</span>: is it in stock? <code>check_stock("CC-TEE-WHITE", "S", 1)</code>
+            <ul class="expect">
+              <li>Tee S: <b>0 on hand, short 1</b>. The order can't ship from stock.</li>
+              <li>Other tee sizes on hand: M 5, L 3, XL 2.</li>
+            </ul>
+          </div></li>
+          <li class="step"><div class="arrow">↓</div><div></div></li>
+          <li class="step"><div class="num">3</div><div class="card">
+            <span class="chip boss">Boss</span> → <span class="chip accounting">Accounting</span>: pay the overdue invoice. <code>propose_payment(101, "invoice", 501)</code>
+            <ul class="expect">
+              <li>Payment request: <b>$840 to Bulldog Print Co</b>, status <i>pending approval</i>. No money moves.</li>
+              <li>Cash if approved: $3,400 − $840 = <b>$2,560</b>.</li>
+              <li>Paying it unblocks Bulldog Print Co, which won't ship a reprint while 501 is unpaid.</li>
+            </ul>
+          </div></li>
+          <li class="step"><div class="arrow">↓</div><div></div></li>
+          <li class="step"><div class="num">4</div><div class="card">
+            <span class="chip boss">Boss</span> → <span class="chip cs">Customer Service</span>: draft a reply to Tauhid. <code>save_draft_message(101, "Tauhid Zaman", …)</code>
+            <ul class="expect">
+              <li>Says the S is out of stock and a reprint is being arranged.</li>
+              <li><b>No firm date</b>: the reprint can't be ordered until the payment is approved. The earliest arrival is 5 days after ordering (2026-09-05 if ordered today).</li>
+              <li>Can mention the sizes in stock (M, L, XL) as an alternative.</li>
+            </ul>
+          </div></li>
+          <li class="step"><div class="arrow">↓</div><div></div></li>
+          <li class="step"><div class="num">5</div><div class="card">
+            <span class="chip boss">Boss</span> records the call: <code>record_decision(101, …)</code>, outcome <b>waiting</b>.
+          </div></li>
+        </ol>
+      </fieldset>
+
+      <div class="two">
+        <fieldset>
+          <legend>Waiting for the human</legend>
+          <ul>
+            <li>Payment request: invoice 501, $840</li>
+            <li>Draft reply to Tauhid Zaman</li>
+            <li>Boss decision (ticket stays open until approved)</li>
+          </ul>
+        </fieldset>
+        <fieldset>
+          <legend>Watch for</legend>
+          <ul>
+            <li>Inventory may also run <code>find_vendor</code> and report the block on Bulldog Print Co. That's expected, not extra.</li>
+            <li><code>request_reprint</code> should be <b>refused</b> in this run (vendor blocked) rather than worked around.</li>
+            <li>The draft must not mention the invoice, the cash balance, or a firm date.</li>
+          </ul>
+        </fieldset>
+      </div>
+
+      <fieldset>
+        <legend>Actual (filled in after the run)</legend>
+        <div class="placeholder">Actual agent steps, tool calls, and results from <code>output/audit_trail.json</code> go here after the tickets are resolved.</div>
+      </fieldset>
+    </section>
+
+    <!-- ===================================================== 102 -->
+    <section class="panel" role="tabpanel" id="p-102" aria-labelledby="tab-102" hidden>
+      <fieldset>
+        <legend>Ticket 102 — rent notice (open)</legend>
+        <div class="facts">
+          <div><b>Requester</b>Elm City Properties</div>
+          <div><b>Request</b>Shop rent due</div>
+          <div><b>Linked</b>Lease 1: Chapel Street shop</div>
+          <div><b>Created</b>2026-08-31 11:05</div>
+        </div>
+        <p style="margin:6px 0 0">Ticket note: "Email: shop rent due in 2 days." Shop date: 2026-08-31.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Expected flow</legend>
+        <ol class="flow">
+          <li class="step"><div class="num">1</div><div class="card">
+            <span class="chip boss">Boss</span> reads the ticket with <code>get_ticket(102)</code>. Sees it's rent on lease 1.
+          </div></li>
+          <li class="step"><div class="arrow">↓</div><div></div></li>
+          <li class="step"><div class="num">2</div><div class="card">
+            <span class="chip boss">Boss</span> → <span class="chip facilities">Facilities</span>: rent facts. <code>get_lease(1)</code>
+            <ul class="expect">
+              <li>Lease 1: Chapel Street shop, Elm City Properties, <b>$2,400 due 2026-09-02</b> (in 2 days, not overdue).</li>
+              <li>No past rent payments on record. The notice matches the lease.</li>
+            </ul>
+          </div></li>
+          <li class="step"><div class="arrow">↓</div><div></div></li>
+          <li class="step"><div class="num">3</div><div class="card">
+            <span class="chip facilities">Facilities</span> → <span class="chip accounting">Accounting</span>: note the payment and recommend it. <code>propose_payment(102, "rent", 1)</code>
+            <ul class="expect">
+              <li>Payment request: <b>$2,400 to Elm City Properties</b>, pending approval.</li>
+              <li>Cash if approved: <b>$160</b> if 101's $840 is already pending ($3,400 − $840 − $2,400); $1,000 if 102 runs alone.</li>
+            </ul>
+          </div></li>
+          <li class="step"><div class="arrow">↓</div><div></div></li>
+          <li class="step"><div class="num">4</div><div class="card">
+            <span class="chip boss">Boss</span> records the call: <code>record_decision(102, …)</code>, outcome <b>pay</b>.
+          </div></li>
+        </ol>
+      </fieldset>
+
+      <div class="two">
+        <fieldset>
+          <legend>Waiting for the human</legend>
+          <ul>
+            <li>Payment request: rent on lease 1, $2,400</li>
+            <li>Boss decision</li>
+          </ul>
+        </fieldset>
+        <fieldset>
+          <legend>Watch for</legend>
+          <ul>
+            <li><b>One path to Accounting.</b> Facilities brings Accounting in; the Boss shouldn't ask Accounting again (the P5 test did, costing about 4,600 extra tokens).</li>
+            <li>Accounting must not propose invoice 501 under ticket 102. The tool refuses it; it belongs to 101.</li>
+            <li>No draft to the landlord is planned. The Boss's prompt currently asks for one on every ticket.</li>
+          </ul>
+        </fieldset>
+      </div>
+
+      <fieldset>
+        <legend>Actual (filled in after the run)</legend>
+        <div class="placeholder">Actual agent steps, tool calls, and results from <code>output/audit_trail.json</code> go here after the tickets are resolved.</div>
+      </fieldset>
+    </section>
+
+    <!-- ===================================================== 103 -->
+    <section class="panel" role="tabpanel" id="p-103" aria-labelledby="tab-103" hidden>
+      <fieldset>
+        <legend>Ticket 103 — price override (open)</legend>
+        <div class="facts">
+          <div><b>Requester</b>Yale AI Club</div>
+          <div><b>Request</b>20 × Basic Hoodie Big Yale (<code>CC-HOOD-NAVY</code>), size M</div>
+          <div><b>Asking for</b>A bulk discount</div>
+          <div><b>Created</b>2026-08-31 16:55</div>
+        </div>
+        <p style="margin:6px 0 0">Ticket note: "Student org wants 20 hoodies, size M, asking for a bulk discount." Shop date: 2026-08-31.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Expected flow</legend>
+        <ol class="flow">
+          <li class="step"><div class="num">1</div><div class="card">
+            <span class="chip boss">Boss</span> reads the ticket with <code>get_ticket(103)</code>. Nothing linked; 20 × M with a discount request.
+          </div></li>
+          <li class="step"><div class="arrow">↓</div><div></div></li>
+          <li class="step"><div class="num">2</div><div class="card">
+            <span class="chip boss">Boss</span> → <span class="chip inventory">Inventory</span>: stock, and when more could arrive. <code>check_stock("CC-HOOD-NAVY", "M", 20)</code> then <code>find_vendor("CC-HOOD-NAVY")</code>
+            <ul class="expect">
+              <li>Hoodie M: <b>8 on hand, short 12</b>. Other sizes: S 4, L 14, XL 6 (32 total).</li>
+              <li>Restock: Bulldog Print Co (apparel reprint, 5-day lead time), <b>blocked</b> by unpaid invoice 501.</li>
+              <li>Earliest arrival: 5 days after the reprint can be ordered (2026-09-05 if unblocked and ordered today).</li>
+            </ul>
+          </div></li>
+          <li class="step"><div class="arrow">↓</div><div></div></li>
+          <li class="step"><div class="num">3</div><div class="card">
+            <span class="chip boss">Boss</span> → <span class="chip accounting">Accounting</span>: what's the largest allowable discount? <code>price_and_margin("CC-HOOD-NAVY", 20, discount_pct)</code>
+            <ul class="expect">
+              <li>Cost $22, list $58: 62.1% margin at list.</li>
+              <li>Margin floor 40% → lowest price $22 ÷ 0.6 = <b>$36.67, i.e. at most 36.8% off</b>.</li>
+            </ul>
+            <div style="overflow-x:auto;margin-top:6px"><table aria-label="Hoodie margin at discount levels, 20 units">
+              <thead><tr><th>Discount</th><th class="n">Price each</th><th class="n">Margin</th><th class="n">Revenue (20)</th><th class="n">Profit (20)</th></tr></thead>
+              <tbody>
+                <tr><td>0% (list)</td><td class="n">$58.00</td><td class="n">62.1%</td><td class="n">$1,160.00</td><td class="n">$720.00</td></tr>
+                <tr><td>10%</td><td class="n">$52.20</td><td class="n">57.9%</td><td class="n">$1,044.00</td><td class="n">$604.00</td></tr>
+                <tr><td>20%</td><td class="n">$46.40</td><td class="n">52.6%</td><td class="n">$928.00</td><td class="n">$488.00</td></tr>
+                <tr><td>30%</td><td class="n">$40.60</td><td class="n">45.8%</td><td class="n">$812.00</td><td class="n">$372.00</td></tr>
+                <tr class="floor"><td>36.8% (floor)</td><td class="n">$36.67</td><td class="n">40.0%</td><td class="n">$733.33</td><td class="n">$293.33</td></tr>
+              </tbody>
+            </table></div>
+          </div></li>
+          <li class="step"><div class="arrow">↓</div><div></div></li>
+          <li class="step"><div class="num">4</div><div class="card">
+            <span class="chip boss">Boss</span> suggests the price override to the human: <code>record_decision(103, …)</code>, outcome <b>alternative</b>.
+          </div></li>
+          <li class="step"><div class="arrow">↓</div><div></div></li>
+          <li class="step"><div class="num">5</div><div class="card">
+            <span class="chip boss">Boss</span> → <span class="chip cs">Customer Service</span>: one draft to the Yale AI Club with two options. <code>save_draft_message(103, "Yale AI Club", …)</code>
+            <div class="options">
+              <div class="opt"><h4>Option A: other sizes now, medium discount</h4>
+                8 in M plus 12 from sizes in stock (L has 14) ship now, with a medium discount.</div>
+              <div class="opt"><h4>Option B: wait, bigger discount on all M</h4>
+                All 20 in M after a reprint of 12, with a bigger discount. No firm date: it depends on the reprint being ordered.</div>
+            </div>
+            <p style="margin:6px 0 0">Both discount levels are set by Accounting, at or under 36.8% off.</p>
+          </div></li>
+        </ol>
+      </fieldset>
+
+      <div class="two">
+        <fieldset>
+          <legend>Waiting for the human</legend>
+          <ul>
+            <li>Boss decision with the price override</li>
+            <li>Draft reply to the Yale AI Club (both options)</li>
+            <li>Possibly a hold on the 8 M hoodies (<code>reserve_stock</code>), if the Boss asks</li>
+          </ul>
+        </fieldset>
+        <fieldset>
+          <legend>Watch for</legend>
+          <ul>
+            <li><b>Option B's cash.</b> A 12-hoodie reprint costs 12 × $22 = <b>$264</b>, but only <b>$160</b> is left if 101's and 102's payments are approved. Accounting should flag this.</li>
+            <li>Option B also needs invoice 501 paid first (vendor blocked).</li>
+            <li>One draft per ticket: both options must go in the same message.</li>
+          </ul>
+        </fieldset>
+      </div>
+
+      <fieldset>
+        <legend>Actual (filled in after the run)</legend>
+        <div class="placeholder">Actual agent steps, tool calls, and results from <code>output/audit_trail.json</code> go here after the tickets are resolved.</div>
+      </fieldset>
+    </section>
+
+    <!-- ===================================================== Cash -->
+    <section class="panel" role="tabpanel" id="p-cash" aria-labelledby="tab-cash" hidden>
+      <fieldset>
+        <legend>Cash</legend>
+        <div class="placeholder">To be filled in later.</div>
+      </fieldset>
+    </section>
+
+    <!-- ===================================================== Reflection -->
+    <section class="panel" role="tabpanel" id="p-refl" aria-labelledby="tab-refl" hidden>
+      <fieldset>
+        <legend>Reflection</legend>
+        <div class="placeholder">To be filled in later.</div>
+      </fieldset>
+    </section>
+  </div>
+
+  <div class="statusbar"><span>Plan only: no agent has run yet</span><span>Shop date 2026-08-31</span><span>Cash $3,400.00</span></div>
+</div>
+
+<script>
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  function select(tab) {
+    tabs.forEach(t => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', on);
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    tab.focus();
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => select(t));
+    t.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') select(tabs[(i + 1) % tabs.length]);
+      if (e.key === 'ArrowLeft') select(tabs[(i - 1 + tabs.length) % tabs.length]);
+    });
+  });
+</script>
+</body>
+</html>

@@ -319,3 +319,61 @@ these changes. you may have done most of these
 - Wrote `hw5/README.md`: setup, reset, start MCP, start the backend (CLI
   until P7's routes), the board (P8), reset before a full three-ticket run,
   and what agents can do vs. what only a human can approve.
+
+## Problem 6 — Plan the three tickets
+
+**Prompt:** p6 we are writing what we expect to happen in
+output/desk_tickets.html that has one tab per ticket. it can simply visualize
+(in the expected section, differen thtan actual section we will build later)
+the main steps
+
+101: Boss should call first: Inventory - to see that we don't have that in
+stock. get inventory tool. then accounting to pay overdue invoice. suggest
+payment tool then customer service to get a response to customer. draft
+response tool.
+
+102: Boss should call facilities first. rent info tool. then accounting.
+suggest payment tool.
+
+103: Boss should call inventory first. get inventory tool. and see when we
+could get things in stock. accounting tool is asked to see what maximum
+allowable discount would be. boss suggests override to user. customer service
+drafts two approaches to either offer other sizes for a medium discount or
+wait for a bigger discount on all mediums.
+
+turn this into expected flows. we also need empty cash and reflection tabs for
+later
+
+**Follow-up prompt used:** none.
+
+**Notes:**
+
+- Built `output/desk_tickets.html`, a Gateway 2000-style window with five
+  tabs: Ticket 101, Ticket 102, Ticket 103, Cash, Reflection.
+  - Each ticket tab has the ticket facts from the database, an **Expected
+    flow** (my steps as numbered agent → tool → expected result, with real
+    tool names and numbers), "Waiting for the human", "Watch for", and an
+    empty **Actual** section for after the run.
+  - Cash and Reflection are empty placeholders.
+- Expected numbers come from SQL on the working copy and from the tools'
+  arithmetic:
+  - **101:** tee S 0 on hand. Invoice 501 is $840, 3 days overdue; cash
+    $3,400 → $2,560.
+  - **102:** $2,400 rent due 2026-09-02; cash → $160 after both payments.
+  - **103:** 8 of 20 M on hand, short 12; Bulldog Print Co blocked by 501.
+- **Correction:** at the 40% margin floor, the lowest hoodie price is
+  $22 ÷ 0.6 = $36.67, so at most **36.8% off**. In P5 Claude told me about
+  34% ($38.33), which was wrong. The 103 tab shows the margin table at 0,
+  10, 20, 30, and 36.8% off.
+- Things the plan surfaced for the run (in each tab's "Watch for"):
+  - **102:** Facilities brings in Accounting, so the Boss shouldn't ask
+    Accounting again. In the P5 test it did, costing about 4,600 tokens.
+  - **102:** no landlord draft is planned, but the Boss's prompt currently
+    asks for a draft on every ticket.
+  - **103, Option B:** a 12-hoodie reprint costs $264, but only $160 is left
+    after 101's and 102's payments, and the vendor is blocked until invoice
+    501 is paid.
+  - **103:** one draft per ticket, so both options go in one message.
+- Checked: all five tabs switch correctly, with no script errors and no
+  sideways overflow at 1280 px or 375 px. The 103 discount table overflowed
+  on mobile, so it now scrolls inside its box.
