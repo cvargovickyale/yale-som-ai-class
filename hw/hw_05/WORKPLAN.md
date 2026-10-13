@@ -172,6 +172,52 @@ backend enforce them.
 7. **One decider.** Boss makes the final call on each ticket. Specialists
    recommend.
 
+## P4 handoff: tool tests run from a session opened in `hw5/`
+
+Claude Code loads `.mcp.json` only from the folder a session is opened in,
+and only at session start. The kickoff session was opened at the workspace
+root, so the P4 tool tests run in a new session opened on
+`hw/hw_05/hw5/` (approve the `campus-customs` project server when asked).
+
+`output/mcp_smoke.json` shape (one entry per tool):
+
+```json
+{
+  "server": "campus-customs",
+  "config": ".mcp.json (stdio: .venv/bin/python mcp_server/server.py)",
+  "database": "data/campus_customs_new.db",
+  "tools_listed": ["check_stock", "price_and_margin", "get_ticket"],
+  "tests": [
+    {
+      "tool": "check_stock",
+      "prompt": "<Christopher's prompt, verbatim>",
+      "arguments": {},
+      "output": {},
+      "expected_from_sql": {},
+      "matches_db": true
+    }
+  ]
+}
+```
+
+Expected values (SQL on the working copy, 2026-10-12):
+
+- `check_stock("CC-TEE-WHITE","S",1)` → on hand 0, shortfall 1. Other
+  sizes: M 5, L 3, XL 2; total 10.
+- `check_stock("CC-HOOD-NAVY","M",20)` → on hand 8, shortfall 12. Other
+  sizes: S 4, L 14, XL 6; total 32.
+- `price_and_margin("CC-HOOD-NAVY",20,0)` → cost 22, list 58, margin
+  62.1%, revenue 1160, cost 440, profit 720, cash 3400.
+- `get_ticket(101)` → invoice 501, Bulldog Print Co, $840, due 2026-08-28,
+  3 days overdue, lead 5 days.
+- `get_ticket(102)` → lease 1, Elm City Properties, $2,400, due 2026-09-02,
+  2 days.
+- `get_ticket(103)` → Yale AI Club, CC-HOOD-NAVY M ×20, nothing linked.
+- Error check: an unknown SKU or ticket must return an error, not data.
+
+Check the working copy is still identical to the original after P4 (all
+tools are read-only): same SHA-1, `f447ca6a…`.
+
 ## Reuse from HW4 (frozen; copy patterns, don't edit)
 
 - Contract-first outputs; code states facts, the model picks.
