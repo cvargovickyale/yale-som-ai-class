@@ -43,8 +43,9 @@ still need explicit confirmation per the usual git safety rules.
    anything under those paths.
 2. **Secrets.** The root `.env` holds the real `PORTKEY_API_KEY`. Never print,
    copy, commit, or package it. Ship `.env.example` with placeholders instead.
-3. **Model default.** Portkey endpoint with `gpt-5.6-luna` is the workspace
-   convention, not a course requirement. An assignment may call for a different
+3. **Model default.** Portkey endpoint with `gpt-6-luna` is the workspace
+   convention from HW5 on (HW5 *requires* it for every agent; HW1–HW4 used
+   `gpt-5.6-luna` — don't copy that default from old code). An assignment may call for a different
    provider, SDK, local model, or no LLM at all — check the local instructions
    and existing code first.
 4. **One venv per project folder.** `python3 -m venv .venv` inside the lecture

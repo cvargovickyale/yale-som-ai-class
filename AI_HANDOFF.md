@@ -35,7 +35,8 @@ folder.
 
 The root `.env` contains the real `PORTKEY_API_KEY` for projects that use
 Portkey. The workspace convention is to use the configured Portkey endpoint and
-`gpt-5.6-luna` by default, but this is not a course-wide requirement: a lecture
+`gpt-6-luna` by default (since HW5, 2026-10; HW1–HW4 code defaults to
+`gpt-5.6-luna` — don't copy that default forward), but this is not a course-wide requirement: a lecture
 or homework may use another approved LLM connection, provider, SDK, local
 model, or no LLM at all. Always inspect the assignment’s local instructions
 and existing code before choosing the connection. Never print, copy, commit,
@@ -50,6 +51,11 @@ warrant a stronger model — and log that choice in the assignment's prompt log
 if it's a deliberate deviation. This roster is current-semester information,
 not a fixed fact; re-check an assignment's own instructions before assuming it
 still holds later in the term.
+
+Update (HW5, 2026-10-12): HW5 requires **only `gpt-6-luna`** for every agent
+and deducts points if any other model shows up in code or runs. Verified via
+Portkey; responses report the dated snapshot `gpt-6-luna-2026-09-22`, so check
+the reported model name with a prefix match, not exact equality.
 
 Every new lecture or homework folder gets its own Python environment:
 

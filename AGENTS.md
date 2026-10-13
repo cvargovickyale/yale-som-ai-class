@@ -4,7 +4,7 @@ These rules apply across this semester workspace unless a more specific
 `AGENTS.md` provides additional instructions.
 
 1. The root `.env` contains `PORTKEY_API_KEY`. Use the configured Portkey
-   endpoint and the OpenAI `gpt-5.6-luna` model unless the user specifies
+   endpoint and the OpenAI `gpt-6-luna` model unless the user specifies
    otherwise. Never print or commit secret values.
 2. When starting a new lecture or homework folder, create a dedicated Python
    virtual environment in that folder, following the existing lecture project
