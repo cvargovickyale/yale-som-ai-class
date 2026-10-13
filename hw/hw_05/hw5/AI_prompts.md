@@ -140,3 +140,127 @@ type them. Each one matches an entry in `output/mcp_smoke.json`.
   - **The working database was not changed** (same SHA-1 before and after).
 - The test script is kept outside the submission (`hw/hw_05/mcp_smoke_test.py`)
   so it can be rerun when P5 adds tools.
+
+## Problem 5 — Build the agent team and grow the MCP tools
+
+**Prompt:** p5: the agent team needs to use PydanticAI: I'm confused why this
+lists agents when I thought I chose three agents before. was I supposed to
+pick from a list?
+
+now they say boss, accounting, facilities, customer service, inventory.
+
+add prompts, models, and agent loops (explain to me what this means) so they
+can talk to each other and delegate (reference the rules we talked about)
+
+prompts go in backend/prompts/ with each agent getting its own file. data
+types go in backend/models.py and agent files go in backend. they are strict
+about only gpt-6-luna, make sure old refs to 5.6 are updated. I want to write
+prompts for each in my own words but I need some leading questions. can you
+do a popup quiz thing where I can explain what role each agent should have in
+the workflows and therefore what tools they need. they say more detailed
+prompts that cover many or all aspects of the agents work and scope will
+score higher, help me get there
+
+**Follow-up prompt used (my answers to the role quiz):**
+
+- Boss tools: get_ticket, list_open_tickets, record_decision, delegate
+- Inventory tools: check_stock, find_vendor, reserve_stock, request_reprint, delegate
+- Accounting tools: price_and_margin, get_cash_and_bills, propose_payment, delegate
+- Facilities tools: get_lease, get_ticket, delegate
+- CS tools: get_ticket, save_draft_message, delegate
+- Boss role: The boss should be the first to read the ticket, decide which
+  tools to use to solve the problems, and interpret what comes back. like if
+  accounting gives number figures on different outcomes, it gives a
+  recommendation to balance those against business health and customer
+  happiness.
+- Boss limits: boss shouldn't make payments or send things to customers
+  without approval. ticket is done when user approves.
+- Inventory role: inventory knows everything about db and can answer stock by
+  size, how many more people would need versus what's in stock, which vendor
+  could reprint, lead time
+- Inventory limits: delivery date is promised by lead days plus current day,
+  can't order from blcoked vendor. other tools need to be clear that there
+  aren't pending changes to the db.
+- Accounting role: Accounting needs to decide lowest acceptable margin when
+  offering discounts, understand the financials and flag anything that's a
+  bad business decision, keep enough cash to order inventory, and pay overdue
+  things first.
+- Accounting limits: if cash would go below zero they can't recommend a
+  transaction and must explain an alternative. and they're never approving a
+  transaction, human does.
+- Facilities role: asks accounting to note the payment and recommend to the
+  boss, facilities deals with rent. I think this is the simplest agent.
+- CS role: whoever is referenced in ticket, friendly and honest tone, every
+  message must include only facts from db and nothing made up, and not
+  overpromise delivery dates.
+- Delegation depth: 4
+- Team rules: no real emails, no ping ponging (but could we allow one back
+  and forth? why or why not?),
+
+**Notes:**
+
+- **Five agents, not three:** the five agents were set by the scenario. In
+  P3 I picked three *tools*, one for each of the roles I suggested.
+- **Prompts** (`backend/prompts/*.md`): each one is built around my quiz
+  answers. Claude added the structure (role, how to work, limits, delegation
+  rules, what to return) and the rules from the kickoff quiz.
+- **Margin floor (decision): 40% after discount.** It's written into
+  `accounting.md` as the shop's floor. I said Accounting decides the lowest
+  acceptable margin; 40% is the default number until I change it.
+- **Models** (`backend/models.py`): agents return fixed shapes, not prose.
+  Specialists return `SpecialistReport` (findings with numbers, actions
+  taken, pending IDs, recommendation, blocked items, `questions_for_caller`).
+  The Boss returns `BossDecision` (outcome, summary, reasoning, pending IDs,
+  risks). Audit records are `AgentRunRecord` and `TicketRun`.
+- **Agent loops** (`backend/main.py`, which holds all five agents to match
+  the required tree): one PydanticAI run per agent. `delegate` starts the
+  teammate's loop and returns its report.
+- **Guardrails enforced in code:**
+  - depth 4
+  - no hand-off to any agent already in the chain
+  - stay on the ticket
+  - one tool call at a time
+  - a shared budget per ticket (40 requests, 80 tool calls, 400k tokens)
+  - time limits of 300 s per ticket, 90 s per model call, 60 s per tool
+- **One back-and-forth (my question):** allowed, but only through the
+  caller. A specialist can't hand work back up the chain (that's what loops
+  forever). Instead it lists what it needs in `questions_for_caller`, and
+  the caller delegates again with the answer. Each round is visible in the
+  audit trail and counts against the same budget.
+- **Grew the MCP tools from 3 to 12** to match my picks:
+  - New read tools: `list_open_tickets`, `find_vendor`,
+    `get_cash_and_bills`, `get_lease`. `check_stock` and `get_ticket` now
+    also show holds and other pending work.
+  - New write tools: `record_decision`, `reserve_stock`, `request_reprint`,
+    `propose_payment`, `save_draft_message`. They only create *pending*
+    records in five new tables in the working copy. Nothing moves money or
+    stock, and nothing is sent.
+- **Rules in the tools, not just the prompts:**
+  - no payment without human approval (no agent has a pay tool)
+  - cash can't go below $0
+  - a blocked vendor (any open unpaid invoice) can't take a reprint order
+  - no duplicate payments, holds, or reprints
+  - drafts go only to the ticket's requester
+  - a payment can only be for the ticket's own bill
+- **gpt-6-luna only:** the model name is fixed in code with no override, and
+  the audit checks every response's reported model (`gpt-6-luna-global`).
+  Updated the old `gpt-5.6-luna` defaults in the workspace guide files
+  (`CLAUDE.md`, `AGENTS.md`, `AI_HANDOFF.md`). `hw5/` never referenced 5.6.
+- **Problems found while testing:**
+  - `gpt-6-luna` rejects tools on Chat Completions while its reasoning is
+    on, so the agents use the Responses API.
+  - The first live run hit the 300-second limit after the Customer Service
+    draft, with no record of which call hung. Added per-call time limits and
+    logging for runs that get cut off.
+  - On ticket 102 (rent), Accounting also proposed paying invoice 501, which
+    belongs to ticket 101, so I added the ticket-link rule.
+  - Parallel hand-offs had two agents doing the same work, so tool calls now
+    run one at a time.
+- **Verified:**
+  - 23 of 23 rule checks on a throwaway database copy
+  - 5 of 5 delegation refusals with no model calls (self, ping-pong, loop,
+    wrong ticket, depth)
+  - P4 tool checks still 7/7 and 4/4
+  - one live run of ticket 102 on a throwaway copy: ok, 156 s, 18 model
+    requests, 38,332 + 4,485 tokens, every response `gpt-6-luna-global`
+  - the working copy is unchanged (same SHA-1 as the original)

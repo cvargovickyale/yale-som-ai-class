@@ -164,36 +164,100 @@ Agents: **Boss**, **Inventory**, **Accounting**, **Facilities**,
 All agents get their tools from one FastMCP server, `mcp_server/server.py`.
 It reads only `data/campus_customs_new.db` and refuses to open the original.
 Every value a tool returns is a database value or arithmetic on database
-values. A missing SKU, size, or ticket returns an error, never a guess.
-"Today" is `desk.date_today`.
+values. A missing SKU, size, ticket, invoice, or lease returns an error,
+never a guess. "Today" is `desk.date_today`.
 
-P3 adds three tools, all read-only. Write tools (stock changes, payments
-with human approval) come in later problems.
+The server runs two ways from the same file: over stdio for Claude Code
+(`.mcp.json`), and over HTTP (`--http`, port 8765) for the backend. Each
+agent sees only its own tools; the backend filters the list per agent.
 
-| Tool | Agent | Reads | Helps with | Agent–ticket fit |
+### Tools and the tickets they serve
+
+| Tool | Agent | Reads / writes | Helps with | Agent–ticket fit |
 |---|---|---|---|---|
-| `check_stock(sku, size?, qty_needed?)` | Inventory | `inventory` | **101** (tee S), **103** (hoodie M ×20) | Inventory owns the "can we fill it from the shelf?" question. For 101 that's tee S = 0 (shortfall 1), and for 103 it's hoodie M = 8 of 20 (shortfall 12), with S 4 / L 14 / XL 6 as the mixed-size fallback. |
-| `price_and_margin(sku, qty, discount_pct)` | Accounting | `pricing`, `cash_accounts` | **103** (bulk discount), plus the cost of a reprint for **101**/**103** | Accounting turns the Yale AI Club's discount request into numbers the Boss can decide on. At list price the hoodie margin is 62.1% ($22 cost, $58 list), so 20 hoodies = $1,160 revenue and $720 profit. Each discount level shows what's left, and 12 replacement hoodies cost $264 at cost against $3,400 cash. |
-| `get_ticket(ticket_id)` | Customer Service | `tickets`, `desk`, `invoices`, `vendors`, `leases` | **101**, **102**, **103** (every reply) | CS can only write an honest reply if it sees the same linked facts the team acts on. 101 → invoice 501 to Bulldog Print Co, $840, 3 days overdue (why the tee can't be reprinted yet). 102 → Elm City Properties, $2,400 due 2026-09-02, in 2 days. 103 → the Yale AI Club's 20 × M request. |
+| `list_open_tickets` | Boss | reads `tickets`, `decisions` | 101, 102, 103 | The Boss's queue: all three open tickets, oldest first, with any decision already waiting for approval. |
+| `get_ticket` | Boss, Facilities, CS | reads `tickets`, `desk`, `invoices`, `vendors`, `leases`, pending records | 101, 102, 103 | One ticket with its linked records and everything already pending. 101 → invoice 501 to Bulldog Print Co, $840, 3 days overdue. 102 → Elm City Properties, $2,400 due 2026-09-02. 103 → Yale AI Club, 20 × M. |
+| `record_decision` | Boss | writes `decisions` (pending) | 101, 102, 103 | The Boss's final call goes in front of the human. The ticket stays open until the human approves. |
+| `check_stock` | Inventory | reads `inventory`, `stock_holds` | 101, 103 | Tee S = 0 (101 can't ship from stock). Hoodie M = 8 of 20 (103 is short 12), with S 4 / L 14 / XL 6 as alternatives. Subtracts units already held. |
+| `find_vendor` | Inventory | reads `inventory`, `vendors`, `invoices` | 101, 103 | Both reprints are apparel, so Bulldog Print Co (5-day lead time), which is **blocked** by invoice 501. Evidence: its specialty, plus invoice 501 itself names CC-TEE-WHITE S. |
+| `reserve_stock` | Inventory | writes `stock_holds` (pending) | 103 | Sets the 8 hoodies in M aside for the Yale AI Club so no other ticket promises them. |
+| `request_reprint` | Inventory | writes `reprint_requests` (pending) | 101, 103 | Refused while invoice 501 is unpaid. Once paid: tee S or hoodie M reprint, cost = qty × $8 or $22, earliest arrival 2026-09-05. |
+| `price_and_margin` | Accounting | reads `pricing`, `cash_accounts` | 103 | Margin on the bulk discount: 62.1% at list ($22 cost, $58 list). Each discount level shows margin and profit, checked against the 40% floor. |
+| `get_cash_and_bills` | Accounting | reads `cash_accounts`, `invoices`, `leases`, `payment_requests` | 101, 102 | Cash $3,400. Invoice 501 ($840, 3 days overdue) + rent ($2,400, due in 2 days) = $3,240, leaving $160. Shows payments already waiting so nothing is counted twice. |
+| `propose_payment` | Accounting | writes `payment_requests` (pending) | 101 (invoice 501), 102 (rent) | Creates a payment request for a human to approve. Amount from the database; only the ticket's own bill; refused if cash would go below $0. |
+| `get_lease` | Facilities | reads `leases`, `payments`, `payment_requests` | 102 | Lease 1: Chapel Street shop, Elm City Properties, $2,400 due 2026-09-02 (2 days), no past rent payments. |
+| `save_draft_message` | Customer Service | writes `message_drafts` (draft) | 101, 102, 103 | Drafts to Tauhid Zaman, Elm City Properties, and the Yale AI Club, only to the ticket's requester. Never sent. |
 
-Why these three: each one answers the first question its agent has to
-settle before the team can act on a ticket. Is it on the shelf (Inventory)?
-What does it cost and earn (Accounting)? Who asked for what, and what's
-blocking it (CS)?
+### Rules the tools enforce (not just the prompts)
 
-Gaps left on purpose for later problems:
+| Rule | Enforced by |
+|---|---|
+| A human approves every payment | No agent has a pay tool. `propose_payment` only creates a pending request. |
+| Cash never goes below $0 | `propose_payment` refuses if balance − already-pending − amount < 0, and names the shortfall. |
+| A vendor with an open unpaid invoice won't ship | `request_reprint` refuses and names the invoice to pay first. |
+| `desk.date_today` is today | Every date calculation reads it; nothing uses the computer's clock for business dates. |
+| No real emails | `save_draft_message` only saves drafts, to the ticket's requester. There is no send tool. |
+| No duplicate actions | A second payment request for the same bill, a second hold, or a second reprint for the same ticket/SKU/size is refused. |
+| Stay on the ticket | `propose_payment` only pays the bill linked to the ticket. |
+| Original data untouched | The server refuses to open `campus_customs.db`. Pending work lives in five new tables in the working copy only (`stock_holds`, `reprint_requests`, `payment_requests`, `message_drafts`, `decisions`). A reset removes them. |
 
-- **Facilities has no tool yet.** `get_ticket(102)` already shows the lease;
-  a rent-payment tool comes with human approval.
-- **No tool writes anything yet.** No tool can mark a ticket resolved,
-  change stock, or pay, so nothing can go wrong before the plan (P6) and
-  approval rules exist.
-- **No SKU → vendor tool.** Vendor restock (lead time, blocked by an unpaid
-  invoice) needs one; the data has no SKU → vendor link, only
-  `vendors.specialty`.
+**Tested.** P4: the three original tools were called over MCP through
+`.mcp.json` and compared with SQL (`output/mcp_smoke.json`): 7 of 7 match,
+4 of 4 bad inputs return errors. P5: every new tool and rule was tested on a
+throwaway copy of the database (23 of 23 checks, including the cash floor
+with the balance lowered to $3,000: rent refused at −$240). The P4 checks
+still pass, and the working copy is unchanged.
 
-**Tested (P4):** the server is registered with Claude Code in
-`hw5/.mcp.json` (stdio). Every tool was called over MCP and compared with an
-independent SQL query (`output/mcp_smoke.json`). All 7 ticket checks match,
-4 of 4 bad inputs (unknown SKU, size, or ticket) return errors instead of
-data, and the working database was unchanged.
+## 3. Agent team
+
+Five PydanticAI agents, all on `gpt-6-luna` through Portkey, in
+`backend/main.py`. Each has its own prompt in `backend/prompts/` (re-read on
+every run) and returns a fixed shape from `backend/models.py`.
+
+| Agent | Role (from Christopher's answers in P5) | Tools | Returns |
+|---|---|---|---|
+| Boss | Reads each ticket first, decides who works on it, interprets the results, and balances business health against customer happiness | `get_ticket`, `list_open_tickets`, `record_decision`, `delegate` | `BossDecision` |
+| Inventory | Knows the stock: by size, shortfall vs. the request, which vendor could reprint, lead time | `check_stock`, `find_vendor`, `reserve_stock`, `request_reprint`, `delegate` | `SpecialistReport` |
+| Accounting | Sets the lowest acceptable margin, understands the financials, flags bad business decisions, keeps cash to restock, pays overdue bills first | `price_and_margin`, `get_cash_and_bills`, `propose_payment`, `delegate` | `SpecialistReport` |
+| Facilities | Handles rent; asks Accounting to note the payment and recommend it to the Boss | `get_lease`, `get_ticket`, `delegate` | `SpecialistReport` |
+| Customer Service | Writes to whoever is named in the ticket; friendly and honest; only facts from the database; never overpromises a date | `get_ticket`, `save_draft_message`, `delegate` | `SpecialistReport` |
+
+### Agent loop and delegation
+
+One **agent loop** = one PydanticAI run: the model reads its prompt and the
+task, then either calls a tool and gets the result back, or returns its final
+answer in its `models.py` shape. `delegate(to_agent, ticket_id, task)` starts
+the teammate's loop and returns its report as the tool result, so any agent
+can ask any other agent (full connectivity), within these code-enforced
+limits:
+
+| Guardrail | Setting | Why |
+|---|---|---|
+| Delegation depth | 4 hand-offs from the Boss | Christopher's choice. With 5 agents and no repeats, a chain can't be longer anyway, so the two rules back each other up. |
+| No ping-pong or loops | Can't delegate to any agent already in the chain | A specialist that needs something from its caller lists it in `questions_for_caller`. The caller answers by delegating again with the answer, so you still get one controlled back-and-forth. |
+| Stay on the ticket | Delegation only for the ticket being worked | Keeps one ticket's run from acting on another. |
+| One tool call at a time | `parallel_tool_calls = False` | In the first test, parallel hand-offs made two agents do the same work. |
+| Shared budget per ticket | 40 model requests, 80 tool calls, 400k tokens | One budget for the whole team on a ticket, so a runaway chain stops. |
+| Time limits | 300 s per ticket, 90 s per model call, 60 s per tool | One stuck call fails fast instead of hanging the ticket. |
+| Model | `gpt-6-luna`, fixed in code | The assignment allows no other model. Every response's reported model is checked (`gpt-6-luna-global`); anything else fails the run. |
+
+`gpt-6-luna` rejects function tools on the Chat Completions endpoint while
+its reasoning is on, so the agents use the Responses API (found in the first
+P5 test run).
+
+### First measured run (P5, ticket 102, throwaway database copy)
+
+| Measure | Value |
+|---|---|
+| Status | ok, 156 s |
+| Agent runs | 5: Boss → Facilities → Accounting, Boss → Accounting, Boss → Customer Service |
+| Model requests | 18 |
+| Tokens | 38,332 in + 4,485 out |
+| Tool calls | 13 (4 delegations, 0 refused) |
+| Reported model | `gpt-6-luna-global` on every response |
+| Result | Rent payment request ($2,400, leaves $1,000) pending approval; draft to Elm City Properties; Boss decision `pay`, pending approval. It flagged that invoice 501 ($840, overdue) belongs to ticket 101 and needs its own request; both together leave $160. |
+
+Seen in that run, to address when planning the tickets (P6): the Boss asked
+Accounting a second time after Facilities had already brought Accounting in
+(about 4,600 extra tokens), and one Customer Service model call took most of
+its 97 seconds.

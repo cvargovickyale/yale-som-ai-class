@@ -521,3 +521,37 @@ two things worth keeping.
 
 **Soundbite:** "Prompts are policy; code is control. And five agents need
 the same org design as five people."
+
+### HW5 build lessons (P5: agent team), 2026-10-13
+
+3. **A failure you can't attribute is worse than a failure.** The first live
+   run hit its 5-minute limit, and the timeout cut off logging for the
+   agents still running. Nothing showed which step hung. The fix was to make
+   the log record a run even when it's cut off, plus a per-call time limit
+   so one stuck step fails fast instead of eating the whole budget. *CoS
+   translation:* when a process can stall, make sure the "who was holding
+   it" record survives the stall. A deadline with no trail tells you only
+   that you missed it.
+
+4. **The guardrail paid for itself on day one.** Two agents, sent off in
+   parallel, both tried to propose the same rent payment. The duplicate
+   check in the payment tool refused the second one. Without it, the human
+   would have been asked to approve the same $2,400 twice. Then I removed
+   the cause too: hand-offs now run one at a time. *CoS translation:*
+   parallel workstreams duplicate work by default. Put the dedupe check at
+   the system of record, then fix the routing that caused it.
+
+5. **Rules in the prompt drift; rules in the tool hold.** On the rent
+   ticket, Accounting sensibly prioritized the overdue vendor invoice, but
+   filed it under the wrong ticket. Rather than add another sentence to the
+   prompt, the payment tool now only accepts the bill linked to that
+   ticket. The Boss then flagged the invoice as a risk for the human
+   instead of quietly paying it. *CoS translation:* same as kickoff #1.
+   When judgment and process conflict, let the agent use judgment to *flag*
+   and the system to *enforce*.
+
+6. **The vendor's real constraints only show up in a real run.** The
+   required model refused tool use on the standard endpoint unless its
+   reasoning was switched off. Nothing in the docs we had said so; one live
+   test did. *CoS translation:* pilot on the production configuration
+   early. A proof of concept on a different setup proves the wrong thing.

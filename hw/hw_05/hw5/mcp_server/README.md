@@ -27,18 +27,42 @@ guarantees:
 To reset, copy the original over the working copy (see the main README). To
 point at a different working file, set `CAMPUS_CUSTOMS_DB`.
 
-## Tools (P3: three read-only tools)
+## Tools
 
-All three open the database read-only, so they can't change anything.
+Read tools open the database read-only. Write tools only create **pending**
+records for a human to approve on the dashboard. No tool moves money, takes
+stock off the shelf, or sends a message.
 
-| Tool | For | Inputs | Reads | Returns |
+| Tool | For | Inputs | Reads / writes | Returns |
 |---|---|---|---|---|
-| `check_stock` | Inventory | `sku`, optional `size`, optional `qty_needed` | `inventory` | Units on hand per size, total on hand, shelf location; with a size and quantity, the shortfall and whether stock can fill it |
-| `price_and_margin` | Accounting | `sku`, `qty` (default 1), `discount_pct` (default 0) | `pricing`, `cash_accounts` | Unit cost, list price, margin at list and after the discount, the order's revenue/cost/profit, whether the price is below cost, and the cash balance |
-| `get_ticket` | Customer Service | `ticket_id` | `tickets`, `desk`, `invoices`, `vendors`, `leases` | The ticket (requester, subject, notes, status), plus its linked invoice (vendor, amount, days overdue) or lease (landlord, rent, days until due) |
+| `list_open_tickets` | Boss | none | reads `tickets`, `decisions` | Open tickets, oldest first, with any pending decision |
+| `get_ticket` | Boss, Facilities, CS | `ticket_id` | reads `tickets`, `desk`, `invoices`, `vendors`, `leases`, pending tables | The ticket, its linked invoice (days overdue) or lease (days until due), and everything already pending for it |
+| `record_decision` | Boss | `ticket_id`, `summary`, `reasoning` | writes `decisions` | The decision (pending approval) and every pending record for the ticket |
+| `check_stock` | Inventory | `sku`, optional `size`, `qty_needed` | reads `inventory`, `stock_holds` | On hand per size, units held, available, shortfall |
+| `find_vendor` | Inventory | `sku` | reads `inventory`, `vendors`, `invoices` | Every vendor's specialty, lead time, blocked status and blocking invoices, earliest arrival, past invoices naming this SKU |
+| `reserve_stock` | Inventory | `ticket_id`, `sku`, `size`, `qty` | writes `stock_holds` | A hold, or an error if more than available or already held |
+| `request_reprint` | Inventory | `ticket_id`, `sku`, `size`, `qty`, `vendor_id` | writes `reprint_requests` | A pending reprint (cost, expected arrival), or an error if the vendor is blocked |
+| `price_and_margin` | Accounting | `sku`, `qty`, `discount_pct` | reads `pricing`, `cash_accounts` | Cost, price, margin at list and after discount, revenue/cost/profit, cash |
+| `get_cash_and_bills` | Accounting | none | reads `cash_accounts`, `invoices`, `leases`, `payment_requests` | Cash, cash after pending payments, open invoices, rent due, totals |
+| `propose_payment` | Accounting | `ticket_id`, `kind` (`invoice`/`rent`), `ref_id`, `reason` | writes `payment_requests` | A pending payment request, or an error (not this ticket's bill, already pending, or cash would go below $0) |
+| `get_lease` | Facilities | `lease_id` | reads `leases`, `payments`, `payment_requests` | Lease, days until due, past and pending rent payments |
+| `save_draft_message` | Customer Service | `ticket_id`, `to_name`, `subject`, `body` | writes `message_drafts` | A draft to the ticket's requester (never sent) |
 
-More tools (writing to the database, payments with human approval,
-delegation support) are added in later problems.
+### Rules enforced in code
+
+- A vendor with any open unpaid invoice can't take a reprint order.
+- A payment can't be proposed if cash would go below $0 after payments
+  already waiting for approval.
+- A payment can only be proposed for the bill linked to its ticket.
+- No duplicates: the same bill, hold, or reprint can't be requested twice.
+- Drafts go only to the ticket's requester and are never sent.
+
+### Work tables
+
+The original data has nowhere to record pending work, so the first write
+creates five tables in the **working copy only**: `stock_holds`,
+`reprint_requests`, `payment_requests`, `message_drafts`, `decisions`.
+Resetting (copying the original over the working copy) removes them.
 
 ## Running
 
@@ -49,5 +73,11 @@ python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 ```
 
-Connecting the server to Claude Code and to the backend is set up in later
-problems (`.mcp.json`, P4).
+Two ways to run it:
+
+```bash
+.venv/bin/python mcp_server/server.py          # stdio: Claude Code starts it from .mcp.json
+.venv/bin/python mcp_server/server.py --http   # HTTP on 127.0.0.1:8765/mcp, for the backend
+```
+
+Set `MCP_PORT` to use a different port.

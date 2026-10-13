@@ -69,7 +69,7 @@ problem's real text when we reach it.
 | P2 | Study the Campus Customs database | ✅ Data at `hw5/data/`, working copy made (same SHA-1 as original), harness §1 Data, `hw5/.gitignore` (DBs committed; only -journal/-wal/-shm ignored). Venv and `.env.example` deferred to P3. | `data/`, `output/harness.md`, `AI_prompts.md` ✅ |
 | P3 | Build the MCP server | ✅ FastMCP 4.1.0, 3 read-only tools (`check_stock`, `price_and_margin`, `get_ticket`), refuses original DB; not run. venv, requirements, .env.example added. harness §2 | `mcp_server/server.py`, `mcp_server/README.md`, `requirements.txt`, `.env.example` ✅ |
 | P4 | Add the MCP server to the vibe coder and test each tool | ✅ `hw5/.mcp.json` (stdio). Claude Code called every tool over MCP from this session: 7/7 match SQL, 4/4 bad inputs error, DB unchanged. Rerun: `hw/hw_05/mcp_smoke_test.py`. | `.mcp.json`, `output/mcp_smoke.json` ✅ |
-| P5 | Build the agent team and grow the MCP tools | Five PydanticAI agents on `gpt-6-luna`, one prompt each, bounded delegation; add the tools they turn out to need. | `backend/main.py`, `backend/models.py`, `backend/prompts/*.md`, `mcp_server/server.py` |
+| P5 | Build the agent team and grow the MCP tools | ✅ 5 PydanticAI agents (Responses API, gpt-6-luna fixed), prompts from Christopher's quiz answers, `models.py` shapes, `delegate` with depth 4 / no-revisit / same-ticket / shared budget / timeouts. MCP 3 → 12 tools; rules in code. Ticket 102 live test on a throwaway copy: ok, 156 s, ~43k tokens. Margin floor 40% (default, his to change). | `backend/main.py`, `models.py`, `prompts/*.md`, `mcp_server/server.py`, harness §2–3 ✅ |
 | P6 | Plan the three tickets | Plan for 101/102/103 before acting (who does what, cash order, approvals). | *likely* `output/desk_tickets.html` |
 | P7 | Backend routes | FastAPI endpoints: tickets, run/resolve, agent activity, approvals (approve/reject), reset. | `backend/main.py`, `models.py` |
 | P8 | Agent dashboard | React board: tickets, live agent activity, approval queue. | `frontend/`, *likely* `output/design.md` |
@@ -123,18 +123,18 @@ The puzzle that ties the tickets together:
    check**: require both `.db` files to be present, and still refuse `.env`,
    `.venv`, and `node_modules`. Confirm the public repo name with Christopher
    before creating it (suggestion: `campus-customs-hw5`).
-4. **MCP transport.** The README order ("start MCP server" as its own step)
+4. ~~**MCP transport.**~~ **Done (P5):** one `server.py`: stdio for Claude Code (`.mcp.json`), `--http` on 8765 for the backend. The README order ("start MCP server" as its own step)
    suggests a separately running HTTP server (streamable HTTP) that the
    backend connects to, rather than stdio. Decide at P3.
-5. **Model.** Only `gpt-6-luna`, for every agent, with no fallback. It's new
+5. ~~**Model.**~~ **Done (P5):** fixed in code, Responses API (Chat Completions rejects tools with reasoning on); responses report `gpt-6-luna-global`. Only `gpt-6-luna`, for every agent, with no fallback. It's new
    (not on the HW3/HW4 roster), so verify with one call first. Make sure
    `gpt-5.6-luna` appears nowhere, because a different model in code or logs
    costs points.
-6. **Approval mechanism.** Where do pending approvals live? There's no
+6. **Approval mechanism.** *(P5: agents create pending records in 5 work tables; approve/execute routes come in P7.)* Where do pending approvals live? There's no
    approvals table, and `payments.approved_by` is filled at pay time. The
    agent must not be able to call `pay` and approve its own payment.
    Decide at P8.
-7. **Is a reprint order a cash payment now or a new invoice?** This decides
+7. **Is a reprint order a cash payment now or a new invoice?** *(P5: `request_reprint` records est. cost, pending approval; decide what approval does in P6/P7.)* This decides
    whether ticket 103 fits under the $160. Decide when the ticket is worked.
 8. **Visual style.** Gateway 2000 (workspace default) vs. whatever the
    assignment asks for. Decide at P7.
