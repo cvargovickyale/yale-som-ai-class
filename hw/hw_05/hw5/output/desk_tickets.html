@@ -244,6 +244,14 @@
           </div></li>
           <li class="step"><div class="arrow">↓</div><div></div></li>
           <li class="step"><div class="num">4</div><div class="card">
+            <span class="chip boss">Boss</span> → <span class="chip cs">Customer Service</span>: short acknowledgment to the landlord. <code>save_draft_message(102, "Elm City Properties", …)</code>
+            <ul class="expect">
+              <li>Confirms the $2,400 rent due 2026-09-02 is scheduled for approval before the due date.</li>
+              <li>Does <b>not</b> say it has been paid.</li>
+            </ul>
+          </div></li>
+          <li class="step"><div class="arrow">↓</div><div></div></li>
+          <li class="step"><div class="num">5</div><div class="card">
             <span class="chip boss">Boss</span> records the call: <code>record_decision(102, …)</code>, outcome <b>pay</b>.
           </div></li>
         </ol>
@@ -254,15 +262,15 @@
           <legend>Waiting for the human</legend>
           <ul>
             <li>Payment request: rent on lease 1, $2,400</li>
+            <li>Draft acknowledgment to Elm City Properties</li>
             <li>Boss decision</li>
           </ul>
         </fieldset>
         <fieldset>
           <legend>Watch for</legend>
           <ul>
-            <li><b>One path to Accounting.</b> Facilities brings Accounting in; the Boss shouldn't ask Accounting again (the P5 test did, costing about 4,600 extra tokens).</li>
+            <li><b>One path to Accounting.</b> Facilities brings Accounting in; the Boss shouldn't ask Accounting again (the P5 test did, costing about 4,600 extra tokens). The Boss's prompt now says so.</li>
             <li>Accounting must not propose invoice 501 under ticket 102. The tool refuses it; it belongs to 101.</li>
-            <li>No draft to the landlord is planned. The Boss's prompt currently asks for one on every ticket.</li>
           </ul>
         </fieldset>
       </div>
@@ -329,8 +337,9 @@
             <div class="options">
               <div class="opt"><h4>Option A: other sizes now, medium discount</h4>
                 8 in M plus 12 from sizes in stock (L has 14) ship now, with a medium discount.</div>
-              <div class="opt"><h4>Option B: wait, bigger discount on all M</h4>
-                All 20 in M after a reprint of 12, with a bigger discount. No firm date: it depends on the reprint being ordered.</div>
+              <div class="opt" style="border:2px solid #800000"><h4>Option B: wait, bigger discount on all M <span class="chip" style="background:#ffc0c0">flagged</span></h4>
+                All 20 in M after a reprint of 12, with a bigger discount. No firm date: it depends on the reprint being ordered.
+                <div class="note"><b>Cash flag:</b> reprint 12 × $22 = $264 vs. $160 left after 101's and 102's payments, short $104. Also blocked until invoice 501 is paid. Accounting flags it, and the Boss lists it under risks for the human.</div></div>
             </div>
             <p style="margin:6px 0 0">Both discount levels are set by Accounting, at or under 36.8% off.</p>
           </div></li>
@@ -349,7 +358,7 @@
         <fieldset>
           <legend>Watch for</legend>
           <ul>
-            <li><b>Option B's cash.</b> A 12-hoodie reprint costs 12 × $22 = <b>$264</b>, but only <b>$160</b> is left if 101's and 102's payments are approved. Accounting should flag this.</li>
+            <li><b>Option B's cash.</b> A 12-hoodie reprint costs 12 × $22 = <b>$264</b>, but only <b>$160</b> is left if 101's and 102's payments are approved (short $104). Accounting must flag it, and the Boss must list it under risks.</li>
             <li>Option B also needs invoice 501 paid first (vendor blocked).</li>
             <li>One draft per ticket: both options must go in the same message.</li>
           </ul>

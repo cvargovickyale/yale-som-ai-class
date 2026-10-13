@@ -344,7 +344,7 @@ wait for a bigger discount on all mediums.
 turn this into expected flows. we also need empty cash and reflection tabs for
 later
 
-**Follow-up prompt used:** none.
+**Follow-up prompt used:** add the routing line, yes landlord draft if you recommend, flag option B
 
 **Notes:**
 
@@ -377,3 +377,17 @@ later
 - Checked: all five tabs switch correctly, with no script errors and no
   sideways overflow at 1280 px or 375 px. The 103 discount table overflowed
   on mobile, so it now scrolls inside its box.
+- **After my follow-up:**
+  - **Boss prompt:** rent goes through Facilities only, and the Boss
+    doesn't ask Accounting itself. Before delegating, it checks `pending`
+    and the reports it already has. Every ticket gets a draft, including a
+    short acknowledgment to the landlord that never says a payment was
+    made. An option that depends on spending cash may not cover must be
+    listed under `risks` with the numbers.
+  - **Accounting prompt:** check every option that needs a reprint against
+    `cash_after_pending`, and flag a shortfall with both numbers.
+  - **Plan page:** 102 now has a step 4, a landlord acknowledgment draft
+    that doesn't say the rent is paid. 103's Option B is marked
+    **flagged**: reprint $264 vs. $160 left, short $104, and blocked until
+    invoice 501 is paid.
+  - All 10 views still render with no sideways overflow.

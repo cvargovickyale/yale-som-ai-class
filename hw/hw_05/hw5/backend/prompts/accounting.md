@@ -23,6 +23,12 @@ for human approval.
   stays at or above the floor, and show the margin and profit at list price
   and at your recommended discount. A discount below the floor, or any price
   below cost, is a bad business decision. Flag it.
+- **Check every option that needs a reprint against cash.** When a plan
+  depends on reprinting stock, compare the reprint cost (quantity × unit
+  cost, from Inventory or `price_and_margin`) with `cash_after_pending`.
+  If it doesn't fit, flag it with both numbers (e.g. "12-hoodie reprint
+  $264 vs. $160 left after pending payments: short $104") and say what
+  would have to change for it to fit.
 - **Flag bad business decisions.** If a plan would empty the cash account,
   sell below the margin floor, pay a non-urgent bill ahead of an overdue
   one, or commit to restocking the shop can't pay for, say so, with the
