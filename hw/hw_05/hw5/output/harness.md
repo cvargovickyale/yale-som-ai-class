@@ -158,3 +158,39 @@ Agents: **Boss**, **Inventory**, **Accounting**, **Facilities**,
   name only, and nothing is sent.
 - **The links are clean:** every ticket's SKU/size, invoice, and lease
   exists, and every inventory SKU has a price.
+
+## 2. MCP tools
+
+All agents get their tools from one FastMCP server, `mcp_server/server.py`.
+It reads only `data/campus_customs_new.db` and refuses to open the original.
+Every value a tool returns is a database value or arithmetic on database
+values. A missing SKU, size, or ticket returns an error, never a guess.
+"Today" is `desk.date_today`.
+
+P3 adds three tools, all read-only. Write tools (stock changes, payments
+with human approval) come in later problems.
+
+| Tool | Agent | Reads | Helps with | Agent–ticket fit |
+|---|---|---|---|---|
+| `check_stock(sku, size?, qty_needed?)` | Inventory | `inventory` | **101** (tee S), **103** (hoodie M ×20) | Inventory owns the "can we fill it from the shelf?" question. For 101 that's tee S = 0 (shortfall 1), and for 103 it's hoodie M = 8 of 20 (shortfall 12), with S 4 / L 14 / XL 6 as the mixed-size fallback. |
+| `price_and_margin(sku, qty, discount_pct)` | Accounting | `pricing`, `cash_accounts` | **103** (bulk discount), plus the cost of a reprint for **101**/**103** | Accounting turns the Yale AI Club's discount request into numbers the Boss can decide on. At list price the hoodie margin is 62.1% ($22 cost, $58 list), so 20 hoodies = $1,160 revenue and $720 profit. Each discount level shows what's left, and 12 replacement hoodies cost $264 at cost against $3,400 cash. |
+| `get_ticket(ticket_id)` | Customer Service | `tickets`, `desk`, `invoices`, `vendors`, `leases` | **101**, **102**, **103** (every reply) | CS can only write an honest reply if it sees the same linked facts the team acts on. 101 → invoice 501 to Bulldog Print Co, $840, 3 days overdue (why the tee can't be reprinted yet). 102 → Elm City Properties, $2,400 due 2026-09-02, in 2 days. 103 → the Yale AI Club's 20 × M request. |
+
+Why these three: each one answers the first question its agent has to
+settle before the team can act on a ticket. Is it on the shelf (Inventory)?
+What does it cost and earn (Accounting)? Who asked for what, and what's
+blocking it (CS)?
+
+Gaps left on purpose for later problems:
+
+- **Facilities has no tool yet.** `get_ticket(102)` already shows the lease;
+  a rent-payment tool comes with human approval.
+- **No tool writes anything yet.** No tool can mark a ticket resolved,
+  change stock, or pay, so nothing can go wrong before the plan (P6) and
+  approval rules exist.
+- **No SKU → vendor tool.** Vendor restock (lead time, blocked by an unpaid
+  invoice) needs one; the data has no SKU → vendor link, only
+  `vendors.specialty`.
+
+Expected values above come from SQL on the working copy. P4 calls each tool
+directly to confirm them.
