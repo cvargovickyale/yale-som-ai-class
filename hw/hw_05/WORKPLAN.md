@@ -65,7 +65,7 @@ reach it.
 
 | P# | Problem (confirmed / *guess*) | What we do | Main files |
 |---|---|---|---|
-| P1 | Vibe coder prompts | Sets up the prompt-log convention. Kickoff is **not** logged. | `AI_prompts.md` |
+| P1 | Vibe coder prompts | ✅ Convention set in `hw5/AI_prompts.md` (header only). Kickoff is **not** logged; entries start at P2. | `AI_prompts.md` ✅ |
 | P2 | *Data / setup* | Move data into `hw5/data/`, make the working copy, reset script, venv, check `gpt-6-luna` through Portkey with one cheap call. **First log entry.** | `data/`, `requirements.txt`, `.env.example`, `.gitignore` |
 | P3 | *MCP server* | Tools for each table; enforce the shop rules in code; smoke-test with no LLM. | `mcp_server/server.py`, `mcp_server/README.md`, `.mcp.json`, `output/mcp_smoke.json` |
 | P4 | *Desk / ticket board* | Show the three open tickets. | `output/desk_tickets.html` |
@@ -133,6 +133,39 @@ The puzzle that ties the tickets together:
    whether ticket 103 fits under the $160. Decide when the ticket is worked.
 8. **Visual style.** Gateway 2000 (workspace default) vs. whatever the
    assignment asks for. Decide at P7.
+
+## Build requirements from the kickoff quiz (apply from P2 on)
+
+**Enforce in code, not prompts.** Prompts explain the rules; the MCP tools and
+backend enforce them.
+
+- **Payments:** no agent gets a pay tool. Accounting can only *propose* a
+  payment. The backend parks it as pending, the dashboard shows it, and only a
+  human click makes the backend call MCP `pay` with `approved_by = <human>`.
+- **Cash floor:** `pay` refuses if the balance would go below $0.
+- **Vendor block:** a vendor with an open, overdue invoice (vs.
+  `desk.date_today`) can't ship. Enforced in the tool.
+- **Dates:** every "overdue" or "due in N days" check reads
+  `desk.date_today`, never the system clock.
+- **No real email:** Customer Service only *drafts*. There's no send tool.
+
+**Delegation guardrails (full connectivity, but bounded):**
+
+1. **Depth cap.** Delegation chains stop at a fixed depth (e.g. 3), and the
+   result goes back to Boss.
+2. **No ping-pong.** An agent can't delegate back to whoever asked it.
+3. **No duplicate actions.** Tools check "already paid / already pending /
+   already reserved" by invoice or ticket ID.
+4. **Cost.** `UsageLimits` per run, plus a total budget for each ticket.
+   Log round trips and tokens per agent. Measure before optimizing.
+5. **Context.** Every hand-off carries the ticket ID and a short task
+   description. The receiving agent re-reads facts from tools rather than
+   trusting the note.
+6. **Traceability.** The audit trail records the run ID, the parent run ID,
+   from-agent → to-agent, and the model name each response reports
+   (it must be `gpt-6-luna`).
+7. **One decider.** Boss makes the final call on each ticket. Specialists
+   recommend.
 
 ## Reuse from HW4 (frozen; copy patterns, don't edit)
 

@@ -431,3 +431,93 @@ sure you can prove which one said what."
     reply-only review would have scored it 100%. *CoS translation:* judge
     AI systems by what they did, not just what they said. Logging actions,
     not just outputs, is what makes the second kind of review possible.
+
+## Guest notes — Yujian (founder, Floot) on app security, 2026-10-08
+
+Loose notes from Yujian's talk, lightly organized. Not from a build of mine.
+
+1. **Know where your database is exposed.** Lovable builds on a Supabase
+   database, and the database can end up reachable by the public if access
+   rules aren't set. Floot's pitch is that its security boundaries are
+   well defined by default. *CoS translation:* when choosing an AI build
+   tool, ask what's exposed by default, not just how fast it ships. (Same
+   theme as HW4 #9: defaults are decisions someone else made for you.)
+
+2. **Have AI audit the endpoints.** Ask it to go through every endpoint:
+   is it properly authenticated, and does the access match (a user only
+   reaches their own data)? Security-focused agents can run this review.
+   *CoS translation:* "it has a login" is not the same as "every door
+   checks the badge." Ask for the endpoint-by-endpoint answer.
+
+3. **Check security access deliberately.** Review who and what can read or
+   write each part of the system as its own step, not as a side effect of
+   building features.
+
+4. **Pen test when it's serious — not before.** If the app matters,
+   run penetration tests or hire someone to try to break it. That can wait
+   until a later stage. *CoS translation:* match the security spend to the
+   stakes; an AI review is cheap now, a paid break-in test is for when real
+   users and data are on the line.
+
+**Soundbite:** "Fast builders ship the database too. Ask what's public by
+default, check every endpoint's auth, and pay someone to break it once it
+matters."
+
+### Yujian — founder advice on demand, 2026-10-08
+
+5. **Find real demand, then test it with money.** Start by finding people
+   who actually want to use the product. Eventually make them pay for it;
+   willingness to pay is what separates real excitement from polite
+   interest. *CoS translation:* "users like it" is a hypothesis until
+   someone pays. (Same instinct as HW3 #1: a plausible story isn't
+   evidence — measure it.)
+
+6. **Competitors in your corner aren't a dealbreaker.** If others are
+   already in your part of the market, that's not a huge issue — it shows
+   there's interest. *CoS translation:* an occupied market is a demand
+   signal, not automatically a reason to walk away.
+
+## Homework 5 — Campus Customs multi-agent operations (kickoff), 2026-10-12
+
+Kickoff only: five agents (Boss, Inventory, Accounting, Facilities,
+Customer Service), an MCP server holding the tools, a FastAPI backend, and
+a React board where a human approves payments. The quiz review surfaced
+two things worth keeping.
+
+1. **A prompt is a request, not a gate.** I knew this from HW4 and still
+   reached for "make sure every agent reads the accounting prompt" as the
+   way to enforce payment approval. A model can ignore or misread its
+   instructions. Rules that matter (human approval, no overdraft, don't
+   pay a vendor twice) have to be enforced in code: agents get no pay
+   tool at all, they can only *propose*, and the tool that moves money
+   refuses anything without a human sign-off. The prompt explains the
+   rule; the code makes breaking it impossible. *CoS translation:* the
+   rules people most need to trust can't live in a policy memo. They
+   belong in the system's controls, where they hold even when someone
+   doesn't read the memo. Know which rules are guidance and which are
+   controls. (Same family as HW4 #1 and #4.)
+
+2. **A team of agents fails the way a team of people does.** Letting any
+   agent hand work to any other sounds flexible. The known failure modes
+   look like an org chart's:
+   - **Endless hand-offs:** agents keep calling each other with no end.
+     Cap how deep delegation can go.
+   - **Ping-pong:** A asks B, B asks A back. Don't let an agent hand work
+     back to whoever asked.
+   - **Duplicate work:** two agents both propose the same $840 payment,
+     or both take the same stock off the shelf. The tool has to check
+     "already paid / already pending."
+   - **Cost multiplies:** every hand-off is a full new agent run that
+     re-sends its whole prompt. Five agents multiply HW4's round-trip
+     cost.
+   - **Lost context:** the receiving agent sees only the short hand-off
+     note, not the whole ticket. The note must carry the ticket ID.
+   - **No paper trail:** if the log doesn't record who asked whom, nobody
+     can reconstruct who decided what.
+   *CoS translation:* a multi-agent system needs what a cross-functional
+   team needs: clear ownership, limits on escalation, one decision-maker,
+   no double-counting, complete hand-off notes, and a record of who
+   decided.
+
+**Soundbite:** "Prompts are policy; code is control. And five agents need
+the same org design as five people."
