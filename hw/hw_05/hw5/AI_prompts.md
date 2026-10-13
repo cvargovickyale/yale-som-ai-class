@@ -264,3 +264,58 @@ score higher, help me get there
   - one live run of ticket 102 on a throwaway copy: ok, 156 s, 18 model
     requests, 38,332 + 4,485 tokens, every response `gpt-6-luna-global`
   - the working copy is unchanged (same SHA-1 as the original)
+
+## Problem 5, part 2 — Tools in MCP, audit trail, harness safety, README
+
+**Prompt:** important second part of P5: add the agents' tools to MCP server
+if you haven't already. facts come from the new db, there should be no shop
+layer that bypasses MCP. all agents should append to
+output/audit_trail.json . keep appending to it, don't wipe unless you're sure
+you need to. harness.md needs to be updated with each tool and the table
+used, as well as safety section that shows guardrails on who can approve
+messages that go to customers vendors and that affect money - either business
+spend or token spend limits. the README.md should be updated as well with
+these changes. you may have done most of these
+
+**Follow-up prompt used:** none.
+
+**Notes:**
+
+- **Already done in part 1:** all 12 agent tools live in the MCP server,
+  and the backend never opens the database (checked: no `sqlite` or `.db`
+  references in `backend/`). `delegate` is the only tool outside MCP. It
+  passes work between agents and reads no shop data.
+- **Audit trail changed: every agent now appends its own entry** to
+  `output/audit_trail.json` the moment its loop ends, including errors,
+  limit hits, and timeouts. Before, the whole ticket was written once at
+  the end, so a crash lost every agent's record. A `ticket_run` summary
+  follows the agent entries and lists their `run_id`s. The file is never
+  wiped:
+  - writes are atomic and locked
+  - an unreadable file is moved aside, never overwritten
+  - a database reset doesn't touch it
+- **Tested without spending tokens:** a scripted stand-in model drove
+  Boss → Facilities through the real loop and MCP server (throwaway
+  database):
+  - each agent appended its own entry
+  - a second run appended (3 → 6 entries)
+  - a corrupt file was moved aside
+  - the stand-in model was flagged `wrong_model`, which proves the
+    gpt-6-luna check catches any other model
+- `output/audit_trail.json` starts empty (`[]`). The P5 live test ran on a
+  throwaway database copy, so its log stays out of this file. Real runs
+  start in P9.
+- `harness.md`: section 2 lists every tool with the tables it reads or
+  writes. New section 4 (Safety) covers:
+  - who can propose and who approves messages to customers, the landlord,
+    and vendors (there is no vendor messaging tool at all)
+  - business spend: payments, reprints, discounts, stock holds, closing a
+    ticket
+  - token spend: fixed model, a shared per-ticket budget, time limits,
+    delegation limits
+  - each row says whether code or a prompt enforces it
+
+  New section 5 describes the audit trail.
+- Wrote `hw5/README.md`: setup, reset, start MCP, start the backend (CLI
+  until P7's routes), the board (P8), reset before a full three-ticket run,
+  and what agents can do vs. what only a human can approve.

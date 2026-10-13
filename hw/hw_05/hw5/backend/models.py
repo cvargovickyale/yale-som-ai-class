@@ -59,8 +59,9 @@ class ToolCallRecord(BaseModel):
 
 
 class AgentRunRecord(BaseModel):
-    """One agent loop: who ran, who asked, what it did, what it cost."""
+    """One agent loop: who ran, who asked, what it did, what it cost. Appended when the loop ends."""
 
+    entry_type: Literal["agent_run"] = "agent_run"
     run_id: str
     parent_run_id: str | None
     agent: AgentName
@@ -81,13 +82,15 @@ class AgentRunRecord(BaseModel):
 
 
 class TicketRun(BaseModel):
-    """One full run of the team on one ticket (an entry in output/audit_trail.json)."""
+    """One full run of the team on one ticket. Appended after its agent entries, which it lists by run_id."""
 
+    entry_type: Literal["ticket_run"] = "ticket_run"
     ticket_id: int
     started_at: str
     duration_s: float
     status: Literal["ok", "error", "usage_limit", "timeout", "wrong_model"]
     decision: BossDecision | None
-    runs: list[AgentRunRecord]
+    run_ids: list[str] = Field(description="The agent_run entries for this ticket run, in start order")
+    runs: list[AgentRunRecord] = Field(default_factory=list, description="Returned to callers; not repeated in the audit file")
     totals: dict = Field(description="model_requests, input_tokens, output_tokens, tool_calls, delegations, refused_delegations")
     error: str | None = None

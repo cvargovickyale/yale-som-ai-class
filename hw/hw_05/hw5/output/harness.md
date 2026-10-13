@@ -261,3 +261,85 @@ Seen in that run, to address when planning the tickets (P6): the Boss asked
 Accounting a second time after Facilities had already brought Accounting in
 (about 4,600 extra tokens), and one Customer Service model call took most of
 its 97 seconds.
+
+## 4. Safety: who can do what
+
+The rule behind every row: **agents propose, a human approves, and code
+enforces it.** No agent can move money, take stock off the shelf, place a
+vendor order, or send a message. Each of those exists only as a pending
+record until a human approves it on the dashboard. The approve/execute
+routes are built in P7 (backend) and P8 (dashboard), and no agent will be
+given them.
+
+All shop facts go through the MCP server. The backend never opens the
+database, so there is no side door around these rules.
+
+### Messages (customers, landlord, vendors)
+
+| Action | Who can propose | Who approves | Enforced by |
+|---|---|---|---|
+| Reply to a customer (101 Tauhid Zaman, 103 Yale AI Club) | Customer Service only (`save_draft_message`) | Human, on the dashboard | No send tool exists. Drafts can only be addressed to the ticket's `requester`. One draft per ticket (a new one replaces the old). |
+| Reply to the landlord (102 Elm City Properties) | Customer Service only, same tool | Human | Same: draft only, to the requester. Facilities' prompt forbids contacting the landlord. |
+| Contact a vendor | **Nobody.** There is no vendor messaging tool. | n/a | The only vendor-facing actions are a reprint request and an invoice payment, both pending approval (below). |
+| What a message may say | CS prompt: facts from tools only, no firm date while an order is pending, no internal details (cash, margins, invoices) | Human reviews every draft | Prompt-level. The human review is the hard stop. |
+
+### Money: business spend
+
+| Action | Who can propose | Who approves | Enforced by |
+|---|---|---|---|
+| Pay an invoice or rent | Accounting only (`propose_payment`) | Human only. Approval will write `payments.approved_by`. | No agent has a pay tool. The amount comes from the database, not the agent. It must be the ticket's own bill. One pending request per bill. Refused if cash after already-pending payments would go below $0 (tested: $3,000 balance → rent refused at −$240). |
+| Order a reprint (vendor spend) | Inventory only (`request_reprint`) | Human | Refused while the vendor has any open unpaid invoice (tested: Bulldog Print Co blocked by invoice 501). Cost = qty × `unit_cost` from the database. One pending request per ticket/SKU/size. |
+| Discount (revenue given up) | Accounting recommends; Boss decides | Human approves the Boss's decision | 40% margin floor after discount, in Accounting's prompt (prompt-level). `price_and_margin` reports `below_cost` and the margin so the human sees the numbers. |
+| Set stock aside | Inventory only (`reserve_stock`) | Stock leaves the shelf only on human approval | Can't hold more than available (on hand minus other holds). One hold per ticket/SKU/size. `inventory.qty` never changes from an agent. |
+| Close a ticket | Boss records a decision (`record_decision`) | Human | The decision is stored as pending; the ticket stays `open`. |
+
+### Money: token spend (the AI bill)
+
+| Limit | Setting | Enforced by |
+|---|---|---|
+| Model | `gpt-6-luna` only, fixed in code | No setting can change it. Every response's reported model is checked (`gpt-6-luna-global`); anything else marks the run `wrong_model` and stops it (tested with a stand-in model). |
+| Budget per ticket, shared by every agent | 40 model requests, 80 tool calls, 400,000 tokens | PydanticAI `UsageLimits` on one shared usage counter. Delegated runs draw from the same budget. |
+| Time | 300 s per ticket, 90 s per model call, 60 s per tool | `asyncio.wait_for`, model timeout, tool timeout. |
+| Delegation | At most 4 hand-offs; no agent twice in a chain; same ticket only | `delegate` refuses and tells the agent why (tested: 5 of 5 refusal cases). |
+| One tool call at a time | `parallel_tool_calls = False` | Stops parallel hand-offs from duplicating work (seen in P5 testing). |
+| Visibility | Tokens, model requests, and tool calls per agent run | `output/audit_trail.json`, plus a one-line cost summary per ticket. |
+| Runs per minute | *Planned for P7* | Rate limit on the backend's "run ticket" route, so the board can't trigger runs in a loop. |
+
+Measured so far: one ticket (102) cost 18 model requests and 42,817 tokens
+in total, about 11% of the per-ticket token budget.
+
+### Data
+
+| Risk | Guardrail |
+|---|---|
+| Damaging the original data | The MCP server refuses to open `campus_customs.db`. All work goes to `campus_customs_new.db`, and a reset copies the original back. |
+| Made-up facts | Every number comes from a tool. Missing records return an error that lists the valid options; prompts tell agents to report "unknown" rather than estimate. |
+| A shop path around MCP | The backend has no database access (checked: no `sqlite` or `.db` references in `backend/`). |
+
+## 5. Audit trail
+
+`output/audit_trail.json` is append-only. It is never wiped by the code. A
+reset of the database does not touch it.
+
+- **Every agent appends its own `agent_run` entry** the moment its loop
+  ends, whether it succeeded, errored, hit a limit, or was cut off by the
+  ticket timeout. A crash mid-ticket still leaves a record of every agent
+  that ran.
+- Each entry records:
+  - `run_id`, `parent_run_id`, and `chain` (who asked whom)
+  - the task it was given
+  - every tool call with its arguments, a shortened result, and a status
+    of ok / error / refused
+  - the model name on every response, model requests, tokens in and out,
+    duration, status, and its final output
+- After the Boss finishes, a **`ticket_run` summary** is appended. It has
+  the Boss's decision, totals, and the `run_id`s of its agent entries.
+- Writes are atomic: a temp file, then a rename. A lock serializes
+  concurrent writes. If the file is ever unreadable, it is moved aside, not
+  overwritten.
+- Tested without spending tokens: a scripted stand-in model drove Boss →
+  Facilities through the real loop and MCP server. Each agent appended its
+  own entry, a second run appended (3 → 6 entries), and a corrupt file was
+  moved aside.
+- The P5 live test of ticket 102 ran on a throwaway database copy, so its
+  log was kept out of this file. Real runs start in P9.

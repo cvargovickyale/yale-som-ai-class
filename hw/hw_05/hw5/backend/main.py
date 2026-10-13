@@ -26,6 +26,7 @@ import asyncio
 import json
 import os
 import sys
+import threading
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -214,24 +215,38 @@ async def run_agent(name: str, task: str, deps: Deps, usage: RunUsage):
         try:
             result = await agent.run(task, deps=deps, usage=usage, usage_limits=TICKET_LIMITS, toolsets=[toolset])
         except UsageLimitExceeded as e:
-            deps.records.append(_record(name, task, deps, started, t0, messages, "usage_limit", error=str(e)))
+            _save(deps, _record(name, task, deps, started, t0, messages, "usage_limit", error=str(e)))
             raise
         except asyncio.CancelledError:
-            deps.records.append(_record(name, task, deps, started, t0, messages, "timeout",
-                                        error=f"Cancelled when the ticket passed {TICKET_TIMEOUT_S}s."))
+            _save(deps, _record(name, task, deps, started, t0, messages, "timeout",
+                                error=f"Cancelled when the ticket passed {TICKET_TIMEOUT_S}s."))
             raise
         except Exception as e:
-            deps.records.append(_record(name, task, deps, started, t0, messages, "error", error=f"{type(e).__name__}: {e}"))
+            _save(deps, _record(name, task, deps, started, t0, messages, "error", error=f"{type(e).__name__}: {e}"))
             raise
     rec = _record(name, task, deps, started, t0, result.new_messages(), "ok", output=result.output)
-    deps.records.append(rec)
+    _save(deps, rec)
     if rec.status == "wrong_model":
         raise RuntimeError(rec.error)
     return result.output
 
 
-def _append_audit(entry: TicketRun) -> None:
-    """Append-only; atomic write; an unreadable file is moved aside, never overwritten."""
+_AUDIT_LOCK = threading.Lock()
+
+
+def _save(deps: Deps, rec: AgentRunRecord) -> None:
+    """Every agent appends its own audit entry the moment its loop ends (ok or not)."""
+    deps.records.append(rec)
+    _append_audit(rec.model_dump())
+
+
+def _append_audit(entry: dict) -> None:
+    """Append-only; never wiped. Atomic write; an unreadable file is moved aside, never overwritten."""
+    with _AUDIT_LOCK:
+        _append_audit_locked(entry)
+
+
+def _append_audit_locked(entry: dict) -> None:
     AUDIT_PATH.parent.mkdir(parents=True, exist_ok=True)
     entries = []
     if AUDIT_PATH.exists():
@@ -239,7 +254,7 @@ def _append_audit(entry: TicketRun) -> None:
             entries = json.loads(AUDIT_PATH.read_text())
         except json.JSONDecodeError:
             AUDIT_PATH.rename(AUDIT_PATH.with_suffix(f".unreadable-{int(time.time())}.json"))
-    entries.append(entry.model_dump())
+    entries.append(entry)
     tmp = AUDIT_PATH.with_suffix(".tmp")
     tmp.write_text(json.dumps(entries, indent=2) + "\n")
     tmp.replace(AUDIT_PATH)
@@ -268,7 +283,7 @@ async def run_ticket(ticket_id: int, task: str | None = None) -> TicketRun:
     calls = [c for r in runs for c in r.tool_calls]
     entry = TicketRun(
         ticket_id=ticket_id, started_at=started, duration_s=round(time.monotonic() - t0, 2), status=status,
-        decision=decision, runs=runs, error=error,
+        decision=decision, run_ids=[r.run_id for r in runs], runs=runs, error=error,
         totals={
             "agent_runs": len(runs),
             "model_requests": sum(r.model_requests for r in runs),
@@ -278,7 +293,8 @@ async def run_ticket(ticket_id: int, task: str | None = None) -> TicketRun:
             "delegations": sum(c.tool == "delegate" and c.status == "ok" for c in calls),
             "refused_delegations": sum(c.tool == "delegate" and c.status == "refused" for c in calls),
         })
-    _append_audit(entry)
+    # The ticket summary points at the agent entries already appended, by run_id.
+    _append_audit(entry.model_dump(exclude={"runs"}))
     t = entry.totals
     print(f"[cost] ticket {ticket_id} {status}: {t['agent_runs']} agent runs, {t['model_requests']} model requests, "
           f"{t['input_tokens']}+{t['output_tokens']} tokens, {t['tool_calls']} tool calls, "
