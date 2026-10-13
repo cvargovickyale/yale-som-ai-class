@@ -97,6 +97,22 @@ tests
 
 **Follow-up prompt used:** I don't want to do that. you test them.
 
+**Per-tool test requests.** These are the questions I planned to ask
+about each tool. After my follow-up, Claude Code ran them for me; I did not
+type them. Each one matches an entry in `output/mcp_smoke.json`.
+
+| # | Tool | Test request | Arguments sent |
+|---|---|---|---|
+| 0 | (all) | Call the campus-customs MCP server: which tools does it return, and how should each be used? | `list_tools` |
+| 1 | `check_stock` | Ticket 101: can we fill 1 white tee in size S from stock? Show the output and check it against the new db. | `sku=CC-TEE-WHITE, size=S, qty_needed=1` |
+| 2 | `check_stock` | Ticket 103: can we fill 20 navy hoodies in size M? What's the shortfall, and what other sizes are on hand? | `sku=CC-HOOD-NAVY, size=M, qty_needed=20` |
+| 3 | `price_and_margin` | Ticket 103: what are the cost, revenue, profit, and margin for 20 hoodies at list price, and how much cash do we have? | `sku=CC-HOOD-NAVY, qty=20, discount_pct=0` |
+| 4 | `price_and_margin` | Ticket 103: what would reprinting the 12-hoodie shortfall cost? | `sku=CC-HOOD-NAVY, qty=12, discount_pct=0` |
+| 5 | `get_ticket` | Ticket 101: who asked, and what record is linked to it? | `ticket_id=101` |
+| 6 | `get_ticket` | Ticket 102: who asked, and when is the rent due? | `ticket_id=102` |
+| 7 | `get_ticket` | Ticket 103: who asked, and is anything linked? | `ticket_id=103` |
+| 8 | all three | Bad inputs (unknown SKU, size XXL, ticket 999): does each tool return an error instead of making something up? | `CC-NOPE`, `XXL`, `999` |
+
 **Notes:**
 
 - "Add to this project" means a project-scoped MCP server: Claude Code reads
