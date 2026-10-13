@@ -956,5 +956,1159 @@
       "checking_balance": 3400.0,
       "open_tickets": 3
     }
+  },
+  {
+    "entry_type": "agent_run",
+    "run_id": "62f5ed9bf7bc",
+    "parent_run_id": null,
+    "agent": "boss",
+    "chain": [
+      "boss"
+    ],
+    "depth": 0,
+    "ticket_id": 101,
+    "task": "Work ticket 101: read it, get what you need from the team, decide, have Customer Service draft the reply, and record your decision for human approval.",
+    "started_at": "2026-10-13T18:17:23+00:00",
+    "duration_s": 1.91,
+    "models_reported": [
+      "gpt-6-luna-global"
+    ],
+    "model_requests": 1,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "tool_calls": [],
+    "status": "error",
+    "output": null,
+    "error": "ModelAPIError: An error occurred while processing your request. You can retry your request, or contact us through an Azure support request at: https://go.microsoft.com/fwlink/?linkid=2213926 if the error persists. Please include the request ID 6c95ab9d-210a-4392-a845-1ba4eea1d36b in your message."
+  },
+  {
+    "entry_type": "ticket_run",
+    "ticket_id": 101,
+    "started_at": "2026-10-13T18:17:22+00:00",
+    "duration_s": 1.98,
+    "status": "error",
+    "decision": null,
+    "run_ids": [
+      "62f5ed9bf7bc"
+    ],
+    "totals": {
+      "agent_runs": 1,
+      "model_requests": 1,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "tool_calls": 0,
+      "delegations": 0,
+      "refused_delegations": 0
+    },
+    "error": "ModelAPIError: An error occurred while processing your request. You can retry your request, or contact us through an Azure support request at: https://go.microsoft.com/fwlink/?linkid=2213926 if the error persists. Please include the request ID 6c95ab9d-210a-4392-a845-1ba4eea1d36b in your message."
+  },
+  {
+    "entry_type": "agent_run",
+    "run_id": "f3175262f0fb",
+    "parent_run_id": "e2bf5e142a94",
+    "agent": "inventory",
+    "chain": [
+      "boss",
+      "inventory"
+    ],
+    "depth": 1,
+    "ticket_id": 101,
+    "task": "Ticket 101: For one CC-TEE-WHITE size S, report on-hand stock and whether we can fulfill today; if short, vendor/reprint availability and earliest arrival, considering linked overdue invoice 501 to Bulldog Print Co may block shipment. Include any hold/reprint record only if actually appropriate to decision.",
+    "started_at": "2026-10-13T18:17:41+00:00",
+    "duration_s": 9.55,
+    "models_reported": [
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global"
+    ],
+    "model_requests": 3,
+    "input_tokens": 5974,
+    "output_tokens": 402,
+    "tool_calls": [
+      {
+        "tool": "check_stock",
+        "args": {
+          "sku": "CC-TEE-WHITE",
+          "size": "S",
+          "qty_needed": 1
+        },
+        "result": "{\"sku\": \"CC-TEE-WHITE\", \"name\": \"Classic Bulldog Tee\", \"location\": \"Aisle B\", \"sizes\": [{\"size\": \"S\", \"qty\": 0}, {\"size\": \"M\", \"qty\": 5}, {\"size\": \"L\", \"qty\": 3}, {\"size\": \"XL\", \"qty\": 2}], \"total_on_hand\": 10, \"requested\": {\"size\": \"S\", \"qty_on_hand\": 0, \"qty_needed\": 1, \"shortfall\": 1, \"can_fill_from_stock\": false}}",
+        "status": "ok"
+      },
+      {
+        "tool": "find_vendor",
+        "args": {
+          "sku": "CC-TEE-WHITE"
+        },
+        "result": "{\"date_today\": \"2026-08-31\", \"sku\": \"CC-TEE-WHITE\", \"product_name\": \"Classic Bulldog Tee\", \"vendors\": [{\"vendor_id\": 1, \"name\": \"Bulldog Print Co\", \"specialty\": \"apparel reprint\", \"lead_days\": 5, \"blocked\": true, \"blocking_invoices\": [{\"id\": 501, \"vendor_id\": 1, \"vendor_name\": \"Bulldog Print Co\", \"amount\": 840.0, \"due_date\": \"2026-08-28\", \"status\": \"open\", \"description\": \"Rush reprint CC-TEE-WHITE S\", \"days_overdue\": 3, \"days_until_due\": 0, \"is_overdue\": true}], \"earliest_arrival\": null, \"earliest_arrival_if_unblocked_today\": \"2026-09-05\", \"past_invoices_for_this_sku\": [{\"id\": 501, \"amount\": 8\u2026 (1212 chars)",
+        "status": "ok"
+      }
+    ],
+    "status": "ok",
+    "output": {
+      "agent": "inventory",
+      "ticket_id": 101,
+      "findings": [
+        "CC-TEE-WHITE size S: 0 on hand; request is 1, shortfall 1, so it cannot be fulfilled today from stock.",
+        "Other sizes of CC-TEE-WHITE on hand: M 5, L 3, XL 2.",
+        "Bulldog Print Co is the matching apparel reprint vendor (specialty: apparel reprint); past invoice 501 also names CC-TEE-WHITE S. It is blocked by open overdue invoice 501 for $840, due 2026-08-28 and 3 days overdue as of 2026-08-31.",
+        "No current earliest arrival can be promised while Bulldog Print Co is blocked. Tool reports 2026-09-05 only if the vendor is unblocked today.",
+        "Elm City Gifts (mugs and small goods) and QuickShip CT (local courier) do not match apparel reprints; no other matching vendor is indicated."
+      ],
+      "actions_taken": [],
+      "pending": {
+        "payment_request_ids": [],
+        "reprint_request_ids": [],
+        "hold_ids": [],
+        "draft_ids": [],
+        "decision_id": null
+      },
+      "recommendation": "Cannot fulfill the requested size today. No hold or reprint request was created: there is no S stock to hold, and Bulldog Print Co cannot ship while invoice 501 remains unpaid. Accounting would need to address the overdue invoice before a reprint request could be considered.",
+      "blocked": [],
+      "questions_for_caller": []
+    },
+    "error": null
+  },
+  {
+    "entry_type": "agent_run",
+    "run_id": "a704fd08a393",
+    "parent_run_id": "e2bf5e142a94",
+    "agent": "accounting",
+    "chain": [
+      "boss",
+      "accounting"
+    ],
+    "depth": 1,
+    "ticket_id": 101,
+    "task": "Ticket 101 customer asks for one CC-TEE-WHITE size S. Please report product cost, price and margin; cash available and pending obligations/cash impact, specifically invoice 501 ($840 overdue 3 days) to Bulldog Print Co and what happens if proposed for payment; whether enough cash for paying invoice and any reprint/order cost. Note any business concerns; do not duplicate inventory work.",
+    "started_at": "2026-10-13T18:17:52+00:00",
+    "duration_s": 0.5,
+    "models_reported": [
+      "unknown"
+    ],
+    "model_requests": 1,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "tool_calls": [],
+    "status": "error",
+    "output": null,
+    "error": "ModelHTTPError: status_code: 401, model_name: gpt-6-luna, body: {'html-message': 'Jwt verification fails', 'provider': 'azure-openai'}"
+  },
+  {
+    "entry_type": "agent_run",
+    "run_id": "e2bf5e142a94",
+    "parent_run_id": null,
+    "agent": "boss",
+    "chain": [
+      "boss"
+    ],
+    "depth": 0,
+    "ticket_id": 101,
+    "task": "Work ticket 101: read it, get what you need from the team, decide, have Customer Service draft the reply, and record your decision for human approval.",
+    "started_at": "2026-10-13T18:17:35+00:00",
+    "duration_s": 17.93,
+    "models_reported": [
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global"
+    ],
+    "model_requests": 3,
+    "input_tokens": 7028,
+    "output_tokens": 318,
+    "tool_calls": [
+      {
+        "tool": "get_ticket",
+        "args": {
+          "ticket_id": 101
+        },
+        "result": "{\"date_today\": \"2026-08-31\", \"ticket\": {\"id\": 101, \"type\": \"customer_order\", \"requester\": \"Tauhid Zaman\", \"subject\": \"Bulldog tee\", \"sku\": \"CC-TEE-WHITE\", \"size\": \"S\", \"qty\": 1, \"lease_id\": null, \"invoice_id\": 501, \"status\": \"open\", \"notes\": \"Needs a tee in size S.\", \"created_at\": \"2026-08-31T09:15:00-04:00\"}, \"linked_invoice\": {\"id\": 501, \"amount\": 840.0, \"due_date\": \"2026-08-28\", \"status\": \"open\", \"description\": \"Rush reprint CC-TEE-WHITE S\", \"vendor_id\": 1, \"vendor_name\": \"Bulldog Print Co\", \"lead_days\": 5, \"days_overdue\": 3, \"is_overdue\": true}, \"pending\": {\"stock_holds\": [], \"reprint_requ\u2026 (675 chars)",
+        "status": "ok"
+      },
+      {
+        "tool": "delegate",
+        "args": {
+          "to_agent": "inventory",
+          "ticket_id": 101,
+          "task": "Ticket 101: For one CC-TEE-WHITE size S, report on-hand stock and whether we can fulfill today; if short, vendor/reprint availability and earliest arrival, considering linked overdue invoice 501 to Bulldog Print Co may block shipment. Include any hold/reprint record only if actually appropriate to decision."
+        },
+        "result": "{\"agent\": \"inventory\", \"ticket_id\": 101, \"findings\": [\"CC-TEE-WHITE size S: 0 on hand; request is 1, shortfall 1, so it cannot be fulfilled today from stock.\", \"Other sizes of CC-TEE-WHITE on hand: M 5, L 3, XL 2.\", \"Bulldog Print Co is the matching apparel reprint vendor (specialty: apparel reprint); past invoice 501 also names CC-TEE-WHITE S. It is blocked by open overdue invoice 501 for $840, due 2026-08-28 and 3 days overdue as of 2026-08-31.\", \"No current earliest arrival can be promised while Bulldog Print Co is blocked. Tool reports 2026-09-05 only if the vendor is unblocked today.\", \"E\u2026 (1224 chars)",
+        "status": "ok"
+      },
+      {
+        "tool": "delegate",
+        "args": {
+          "to_agent": "accounting",
+          "ticket_id": 101,
+          "task": "Ticket 101 customer asks for one CC-TEE-WHITE size S. Please report product cost, price and margin; cash available and pending obligations/cash impact, specifically invoice 501 ($840 overdue 3 days) to Bulldog Print Co and what happens if proposed for payment; whether enough cash for paying invoice and any reprint/order cost. Note any business concerns; do not duplicate inventory work."
+        },
+        "result": "",
+        "status": "ok"
+      }
+    ],
+    "status": "error",
+    "output": null,
+    "error": "ModelHTTPError: status_code: 401, model_name: gpt-6-luna, body: {'html-message': 'Jwt verification fails', 'provider': 'azure-openai'}"
+  },
+  {
+    "entry_type": "ticket_run",
+    "ticket_id": 101,
+    "started_at": "2026-10-13T18:17:35+00:00",
+    "duration_s": 17.94,
+    "status": "error",
+    "decision": null,
+    "run_ids": [
+      "e2bf5e142a94",
+      "f3175262f0fb",
+      "a704fd08a393"
+    ],
+    "totals": {
+      "agent_runs": 3,
+      "model_requests": 7,
+      "input_tokens": 13002,
+      "output_tokens": 720,
+      "tool_calls": 5,
+      "delegations": 2,
+      "refused_delegations": 0
+    },
+    "error": "ModelHTTPError: status_code: 401, model_name: gpt-6-luna, body: {'html-message': 'Jwt verification fails', 'provider': 'azure-openai'}"
+  },
+  {
+    "entry_type": "agent_run",
+    "run_id": "7e0202086936",
+    "parent_run_id": null,
+    "agent": "boss",
+    "chain": [
+      "boss"
+    ],
+    "depth": 0,
+    "ticket_id": 101,
+    "task": "Work ticket 101: read it, get what you need from the team, decide, have Customer Service draft the reply, and record your decision for human approval.",
+    "started_at": "2026-10-13T18:19:14+00:00",
+    "duration_s": 1.26,
+    "models_reported": [
+      "unknown"
+    ],
+    "model_requests": 1,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "tool_calls": [],
+    "status": "error",
+    "output": null,
+    "error": "ModelHTTPError: status_code: 401, model_name: gpt-6-luna, body: {'html-message': 'Jwt verification fails', 'provider': 'azure-openai'}"
+  },
+  {
+    "entry_type": "ticket_run",
+    "ticket_id": 101,
+    "started_at": "2026-10-13T18:19:14+00:00",
+    "duration_s": 1.34,
+    "status": "error",
+    "decision": null,
+    "run_ids": [
+      "7e0202086936"
+    ],
+    "totals": {
+      "agent_runs": 1,
+      "model_requests": 1,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "tool_calls": 0,
+      "delegations": 0,
+      "refused_delegations": 0
+    },
+    "error": "ModelHTTPError: status_code: 401, model_name: gpt-6-luna, body: {'html-message': 'Jwt verification fails', 'provider': 'azure-openai'}"
+  },
+  {
+    "entry_type": "agent_run",
+    "run_id": "d494baf0beba",
+    "parent_run_id": "541f8c140557",
+    "agent": "inventory",
+    "chain": [
+      "boss",
+      "inventory"
+    ],
+    "depth": 1,
+    "ticket_id": 101,
+    "task": "Ticket 101: For Tauhid Zaman's request for 1 CC-TEE-WHITE size S, report stock available and whether it can be fulfilled now. If not, identify shortfall, reprint vendor/lead time and earliest arrival. Note linked invoice 501 to Bulldog Print Co is open and 3 days overdue, so confirm whether vendor can ship while unpaid. Do not create a reprint request or reserve stock until the boss decides.",
+    "started_at": "2026-10-13T18:20:25+00:00",
+    "duration_s": 16.88,
+    "models_reported": [
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global"
+    ],
+    "model_requests": 6,
+    "input_tokens": 14108,
+    "output_tokens": 672,
+    "tool_calls": [
+      {
+        "tool": "check_stock",
+        "args": {
+          "sku": "CC-TEE-WHITE",
+          "size": "S",
+          "qty_needed": 1
+        },
+        "result": "{\"sku\": \"CC-TEE-WHITE\", \"name\": \"Classic Bulldog Tee\", \"location\": \"Aisle B\", \"sizes\": [{\"size\": \"S\", \"qty\": 0}, {\"size\": \"M\", \"qty\": 5}, {\"size\": \"L\", \"qty\": 3}, {\"size\": \"XL\", \"qty\": 2}], \"total_on_hand\": 10, \"requested\": {\"size\": \"S\", \"qty_on_hand\": 0, \"qty_needed\": 1, \"shortfall\": 1, \"can_fill_from_stock\": false}}",
+        "status": "ok"
+      },
+      {
+        "tool": "find_vendor",
+        "args": {
+          "sku": "CC-TEE-WHITE"
+        },
+        "result": "{\"date_today\": \"2026-08-31\", \"sku\": \"CC-TEE-WHITE\", \"product_name\": \"Classic Bulldog Tee\", \"vendors\": [{\"vendor_id\": 1, \"name\": \"Bulldog Print Co\", \"specialty\": \"apparel reprint\", \"lead_days\": 5, \"blocked\": true, \"blocking_invoices\": [{\"id\": 501, \"vendor_id\": 1, \"vendor_name\": \"Bulldog Print Co\", \"amount\": 840.0, \"due_date\": \"2026-08-28\", \"status\": \"open\", \"description\": \"Rush reprint CC-TEE-WHITE S\", \"days_overdue\": 3, \"days_until_due\": 0, \"is_overdue\": true}], \"earliest_arrival\": null, \"earliest_arrival_if_unblocked_today\": \"2026-09-05\", \"past_invoices_for_this_sku\": [{\"id\": 501, \"amount\": 8\u2026 (1212 chars)",
+        "status": "ok"
+      },
+      {
+        "tool": "check_stock",
+        "args": {
+          "sku": "CC-TEE-WHITE",
+          "size": "M"
+        },
+        "result": "{\"sku\": \"CC-TEE-WHITE\", \"name\": \"Classic Bulldog Tee\", \"location\": \"Aisle B\", \"sizes\": [{\"size\": \"S\", \"qty\": 0}, {\"size\": \"M\", \"qty\": 5}, {\"size\": \"L\", \"qty\": 3}, {\"size\": \"XL\", \"qty\": 2}], \"total_on_hand\": 10, \"requested\": {\"size\": \"M\", \"qty_on_hand\": 5}}",
+        "status": "ok"
+      },
+      {
+        "tool": "check_stock",
+        "args": {
+          "sku": "CC-TEE-WHITE",
+          "size": "L"
+        },
+        "result": "{\"sku\": \"CC-TEE-WHITE\", \"name\": \"Classic Bulldog Tee\", \"location\": \"Aisle B\", \"sizes\": [{\"size\": \"S\", \"qty\": 0}, {\"size\": \"M\", \"qty\": 5}, {\"size\": \"L\", \"qty\": 3}, {\"size\": \"XL\", \"qty\": 2}], \"total_on_hand\": 10, \"requested\": {\"size\": \"L\", \"qty_on_hand\": 3}}",
+        "status": "ok"
+      },
+      {
+        "tool": "check_stock",
+        "args": {
+          "sku": "CC-TEE-WHITE",
+          "size": "XL"
+        },
+        "result": "{\"sku\": \"CC-TEE-WHITE\", \"name\": \"Classic Bulldog Tee\", \"location\": \"Aisle B\", \"sizes\": [{\"size\": \"S\", \"qty\": 0}, {\"size\": \"M\", \"qty\": 5}, {\"size\": \"L\", \"qty\": 3}, {\"size\": \"XL\", \"qty\": 2}], \"total_on_hand\": 10, \"requested\": {\"size\": \"XL\", \"qty_on_hand\": 2}}",
+        "status": "ok"
+      }
+    ],
+    "status": "ok",
+    "output": {
+      "agent": "inventory",
+      "ticket_id": 101,
+      "findings": [
+        "CC-TEE-WHITE size S: 0 on hand; need 1; shortfall 1, so it cannot be fulfilled from stock now.",
+        "Other sizes on hand: M 5, L 3, XL 2 (stock checks returned on-hand counts).",
+        "Bulldog Print Co (vendor 1) matches via its apparel reprint specialty; its past invoice 501 also names CC-TEE-WHITE S. It is blocked by open unpaid invoice 501 for $840, due 2026-08-28 and 3 days overdue as of 2026-08-31.",
+        "Bulldog Print Co cannot ship while invoice 501 remains unpaid. Its lead time is 5 days; the tool gives 2026-09-05 as earliest arrival only if unblocked today. No current arrival date is available while blocked."
+      ],
+      "actions_taken": [],
+      "pending": {
+        "payment_request_ids": [],
+        "reprint_request_ids": [],
+        "hold_ids": [],
+        "draft_ids": [],
+        "decision_id": null
+      },
+      "recommendation": "Do not promise fulfillment now: S is out of stock and the matching reprint vendor is blocked by overdue invoice 501. The Boss can decide whether to address the invoice and pursue a reprint; no hold or reprint request was created.",
+      "blocked": [
+        "Bulldog Print Co cannot ship while open invoice 501 ($840, 3 days overdue) remains unpaid."
+      ],
+      "questions_for_caller": []
+    },
+    "error": null
+  },
+  {
+    "entry_type": "agent_run",
+    "run_id": "1131ecabfa29",
+    "parent_run_id": "541f8c140557",
+    "agent": "accounting",
+    "chain": [
+      "boss",
+      "accounting"
+    ],
+    "depth": 1,
+    "ticket_id": 101,
+    "task": "Ticket 101: For the requested 1 CC-TEE-WHITE size S, report unit cost, selling price and margin; also whether the shop should honor any price/discount noted. Check cash available, open invoices and upcoming rent, and what cash would remain if invoice 501 ($840, 3 days overdue to Bulldog Print Co) is proposed for payment. Flag the business implications of paying it to unblock a possible reprint. Do not propose payment unless appropriate; report numbers and any relevant recommendation.",
+    "started_at": "2026-10-13T18:20:45+00:00",
+    "duration_s": 21.25,
+    "models_reported": [
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global"
+    ],
+    "model_requests": 4,
+    "input_tokens": 9983,
+    "output_tokens": 2208,
+    "tool_calls": [
+      {
+        "tool": "price_and_margin",
+        "args": {
+          "sku": "CC-TEE-WHITE-S",
+          "qty": 1
+        },
+        "result": "SKU 'CC-TEE-WHITE-S' has no pricing row.",
+        "status": "error"
+      },
+      {
+        "tool": "get_cash_and_bills",
+        "args": {},
+        "result": "{\"date_today\": \"2026-08-31\", \"cash_accounts\": [{\"name\": \"checking\", \"balance\": 3400.0, \"as_of\": \"2026-08-31\", \"pending_payments\": 0.0, \"cash_after_pending\": 3400.0}], \"open_invoices\": [{\"id\": 501, \"vendor_id\": 1, \"vendor_name\": \"Bulldog Print Co\", \"amount\": 840.0, \"due_date\": \"2026-08-28\", \"status\": \"open\", \"description\": \"Rush reprint CC-TEE-WHITE S\", \"days_overdue\": 3, \"days_until_due\": 0, \"is_overdue\": true}], \"leases\": [{\"id\": 1, \"space_name\": \"Chapel Street shop\", \"landlord\": \"Elm City Properties\", \"monthly_rent\": 2400.0, \"next_due\": \"2026-09-02\", \"notes\": null, \"days_until_due\": 2, \"is_o\u2026 (719 chars)",
+        "status": "ok"
+      },
+      {
+        "tool": "propose_payment",
+        "args": {
+          "ticket_id": 101,
+          "kind": "invoice",
+          "ref_id": 501,
+          "reason": "Overdue invoice for rush reprint CC-TEE-WHITE S; payment would clear the overdue vendor balance and help unblock a possible reprint. Cash covers the invoice and upcoming rent, with $160 remaining after both."
+        },
+        "result": "{\"payment_request_id\": 1, \"kind\": \"invoice\", \"ref_id\": 501, \"payee\": \"Bulldog Print Co\", \"amount\": 840.0, \"due_date\": \"2026-08-28\", \"days_overdue\": 3, \"account\": \"checking\", \"cash_after_if_approved\": 2560.0, \"status\": \"pending_approval\", \"note\": \"A human must approve this payment. No money has moved.\"}",
+        "status": "ok"
+      }
+    ],
+    "status": "ok",
+    "output": {
+      "agent": "accounting",
+      "ticket_id": 101,
+      "findings": [
+        "CC-TEE-WHITE size S: pricing lookup for SKU CC-TEE-WHITE-S returned no pricing row, so unit cost, selling price, and margin cannot be reported from available data. No specific requested price/discount was present in the information available, so honoring it cannot be assessed.",
+        "As of 2026-08-31, checking cash is $3,400 and there were no prior pending payments. Open invoice 501 to Bulldog Print Co is $840, due 2026-08-28 and 3 days overdue; its description is 'Rush reprint CC-TEE-WHITE S.'",
+        "Monthly rent of $2,400 is due 2026-09-02 (in 2 days). If invoice 501 is paid: $3,400 \u2212 $840 = $2,560 remains; after also reserving rent: $2,560 \u2212 $2,400 = $160 remains.",
+        "After the payment request is created, cash_after_pending is $2,560. A pending request does not move cash and does not by itself unblock the vendor; human approval and payment are still required.",
+        "Paying the overdue invoice first is financially feasible and consistent with urgency, but leaves only $160 after the imminent rent is covered. Any additional reprint expense beyond invoice 501 cannot be checked for affordability from available cost data. The existing invoice itself describes a rush reprint."
+      ],
+      "actions_taken": [
+        "Created payment request 1 for invoice 501, $840, pending human approval; no money has moved."
+      ],
+      "pending": {
+        "payment_request_ids": [
+          1
+        ],
+        "reprint_request_ids": [],
+        "hold_ids": [],
+        "draft_ids": [],
+        "decision_id": null
+      },
+      "recommendation": "The overdue invoice is affordable and was put forward for approval to address the vendor block; prioritizing it still leaves enough for the $2,400 rent, but only $160 afterward. Do not commit to any additional reprint until its cost is confirmed. I cannot recommend honoring a noted price or discount until the product's pricing row and requested terms are supplied.",
+      "blocked": [
+        "Pricing lookup failed: no pricing row exists for SKU CC-TEE-WHITE-S, preventing cost, price, and margin analysis."
+      ],
+      "questions_for_caller": [
+        "Please provide the intended selling price/discount (if any) and confirm the SKU/pricing record for CC-TEE-WHITE size S. What is the cost of any additional reprint needed beyond invoice 501?"
+      ]
+    },
+    "error": null
+  },
+  {
+    "entry_type": "agent_run",
+    "run_id": "4c78d09d3230",
+    "parent_run_id": "541f8c140557",
+    "agent": "customer_service",
+    "chain": [
+      "boss",
+      "customer_service"
+    ],
+    "depth": 1,
+    "ticket_id": 101,
+    "task": "Ticket 101: Draft a friendly, honest reply to Tauhid Zaman. Decision: cannot fill the white Bulldog tee in S today because on-hand stock is 0 and the request is for 1. The matching vendor is blocked by unpaid overdue invoice 501 ($840); a payment request is pending human approval, not paid. If unblocked today, vendor's 5-day lead time gives earliest arrival 2026-09-05, but there is no confirmed arrival date while blocked, so don't promise that date. Say we'll update them when the approval/vendor status is known. No price/margin details are available. Do not imply payment or sending has happened.",
+    "started_at": "2026-10-13T18:21:18+00:00",
+    "duration_s": 11.2,
+    "models_reported": [
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global"
+    ],
+    "model_requests": 3,
+    "input_tokens": 5464,
+    "output_tokens": 381,
+    "tool_calls": [
+      {
+        "tool": "get_ticket",
+        "args": {
+          "ticket_id": 101
+        },
+        "result": "{\"date_today\": \"2026-08-31\", \"ticket\": {\"id\": 101, \"type\": \"customer_order\", \"requester\": \"Tauhid Zaman\", \"subject\": \"Bulldog tee\", \"sku\": \"CC-TEE-WHITE\", \"size\": \"S\", \"qty\": 1, \"lease_id\": null, \"invoice_id\": 501, \"status\": \"open\", \"notes\": \"Needs a tee in size S.\", \"created_at\": \"2026-08-31T09:15:00-04:00\"}, \"linked_invoice\": {\"id\": 501, \"amount\": 840.0, \"due_date\": \"2026-08-28\", \"status\": \"open\", \"description\": \"Rush reprint CC-TEE-WHITE S\", \"vendor_id\": 1, \"vendor_name\": \"Bulldog Print Co\", \"lead_days\": 5, \"days_overdue\": 3, \"is_overdue\": true}, \"pending\": {\"stock_holds\": [], \"reprint_requ\u2026 (1162 chars)",
+        "status": "ok"
+      },
+      {
+        "tool": "save_draft_message",
+        "args": {
+          "ticket_id": 101,
+          "to_name": "Tauhid Zaman",
+          "subject": "Update on your Bulldog tee",
+          "body": "Hi Tauhid,\n\nWe\u2019re sorry, but we can\u2019t fill the white Bulldog tee in size S today. We don\u2019t have one in stock, and the vendor reprint is currently pending approval, so we can\u2019t confirm an arrival date yet.\n\nWe\u2019ll update you when we know more about the approval and vendor status.\n\nCampus Customs"
+        },
+        "result": "{\"draft_id\": 1, \"action\": \"created\", \"to\": \"Tauhid Zaman\", \"subject\": \"Update on your Bulldog tee\", \"status\": \"draft\", \"note\": \"Saved as a draft. Nothing was sent.\"}",
+        "status": "ok"
+      }
+    ],
+    "status": "ok",
+    "output": {
+      "agent": "customer_service",
+      "ticket_id": 101,
+      "findings": [
+        "Draft addressed to Tauhid Zaman, subject: Update on your Bulldog tee.",
+        "Message says the white Bulldog tee in size S cannot be filled today because it is out of stock; the vendor reprint is pending approval, so no arrival date is confirmed.",
+        "Message says Campus Customs will update Tauhid when approval and vendor status are known."
+      ],
+      "actions_taken": [
+        "Saved draft message 1; nothing was sent."
+      ],
+      "pending": {
+        "payment_request_ids": [],
+        "reprint_request_ids": [],
+        "hold_ids": [],
+        "draft_ids": [
+          1
+        ],
+        "decision_id": null
+      },
+      "recommendation": "A human can review the friendly, brief draft before sending. It avoids quoting an unconfirmed arrival date and does not imply payment or shipment.",
+      "blocked": [],
+      "questions_for_caller": []
+    },
+    "error": null
+  },
+  {
+    "entry_type": "agent_run",
+    "run_id": "541f8c140557",
+    "parent_run_id": null,
+    "agent": "boss",
+    "chain": [
+      "boss"
+    ],
+    "depth": 0,
+    "ticket_id": 101,
+    "task": "Work ticket 101: read it, get what you need from the team, decide, have Customer Service draft the reply, and record your decision for human approval.",
+    "started_at": "2026-10-13T18:20:18+00:00",
+    "duration_s": 80.63,
+    "models_reported": [
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global"
+    ],
+    "model_requests": 6,
+    "input_tokens": 19745,
+    "output_tokens": 1650,
+    "tool_calls": [
+      {
+        "tool": "get_ticket",
+        "args": {
+          "ticket_id": 101
+        },
+        "result": "{\"date_today\": \"2026-08-31\", \"ticket\": {\"id\": 101, \"type\": \"customer_order\", \"requester\": \"Tauhid Zaman\", \"subject\": \"Bulldog tee\", \"sku\": \"CC-TEE-WHITE\", \"size\": \"S\", \"qty\": 1, \"lease_id\": null, \"invoice_id\": 501, \"status\": \"open\", \"notes\": \"Needs a tee in size S.\", \"created_at\": \"2026-08-31T09:15:00-04:00\"}, \"linked_invoice\": {\"id\": 501, \"amount\": 840.0, \"due_date\": \"2026-08-28\", \"status\": \"open\", \"description\": \"Rush reprint CC-TEE-WHITE S\", \"vendor_id\": 1, \"vendor_name\": \"Bulldog Print Co\", \"lead_days\": 5, \"days_overdue\": 3, \"is_overdue\": true}, \"pending\": {\"stock_holds\": [], \"reprint_requ\u2026 (675 chars)",
+        "status": "ok"
+      },
+      {
+        "tool": "delegate",
+        "args": {
+          "to_agent": "inventory",
+          "ticket_id": 101,
+          "task": "Ticket 101: For Tauhid Zaman's request for 1 CC-TEE-WHITE size S, report stock available and whether it can be fulfilled now. If not, identify shortfall, reprint vendor/lead time and earliest arrival. Note linked invoice 501 to Bulldog Print Co is open and 3 days overdue, so confirm whether vendor can ship while unpaid. Do not create a reprint request or reserve stock until the boss decides."
+        },
+        "result": "{\"agent\": \"inventory\", \"ticket_id\": 101, \"findings\": [\"CC-TEE-WHITE size S: 0 on hand; need 1; shortfall 1, so it cannot be fulfilled from stock now.\", \"Other sizes on hand: M 5, L 3, XL 2 (stock checks returned on-hand counts).\", \"Bulldog Print Co (vendor 1) matches via its apparel reprint specialty; its past invoice 501 also names CC-TEE-WHITE S. It is blocked by open unpaid invoice 501 for $840, due 2026-08-28 and 3 days overdue as of 2026-08-31.\", \"Bulldog Print Co cannot ship while invoice 501 remains unpaid. Its lead time is 5 days; the tool gives 2026-09-05 as earliest arrival only if u\u2026 (1198 chars)",
+        "status": "ok"
+      },
+      {
+        "tool": "delegate",
+        "args": {
+          "to_agent": "accounting",
+          "ticket_id": 101,
+          "task": "Ticket 101: For the requested 1 CC-TEE-WHITE size S, report unit cost, selling price and margin; also whether the shop should honor any price/discount noted. Check cash available, open invoices and upcoming rent, and what cash would remain if invoice 501 ($840, 3 days overdue to Bulldog Print Co) is proposed for payment. Flag the business implications of paying it to unblock a possible reprint. Do not propose payment unless appropriate; report numbers and any relevant recommendation."
+        },
+        "result": "{\"agent\": \"accounting\", \"ticket_id\": 101, \"findings\": [\"CC-TEE-WHITE size S: pricing lookup for SKU CC-TEE-WHITE-S returned no pricing row, so unit cost, selling price, and margin cannot be reported from available data. No specific requested price/discount was present in the information available, so honoring it cannot be assessed.\", \"As of 2026-08-31, checking cash is $3,400 and there were no prior pending payments. Open invoice 501 to Bulldog Print Co is $840, due 2026-08-28 and 3 days overdue; its description is 'Rush reprint CC-TEE-WHITE S.'\", \"Monthly rent of $2,400 is due 2026-09-02 (in \u2026 (2220 chars)",
+        "status": "ok"
+      },
+      {
+        "tool": "delegate",
+        "args": {
+          "to_agent": "customer_service",
+          "ticket_id": 101,
+          "task": "Ticket 101: Draft a friendly, honest reply to Tauhid Zaman. Decision: cannot fill the white Bulldog tee in S today because on-hand stock is 0 and the request is for 1. The matching vendor is blocked by unpaid overdue invoice 501 ($840); a payment request is pending human approval, not paid. If unblocked today, vendor's 5-day lead time gives earliest arrival 2026-09-05, but there is no confirmed arrival date while blocked, so don't promise that date. Say we'll update them when the approval/vendor status is known. No price/margin details are available. Do not imply payment or sending has happened."
+        },
+        "result": "{\"agent\": \"customer_service\", \"ticket_id\": 101, \"findings\": [\"Draft addressed to Tauhid Zaman, subject: Update on your Bulldog tee.\", \"Message says the white Bulldog tee in size S cannot be filled today because it is out of stock; the vendor reprint is pending approval, so no arrival date is confirmed.\", \"Message says Campus Customs will update Tauhid when approval and vendor status are known.\"], \"actions_taken\": [\"Saved draft message 1; nothing was sent.\"], \"pending\": {\"payment_request_ids\": [], \"reprint_request_ids\": [], \"hold_ids\": [], \"draft_ids\": [1], \"decision_id\": null}, \"recommendation\u2026 (795 chars)",
+        "status": "ok"
+      },
+      {
+        "tool": "record_decision",
+        "args": {
+          "ticket_id": 101,
+          "summary": "Wait on the order while payment request 1 for the overdue $840 Bulldog Print Co invoice awaits human approval; do not promise or request a new reprint until the invoice is resolved and any further cost is known. Update Tauhid that size S is out of stock and no arrival date is confirmed; the customer reply is saved as draft 1.",
+          "reasoning": "There are 0 CC-TEE-WHITE size S in stock against the requested 1. Bulldog Print Co cannot ship while invoice 501 ($840, 3 days overdue) is unpaid; its 5-day lead time means Sep 5, 2026 is only the earliest arrival if unblocked today, and there is no confirmed date while blocked. Cash is $3,400; approving payment request 1 would leave $2,560, with $2,400 rent due Sep 2 leaving $160 after rent. Product price, unit cost, and margin are unavailable, so no additional reprint spend or sale margin can be assessed."
+        },
+        "result": "{\"decision_id\": 1, \"action\": \"created\", \"status\": \"pending_approval\", \"note\": \"A human must approve this decision before the ticket is closed.\", \"pending\": {\"stock_holds\": [], \"reprint_requests\": [], \"payment_requests\": [{\"id\": 1, \"ticket_id\": 101, \"kind\": \"invoice\", \"ref_id\": 501, \"payee\": \"Bulldog Print Co\", \"amount\": 840.0, \"account\": \"checking\", \"reason\": \"Overdue invoice for rush reprint CC-TEE-WHITE S; payment would clear the overdue vendor balance and help unblock a possible reprint. Cash covers the invoice and upcoming rent, with $160 remaining after both.\", \"status\": \"pending_approval\u2026 (2252 chars)",
+        "status": "ok"
+      }
+    ],
+    "status": "ok",
+    "output": {
+      "ticket_id": 101,
+      "outcome": "waiting",
+      "summary": "Wait while payment request 1 for Bulldog Print Co\u2019s overdue invoice is pending human approval; do not promise an arrival date or order additional reprint work yet. Tauhid\u2019s reply is saved as draft 1, and decision 1 is pending approval.",
+      "reasoning": "There are 0 CC-TEE-WHITE size S on hand for the requested 1. Bulldog Print Co is blocked by invoice 501 for $840, 3 days overdue; its 5-day lead time makes 2026-09-05 only the earliest arrival if unblocked today, not a confirmed date. Cash is $3,400; after the proposed $840 payment, $2,560 remains, and after $2,400 rent due 2026-09-02, only $160 remains. Cost, price, and margin are unavailable, so additional reprint spending cannot be assessed.",
+      "agents_used": [
+        "inventory",
+        "accounting",
+        "customer_service"
+      ],
+      "pending": {
+        "payment_request_ids": [
+          1
+        ],
+        "reprint_request_ids": [],
+        "hold_ids": [],
+        "draft_ids": [
+          1
+        ],
+        "decision_id": 1
+      },
+      "risks": [
+        "If invoice payment is approved, only $160 remains after upcoming rent; no further reprint cost is known.",
+        "The conditional earliest arrival of 2026-09-05 assumes the vendor is unblocked today; no actual arrival date is confirmed."
+      ]
+    },
+    "error": null
+  },
+  {
+    "entry_type": "ticket_run",
+    "ticket_id": 101,
+    "started_at": "2026-10-13T18:20:18+00:00",
+    "duration_s": 80.68,
+    "status": "ok",
+    "decision": {
+      "ticket_id": 101,
+      "outcome": "waiting",
+      "summary": "Wait while payment request 1 for Bulldog Print Co\u2019s overdue invoice is pending human approval; do not promise an arrival date or order additional reprint work yet. Tauhid\u2019s reply is saved as draft 1, and decision 1 is pending approval.",
+      "reasoning": "There are 0 CC-TEE-WHITE size S on hand for the requested 1. Bulldog Print Co is blocked by invoice 501 for $840, 3 days overdue; its 5-day lead time makes 2026-09-05 only the earliest arrival if unblocked today, not a confirmed date. Cash is $3,400; after the proposed $840 payment, $2,560 remains, and after $2,400 rent due 2026-09-02, only $160 remains. Cost, price, and margin are unavailable, so additional reprint spending cannot be assessed.",
+      "agents_used": [
+        "inventory",
+        "accounting",
+        "customer_service"
+      ],
+      "pending": {
+        "payment_request_ids": [
+          1
+        ],
+        "reprint_request_ids": [],
+        "hold_ids": [],
+        "draft_ids": [
+          1
+        ],
+        "decision_id": 1
+      },
+      "risks": [
+        "If invoice payment is approved, only $160 remains after upcoming rent; no further reprint cost is known.",
+        "The conditional earliest arrival of 2026-09-05 assumes the vendor is unblocked today; no actual arrival date is confirmed."
+      ]
+    },
+    "run_ids": [
+      "541f8c140557",
+      "d494baf0beba",
+      "1131ecabfa29",
+      "4c78d09d3230"
+    ],
+    "totals": {
+      "agent_runs": 4,
+      "model_requests": 19,
+      "input_tokens": 49300,
+      "output_tokens": 4911,
+      "tool_calls": 15,
+      "delegations": 3,
+      "refused_delegations": 0
+    },
+    "error": null
+  },
+  {
+    "entry_type": "human_action",
+    "action": "approve_payment",
+    "by": "Christopher",
+    "at": "2026-10-13T18:22:32+00:00",
+    "result": {
+      "payment_id": 1,
+      "payment_request_id": 1,
+      "kind": "invoice",
+      "ref_id": 501,
+      "payee": "Bulldog Print Co",
+      "amount": 840.0,
+      "paid_at": "2026-08-31",
+      "approved_by": "Christopher",
+      "account": "checking",
+      "balance_before": 3400.0,
+      "balance_after": 2560.0,
+      "invoice_id": 501,
+      "invoice_status": "paid"
+    }
+  },
+  {
+    "entry_type": "human_action",
+    "action": "approve_decision",
+    "by": "Christopher",
+    "at": "2026-10-13T18:22:42+00:00",
+    "result": {
+      "decision_id": 1,
+      "ticket_id": 101,
+      "ticket_status": "resolved",
+      "approved_by": "Christopher",
+      "stock_removed": [],
+      "drafts_approved_not_sent": 1,
+      "reprint_requests_still_pending": []
+    }
+  },
+  {
+    "entry_type": "agent_run",
+    "run_id": "648a9446034a",
+    "parent_run_id": "2742d3be8773",
+    "agent": "inventory",
+    "chain": [
+      "boss",
+      "facilities",
+      "accounting",
+      "inventory"
+    ],
+    "depth": 3,
+    "ticket_id": 102,
+    "task": "For ticket 102, please report any inventory reprint/restocking quantity and total cost currently needed, if linked to this rent-payment decision; if none is specified, say none is recorded. Need amount to compare against $160 cash remaining after rent.",
+    "started_at": "2026-10-13T18:23:55+00:00",
+    "duration_s": 8.91,
+    "models_reported": [
+      "gpt-6-luna-global",
+      "gpt-6-luna-global"
+    ],
+    "model_requests": 2,
+    "input_tokens": 3905,
+    "output_tokens": 568,
+    "tool_calls": [
+      {
+        "tool": "check_stock",
+        "args": {
+          "sku": "ticket 102"
+        },
+        "result": "SKU 'ticket 102' is not in inventory.",
+        "status": "error"
+      }
+    ],
+    "status": "ok",
+    "output": {
+      "agent": "inventory",
+      "ticket_id": 102,
+      "findings": [
+        "No SKU or reprint/restocking quantity was specified in the ticket details provided. The inventory lookup for 'ticket 102' returned that it is not an inventory SKU.",
+        "No current reprint/restocking quantity or total cost linked to the rent-payment decision is recorded in the information available here."
+      ],
+      "actions_taken": [],
+      "pending": {
+        "payment_request_ids": [],
+        "reprint_request_ids": [],
+        "hold_ids": [],
+        "draft_ids": [],
+        "decision_id": null
+      },
+      "recommendation": "For comparison with the $160 cash remaining after rent, use $0 as the recorded reprint/restocking amount based on the available details; this does not confirm that no need exists outside those details.",
+      "blocked": [],
+      "questions_for_caller": [
+        "If there is a specific SKU or requested restock quantity for ticket 102, provide it so I can check stock and calculate any restock cost."
+      ]
+    },
+    "error": null
+  },
+  {
+    "entry_type": "agent_run",
+    "run_id": "2742d3be8773",
+    "parent_run_id": "6ee3c1df3736",
+    "agent": "accounting",
+    "chain": [
+      "boss",
+      "facilities",
+      "accounting"
+    ],
+    "depth": 2,
+    "ticket_id": 102,
+    "task": "Ticket 102 rent notice, lease 1: Chapel Street shop, landlord Elm City Properties, monthly rent $2,400, next due 2026-09-02 (2 days from date_today 2026-08-31), not overdue. No rent payments or pending rent requests in lease records. Please assess available cash, invoices and upcoming rent; propose the lease rent payment for human approval if feasible. Report cash before and after and payment request ID, or why not proposed.",
+    "started_at": "2026-10-13T18:23:48+00:00",
+    "duration_s": 24.32,
+    "models_reported": [
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global"
+    ],
+    "model_requests": 4,
+    "input_tokens": 9412,
+    "output_tokens": 817,
+    "tool_calls": [
+      {
+        "tool": "get_cash_and_bills",
+        "args": {},
+        "result": "{\"date_today\": \"2026-08-31\", \"cash_accounts\": [{\"name\": \"checking\", \"balance\": 2560.0, \"as_of\": \"2026-08-31\", \"pending_payments\": 0.0, \"cash_after_pending\": 2560.0}], \"open_invoices\": [], \"leases\": [{\"id\": 1, \"space_name\": \"Chapel Street shop\", \"landlord\": \"Elm City Properties\", \"monthly_rent\": 2400.0, \"next_due\": \"2026-09-02\", \"notes\": null, \"days_until_due\": 2, \"is_overdue\": false}], \"pending_payment_requests\": [], \"all_open_bills_total\": 2400.0, \"cash_left_if_all_bills_paid\": 160.0}",
+        "status": "ok"
+      },
+      {
+        "tool": "delegate",
+        "args": {
+          "to_agent": "inventory",
+          "ticket_id": 102,
+          "task": "For ticket 102, please report any inventory reprint/restocking quantity and total cost currently needed, if linked to this rent-payment decision; if none is specified, say none is recorded. Need amount to compare against $160 cash remaining after rent."
+        },
+        "result": "{\"agent\": \"inventory\", \"ticket_id\": 102, \"findings\": [\"No SKU or reprint/restocking quantity was specified in the ticket details provided. The inventory lookup for 'ticket 102' returned that it is not an inventory SKU.\", \"No current reprint/restocking quantity or total cost linked to the rent-payment decision is recorded in the information available here.\"], \"actions_taken\": [], \"pending\": {\"payment_request_ids\": [], \"reprint_request_ids\": [], \"hold_ids\": [], \"draft_ids\": [], \"decision_id\": null}, \"recommendation\": \"For comparison with the $160 cash remaining after rent, use $0 as the recorded\u2026 (906 chars)",
+        "status": "ok"
+      },
+      {
+        "tool": "propose_payment",
+        "args": {
+          "ticket_id": 102,
+          "kind": "rent",
+          "ref_id": 1,
+          "reason": "Lease 1 rent is due 2026-09-02 (2 days after 2026-08-31) and is not overdue. No open overdue invoices or pending payments; checking can cover the $2,400 rent while retaining $160."
+        },
+        "result": "{\"payment_request_id\": 2, \"kind\": \"rent\", \"ref_id\": 1, \"payee\": \"Elm City Properties\", \"amount\": 2400.0, \"next_due\": \"2026-09-02\", \"days_until_due\": 2, \"account\": \"checking\", \"cash_after_if_approved\": 160.0, \"status\": \"pending_approval\", \"note\": \"A human must approve this payment. No money has moved.\"}",
+        "status": "ok"
+      }
+    ],
+    "status": "ok",
+    "output": {
+      "agent": "accounting",
+      "ticket_id": 102,
+      "findings": [
+        "As of 2026-08-31, checking balance/cash_after_pending was $2,560; no payments were pending and no open invoices were reported.",
+        "Lease 1 rent to Elm City Properties is $2,400, due 2026-09-02 (2 days away), and is not overdue.",
+        "No overdue invoices need priority ahead of rent. Cash calculation: $2,560 \u2212 $2,400 = $160 remaining if approved.",
+        "Inventory reported no reprint/restocking quantity or cost linked to this ticket in the available details; $160 remains after rent, but that cannot confirm coverage of any unrecorded stock needs."
+      ],
+      "actions_taken": [
+        "Created rent payment request 2 for $2,400, pending human approval; no money has moved."
+      ],
+      "pending": {
+        "payment_request_ids": [
+          2
+        ],
+        "reprint_request_ids": [],
+        "hold_ids": [],
+        "draft_ids": [],
+        "decision_id": null
+      },
+      "recommendation": "The rent payment is feasible against recorded bills and available cash, so it has been proposed for human approval. Approval would leave $160 in checking; confirm there are no unrecorded restocking needs that exceed this remainder.",
+      "blocked": [],
+      "questions_for_caller": [
+        "If a specific SKU or requested restock quantity needs to be funded from this cash, provide it so its cost can be checked against the $160 remainder."
+      ]
+    },
+    "error": null
+  },
+  {
+    "entry_type": "agent_run",
+    "run_id": "6ee3c1df3736",
+    "parent_run_id": "ecab823d4bc5",
+    "agent": "facilities",
+    "chain": [
+      "boss",
+      "facilities"
+    ],
+    "depth": 1,
+    "ticket_id": 102,
+    "task": "Ticket 102: Please confirm lease 1 rent amount, due date/status, past rent payment history, and have Accounting assess cash/invoices/upcoming rent and propose payment for human approval if feasible. Report payment request ID and cash before/after.",
+    "started_at": "2026-10-13T18:23:38+00:00",
+    "duration_s": 43.5,
+    "models_reported": [
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global"
+    ],
+    "model_requests": 4,
+    "input_tokens": 5860,
+    "output_tokens": 532,
+    "tool_calls": [
+      {
+        "tool": "get_ticket",
+        "args": {
+          "ticket_id": 102
+        },
+        "result": "{\"date_today\": \"2026-08-31\", \"ticket\": {\"id\": 102, \"type\": \"rent_notice\", \"requester\": \"Elm City Properties\", \"subject\": \"Rent due\", \"sku\": null, \"size\": null, \"qty\": null, \"lease_id\": 1, \"invoice_id\": null, \"status\": \"open\", \"notes\": \"Email: shop rent due in 2 days.\", \"created_at\": \"2026-08-31T11:05:00-04:00\"}, \"linked_lease\": {\"id\": 1, \"space_name\": \"Chapel Street shop\", \"landlord\": \"Elm City Properties\", \"monthly_rent\": 2400.0, \"next_due\": \"2026-09-02\", \"notes\": null, \"days_until_due\": 2, \"is_overdue\": false}, \"pending\": {\"stock_holds\": [], \"reprint_requests\": [], \"payment_requests\": [], \"m\u2026 (638 chars)",
+        "status": "ok"
+      },
+      {
+        "tool": "get_lease",
+        "args": {
+          "lease_id": 1
+        },
+        "result": "{\"date_today\": \"2026-08-31\", \"lease\": {\"id\": 1, \"space_name\": \"Chapel Street shop\", \"landlord\": \"Elm City Properties\", \"monthly_rent\": 2400.0, \"next_due\": \"2026-09-02\", \"notes\": null, \"days_until_due\": 2, \"is_overdue\": false}, \"rent_payments\": [], \"pending_rent_requests\": []}",
+        "status": "ok"
+      },
+      {
+        "tool": "delegate",
+        "args": {
+          "to_agent": "accounting",
+          "ticket_id": 102,
+          "task": "Ticket 102 rent notice, lease 1: Chapel Street shop, landlord Elm City Properties, monthly rent $2,400, next due 2026-09-02 (2 days from date_today 2026-08-31), not overdue. No rent payments or pending rent requests in lease records. Please assess available cash, invoices and upcoming rent; propose the lease rent payment for human approval if feasible. Report cash before and after and payment request ID, or why not proposed."
+        },
+        "result": "{\"agent\": \"accounting\", \"ticket_id\": 102, \"findings\": [\"As of 2026-08-31, checking balance/cash_after_pending was $2,560; no payments were pending and no open invoices were reported.\", \"Lease 1 rent to Elm City Properties is $2,400, due 2026-09-02 (2 days away), and is not overdue.\", \"No overdue invoices need priority ahead of rent. Cash calculation: $2,560 \\u2212 $2,400 = $160 remaining if approved.\", \"Inventory reported no reprint/restocking quantity or cost linked to this ticket in the available details; $160 remains after rent, but that cannot confirm coverage of any unrecorded stock needs\u2026 (1281 chars)",
+        "status": "ok"
+      }
+    ],
+    "status": "ok",
+    "output": {
+      "agent": "facilities",
+      "ticket_id": 102,
+      "findings": [
+        "Lease 1 is the Chapel Street shop, landlord Elm City Properties; monthly rent is $2,400, due 2026-09-02, 2 days from 2026-08-31; it is not overdue.",
+        "The ticket says rent is due in 2 days, matching the lease due date/status. The rent amount is not stated in the ticket notice, so an amount match cannot be checked from it.",
+        "Past rent payment history: no payments recorded. No rent payment was already pending.",
+        "Accounting reported $2,560 cash before payment and no pending payments or open invoices. If approved, the $2,400 rent payment leaves $160.",
+        "Accounting created payment request 2 for $2,400, pending human approval; no funds have moved. Accounting noted possible unrecorded stock needs are not covered by the cash check."
+      ],
+      "actions_taken": [
+        "Delegated to Accounting to assess recorded cash/invoices and propose rent payment. Payment request 2 is awaiting human approval."
+      ],
+      "pending": {
+        "payment_request_ids": [
+          2
+        ],
+        "reprint_request_ids": [],
+        "hold_ids": [],
+        "draft_ids": [],
+        "decision_id": null
+      },
+      "recommendation": "The rent amount and due date are supported by the lease, and the notice's due-in-2-days statement matches. Accounting considers payment feasible against recorded cash and invoices; human approval of request 2 would leave $160, so confirm that no additional unrecorded needs require those funds.",
+      "blocked": [],
+      "questions_for_caller": []
+    },
+    "error": null
+  },
+  {
+    "entry_type": "agent_run",
+    "run_id": "209d98736165",
+    "parent_run_id": "ecab823d4bc5",
+    "agent": "customer_service",
+    "chain": [
+      "boss",
+      "customer_service"
+    ],
+    "depth": 1,
+    "ticket_id": 102,
+    "task": "Ticket 102 to Elm City Properties: draft a brief friendly acknowledgment stating the $2,400 Chapel Street rent due 2026-09-02 is scheduled for approval before its due date. Be explicit that it is pending human approval and has not been paid; do not claim payment made. Use only confirmed facts.",
+    "started_at": "2026-10-13T18:24:24+00:00",
+    "duration_s": 11.08,
+    "models_reported": [
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global"
+    ],
+    "model_requests": 3,
+    "input_tokens": 5401,
+    "output_tokens": 577,
+    "tool_calls": [
+      {
+        "tool": "get_ticket",
+        "args": {
+          "ticket_id": 102
+        },
+        "result": "{\"date_today\": \"2026-08-31\", \"ticket\": {\"id\": 102, \"type\": \"rent_notice\", \"requester\": \"Elm City Properties\", \"subject\": \"Rent due\", \"sku\": null, \"size\": null, \"qty\": null, \"lease_id\": 1, \"invoice_id\": null, \"status\": \"open\", \"notes\": \"Email: shop rent due in 2 days.\", \"created_at\": \"2026-08-31T11:05:00-04:00\"}, \"linked_lease\": {\"id\": 1, \"space_name\": \"Chapel Street shop\", \"landlord\": \"Elm City Properties\", \"monthly_rent\": 2400.0, \"next_due\": \"2026-09-02\", \"notes\": null, \"days_until_due\": 2, \"is_overdue\": false}, \"pending\": {\"stock_holds\": [], \"reprint_requests\": [], \"payment_requests\": [{\"id\"\u2026 (1096 chars)",
+        "status": "ok"
+      },
+      {
+        "tool": "save_draft_message",
+        "args": {
+          "ticket_id": 102,
+          "to_name": "Elm City Properties",
+          "subject": "Chapel Street rent",
+          "body": "Hello Elm City Properties,\n\nThe $2,400 Chapel Street rent due September 2, 2026 is pending human approval and has not been paid.\n\nBest,\nCampus Customs"
+        },
+        "result": "{\"draft_id\": 2, \"action\": \"created\", \"to\": \"Elm City Properties\", \"subject\": \"Chapel Street rent\", \"status\": \"draft\", \"note\": \"Saved as a draft. Nothing was sent.\"}",
+        "status": "ok"
+      }
+    ],
+    "status": "ok",
+    "output": {
+      "agent": "customer_service",
+      "ticket_id": 102,
+      "findings": [
+        "Draft 2 addressed to Elm City Properties, subject \u201cChapel Street rent.\u201d",
+        "The draft states Chapel Street rent is $2,400, due September 2, 2026, pending human approval, and has not been paid."
+      ],
+      "actions_taken": [
+        "Saved draft 2; nothing was sent."
+      ],
+      "pending": {
+        "payment_request_ids": [],
+        "reprint_request_ids": [],
+        "hold_ids": [],
+        "draft_ids": [
+          2
+        ],
+        "decision_id": null
+      },
+      "recommendation": "The draft acknowledges the pending approval and unpaid status using the confirmed lease and payment-request facts.",
+      "blocked": [
+        "Did not state that approval is scheduled before the due date; that timing is not confirmed by the records."
+      ],
+      "questions_for_caller": []
+    },
+    "error": null
+  },
+  {
+    "entry_type": "agent_run",
+    "run_id": "ecab823d4bc5",
+    "parent_run_id": null,
+    "agent": "boss",
+    "chain": [
+      "boss"
+    ],
+    "depth": 0,
+    "ticket_id": 102,
+    "task": "Work ticket 102: read it, get what you need from the team, decide, have Customer Service draft the reply, and record your decision for human approval.",
+    "started_at": "2026-10-13T18:23:22+00:00",
+    "duration_s": 80.41,
+    "models_reported": [
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global",
+      "gpt-6-luna-global"
+    ],
+    "model_requests": 5,
+    "input_tokens": 13585,
+    "output_tokens": 756,
+    "tool_calls": [
+      {
+        "tool": "get_ticket",
+        "args": {
+          "ticket_id": 102
+        },
+        "result": "{\"date_today\": \"2026-08-31\", \"ticket\": {\"id\": 102, \"type\": \"rent_notice\", \"requester\": \"Elm City Properties\", \"subject\": \"Rent due\", \"sku\": null, \"size\": null, \"qty\": null, \"lease_id\": 1, \"invoice_id\": null, \"status\": \"open\", \"notes\": \"Email: shop rent due in 2 days.\", \"created_at\": \"2026-08-31T11:05:00-04:00\"}, \"linked_lease\": {\"id\": 1, \"space_name\": \"Chapel Street shop\", \"landlord\": \"Elm City Properties\", \"monthly_rent\": 2400.0, \"next_due\": \"2026-09-02\", \"notes\": null, \"days_until_due\": 2, \"is_overdue\": false}, \"pending\": {\"stock_holds\": [], \"reprint_requests\": [], \"payment_requests\": [], \"m\u2026 (638 chars)",
+        "status": "ok"
+      },
+      {
+        "tool": "delegate",
+        "args": {
+          "to_agent": "facilities",
+          "ticket_id": 102,
+          "task": "Ticket 102: Please confirm lease 1 rent amount, due date/status, past rent payment history, and have Accounting assess cash/invoices/upcoming rent and propose payment for human approval if feasible. Report payment request ID and cash before/after."
+        },
+        "result": "{\"agent\": \"facilities\", \"ticket_id\": 102, \"findings\": [\"Lease 1 is the Chapel Street shop, landlord Elm City Properties; monthly rent is $2,400, due 2026-09-02, 2 days from 2026-08-31; it is not overdue.\", \"The ticket says rent is due in 2 days, matching the lease due date/status. The rent amount is not stated in the ticket notice, so an amount match cannot be checked from it.\", \"Past rent payment history: no payments recorded. No rent payment was already pending.\", \"Accounting reported $2,560 cash before payment and no pending payments or open invoices. If approved, the $2,400 rent payment le\u2026 (1426 chars)",
+        "status": "ok"
+      },
+      {
+        "tool": "delegate",
+        "args": {
+          "to_agent": "customer_service",
+          "ticket_id": 102,
+          "task": "Ticket 102 to Elm City Properties: draft a brief friendly acknowledgment stating the $2,400 Chapel Street rent due 2026-09-02 is scheduled for approval before its due date. Be explicit that it is pending human approval and has not been paid; do not claim payment made. Use only confirmed facts."
+        },
+        "result": "{\"agent\": \"customer_service\", \"ticket_id\": 102, \"findings\": [\"Draft 2 addressed to Elm City Properties, subject \\u201cChapel Street rent.\\u201d\", \"The draft states Chapel Street rent is $2,400, due September 2, 2026, pending human approval, and has not been paid.\"], \"actions_taken\": [\"Saved draft 2; nothing was sent.\"], \"pending\": {\"payment_request_ids\": [], \"reprint_request_ids\": [], \"hold_ids\": [], \"draft_ids\": [2], \"decision_id\": null}, \"recommendation\": \"The draft acknowledges the pending approval and unpaid status using the confirmed lease and payment-request facts.\", \"blocked\": [\"Did not\u2026 (730 chars)",
+        "status": "ok"
+      },
+      {
+        "tool": "record_decision",
+        "args": {
+          "ticket_id": 102,
+          "summary": "Propose paying Elm City Properties $2,400 rent for the Chapel Street shop, due September 2, 2026, subject to human approval. Draft acknowledgment 2 is ready and states that the payment is pending approval and has not been paid.",
+          "reasoning": "The lease confirms $2,400 due in 2 days (2026-09-02), not overdue. Accounting reports $2,560 cash, no open invoices or pending payments; approval would leave $160. Past rent payments are not recorded. Accounting cautioned that unrecorded stock needs are not included in the cash check."
+        },
+        "result": "{\"decision_id\": 2, \"action\": \"created\", \"status\": \"pending_approval\", \"note\": \"A human must approve this decision before the ticket is closed.\", \"pending\": {\"stock_holds\": [], \"reprint_requests\": [], \"payment_requests\": [{\"id\": 2, \"ticket_id\": 102, \"kind\": \"rent\", \"ref_id\": 1, \"payee\": \"Elm City Properties\", \"amount\": 2400.0, \"account\": \"checking\", \"reason\": \"Lease 1 rent is due 2026-09-02 (2 days after 2026-08-31) and is not overdue. No open overdue invoices or pending payments; checking can cover the $2,400 rent while retaining $160.\", \"status\": \"pending_approval\", \"created_at\": \"2026-10-13T\u2026 (1725 chars)",
+        "status": "ok"
+      }
+    ],
+    "status": "ok",
+    "output": {
+      "ticket_id": 102,
+      "outcome": "pay",
+      "summary": "Propose paying Elm City Properties $2,400 in Chapel Street rent, due September 2, 2026, subject to human approval. Draft acknowledgment 2 is ready and confirms the payment is pending approval and has not been paid.",
+      "reasoning": "The lease confirms rent of $2,400 due in 2 days; it is not overdue. Accounting reports $2,560 cash, no open invoices or pending payments, and a $160 balance after the proposed payment. Past rent payments are not recorded.",
+      "agents_used": [
+        "facilities",
+        "accounting",
+        "customer_service"
+      ],
+      "pending": {
+        "payment_request_ids": [
+          2
+        ],
+        "reprint_request_ids": [],
+        "hold_ids": [],
+        "draft_ids": [
+          2
+        ],
+        "decision_id": 2
+      },
+      "risks": [
+        "The proposed payment leaves only $160 cash; accounting's assessment does not include possible unrecorded stock needs."
+      ]
+    },
+    "error": null
+  },
+  {
+    "entry_type": "ticket_run",
+    "ticket_id": 102,
+    "started_at": "2026-10-13T18:23:22+00:00",
+    "duration_s": 80.43,
+    "status": "ok",
+    "decision": {
+      "ticket_id": 102,
+      "outcome": "pay",
+      "summary": "Propose paying Elm City Properties $2,400 in Chapel Street rent, due September 2, 2026, subject to human approval. Draft acknowledgment 2 is ready and confirms the payment is pending approval and has not been paid.",
+      "reasoning": "The lease confirms rent of $2,400 due in 2 days; it is not overdue. Accounting reports $2,560 cash, no open invoices or pending payments, and a $160 balance after the proposed payment. Past rent payments are not recorded.",
+      "agents_used": [
+        "facilities",
+        "accounting",
+        "customer_service"
+      ],
+      "pending": {
+        "payment_request_ids": [
+          2
+        ],
+        "reprint_request_ids": [],
+        "hold_ids": [],
+        "draft_ids": [
+          2
+        ],
+        "decision_id": 2
+      },
+      "risks": [
+        "The proposed payment leaves only $160 cash; accounting's assessment does not include possible unrecorded stock needs."
+      ]
+    },
+    "run_ids": [
+      "ecab823d4bc5",
+      "6ee3c1df3736",
+      "2742d3be8773",
+      "648a9446034a",
+      "209d98736165"
+    ],
+    "totals": {
+      "agent_runs": 5,
+      "model_requests": 18,
+      "input_tokens": 38163,
+      "output_tokens": 3250,
+      "tool_calls": 13,
+      "delegations": 4,
+      "refused_delegations": 0
+    },
+    "error": null
+  },
+  {
+    "entry_type": "human_action",
+    "action": "reset_database",
+    "by": "dashboard",
+    "at": "2026-10-13T18:24:52+00:00",
+    "result": {
+      "reset": true,
+      "database": "campus_customs_new.db",
+      "tables": [
+        "cash_accounts",
+        "desk",
+        "inventory",
+        "invoices",
+        "leases",
+        "payments",
+        "pricing",
+        "tickets",
+        "vendors"
+      ],
+      "checking_balance": 3400.0,
+      "open_tickets": 3
+    }
   }
 ]

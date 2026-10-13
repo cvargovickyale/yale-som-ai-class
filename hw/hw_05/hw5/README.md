@@ -88,7 +88,25 @@ One ticket can also be run from the command line:
 
 ## 5. Start the React board
 
-*Added in P8.*
+With the MCP server and backend running, in a third terminal:
+
+```bash
+cd frontend
+npm install          # first time only
+npm run dev          # opens http://localhost:5173 in your browser
+```
+
+The board calls the backend through Vite's `/api` proxy (default
+`http://127.0.0.1:8000`; set `HW5_BACKEND` if yours is elsewhere).
+
+1. Type your name in **Approving as** (it's recorded on every approval).
+2. Pick a ticket and click **Start the team**. Watch the agents' feeds.
+3. When the ticket says **needs you**, open **Review and approve**:
+   approve or reject each payment (the balance counts down), then
+   **Approve and close ticket**. It turns green and drops into **Done**.
+4. **Reset** returns the desk to the original data for a fresh run.
+
+Design decisions: `output/design.md`.
 
 ## What the agents can and can't do
 

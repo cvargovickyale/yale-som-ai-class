@@ -311,6 +311,7 @@ database, so there is no side door around these rules.
 | One tool call at a time | `parallel_tool_calls = False` | Stops parallel hand-offs from duplicating work (seen in P5 testing). |
 | Visibility | Tokens, model requests, and tool calls per agent run | `output/audit_trail.json`, plus a one-line cost summary per ticket. |
 | Runs | One team run at a time; at most 6 runs per 10 minutes | Checked in `POST /api/tickets/{id}/run` *before* any agent starts (409 if busy, 429 over the limit). |
+| Model retries | Up to 3 per request, temporary errors only, before streaming starts | Keeps one provider hiccup from wasting a whole run's tokens; each retry is visible as an event (section 6). |
 | Fresh responses | `x-portkey-cache-force-refresh: true` | A Portkey cache hit returned tool-call IDs Azure rejects, which broke a rerun (P7). Fresh responses also mean the audit shows real, current model output. |
 
 Measured so far: one ticket (102) cost 18 model requests and 42,817 tokens
@@ -370,6 +371,7 @@ has no database access of its own.
 | `GET /api/health` | Backend is up, which model is fixed (`gpt-6-luna`), MCP URL, shop date | `get_board` |
 | `GET /api/tickets` | All three tickets with status (**open** / **resolved**), the team's records for each (payment and reprint requests, holds, drafts, decisions), cash, payments made, open/resolved counts, and each ticket's latest run | `get_board` |
 | `GET /api/tickets/{ticket_id}` | One ticket with its linked invoice or lease and its pending records | `get_ticket` |
+| `GET /api/tickets/{ticket_id}/history` | What each agent did on the ticket's latest run since the last reset: who asked whom, task, tools used, findings, recommendation, tokens, plus the run's totals and the Boss's decision. Read from `output/audit_trail.json` (the run log, not shop data), so it survives a backend restart. Added in P8 for the board's "What each agent did." | none (audit file) |
 | `POST /api/tickets/{ticket_id}/run` | Start the agent team on the ticket (Boss first). Returns `202` at once; the run continues in the background. Refused if the ticket isn't open, a run is already going (`409`), or over 6 runs per 10 minutes (`429`). | `get_ticket`, then the agents' tools |
 | `GET /api/runs` | Latest run per ticket: running / ok / error, duration, totals (requests, tokens, tool calls, delegations), the Boss's decision | none (in memory) |
 | `GET /api/events?since={seq}` | Recent events, oldest first, for keeping the board current: run started/finished, agent started/finished (tokens, recommendation), each tool call and result, each delegation, approvals, resets. Poll with the last `seq` you saw. | none (in memory; the audit file is the permanent record) |
@@ -397,6 +399,19 @@ server isn't running, every route returns `503`.
 | Approve the decision | Ticket 102 → **resolved** (1 resolved, 2 open); draft → approved, not sent |
 | Audit | Every agent run, ticket summary, and human action appended |
 | Reset | All 9 original tables match the original row for row, and the 5 work tables are gone |
+
+### Provider retries (added in P8)
+
+While testing the board, about one in three `gpt-6-luna` calls failed for
+a while with Azure's `401 "Jwt verification fails"` (plus one generic
+Azure 5xx), ending whole team runs. Each model request is now retried up
+to 3 times with backoff (1.5 s, 3 s, 6 s), but only for temporary errors
+(that 401, 408, 429, 5xx, connection errors), and only before any reply
+has started streaming. That makes it safe: a model request has no side
+effects, since tools run only after a reply comes back. Every retry is a
+`model_retry` event on the board. Tested with a fake provider: two JWT
+failures then success → success after 2 retries; a 400 is not retried; a
+provider that stays down fails after 3 retries.
 
 ### Bugs the route tests found (fixed)
 

@@ -469,3 +469,74 @@ what does
 - After a reset through the API, the working copy's contents match the
   original exactly, but its SHA-1 doesn't (SQLite's backup writes its own
   file header). "Same as original" is now checked table by table.
+
+## Problem 8 — Agent dashboard
+
+**Prompt:** when p7 resolved, p8 will build frontend/ dashboard w react and
+vite and typescript. page needs to call p7 routes. you know what board
+should have, but here are tips: let you pick which ticket to start with.
+show agents and their feeds, ticket status, summary of what agent did on
+each ticket, have approval for payment, have prominent checking balance that
+stays updated. make it spread out and a little more minimalist than the dense
+views we've created before. should look calm and inviting, not overwhelming.
+use popups as needed that people can click on for more info. you really can
+shut down the lecture 13 stuff and use 8000, but keep with whatever you got
+if it's easier. the backend needs to allow vite localhost 5173 or whatever.
+board shoudl start with npm run dev to open react desk in browser so I can
+try it out. design.md should contain my guidance and more on final deciisons
+of dashboard look and how resolved tickets and cash shows up. focus on the
+creativity and help people enjoy using it like tickets having a satisfying
+closed animation that turns them green and pushes them into a done pile :)
+
+**Follow-up prompt used:** none.
+
+**Notes:**
+
+- **Ports:** stopped the Lecture 13 backend (8000) and frontend (5173),
+  with my OK. The HW5 backend now runs on 8000 and the board on 5173. The
+  backend allows `localhost:5173` (CORS), and the board also proxies
+  `/api` through Vite. `npm run dev` opens the board in the browser.
+- **`frontend/`** is React 19 + Vite 8 + TypeScript, the same stack as
+  HW4. It has:
+  - a big live **checking balance** that counts down when a payment is
+    approved
+  - **On the desk** tickets with **Start the team** (pick any ticket)
+  - **The team**: five agents with live feeds and a popup per agent
+  - a **Review** popup with the Boss's call, risks, **Approve / Reject**
+    for payments, the draft, and what each agent did
+  - **Approve and close ticket**, which runs the closing animation (green
+    wash → check stamp → flies → lands in a tilted **Done** pile)
+  - **Reset**, **How it works**, and **Recent activity**
+- **Style decision:** calm paper-and-card, not Gateway 2000, per my
+  "calmer, less dense" ask. One accent (Yale blue); green only for
+  done/paid; amber only for money warnings. Full reasoning in
+  `output/design.md`.
+- **Backend additions for the board:** `GET /api/tickets/{id}/history`
+  (what each agent did, read from the audit trail since the last reset, so
+  it survives a restart).
+- **Model retries:** while testing, Azure intermittently rejected about 1
+  in 3 gpt-6-luna calls (`401 Jwt verification fails`) and once returned a
+  5xx, ending team runs. Model requests now retry up to 3 times with
+  backoff, on temporary errors only and only before any reply streams, so
+  nothing is ever done twice. The first version missed streamed requests
+  (the live feed makes runs stream); fixed and tested with a fake provider.
+- **Bugs found and fixed while testing:**
+  - The feed showed duplicate events, because two overlapping polls
+    fetched the same events. They're now kept once by sequence number.
+  - At 375 px the single-column grid overflowed sideways.
+- **An unplanned run:** Claude's layout-check script clicked the first
+  ticket's main button, which was **Start the team** on 102 once 101 was
+  done. That started one real run of ticket 102 (ok, 41,413 tokens). The
+  run guard refused the script's next clicks. The rent request it created
+  was **not** approved, and the desk was reset afterward. Later checks use
+  read-only clicks only.
+- **Verified live in the browser:**
+  1. Ran 101: ok in 81 s; "2 need you"; the Boss suggested "waiting."
+  2. Approved the $840: balance $3,400 → $2,560, with a −$840 chip.
+  3. Closed the ticket: animation sequence confirmed frame by frame;
+     landed in Done.
+  4. Reset → $3,400, three open, empty pile, all 9 tables match the
+     original.
+  5. Width sweep 320–1440 px: no overflow, popup fits, Esc closes it,
+     real mouse clicks work.
+  6. `npm run build` is clean.

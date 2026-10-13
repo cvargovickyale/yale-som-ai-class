@@ -35,6 +35,7 @@ import sys
 import threading
 import time
 import uuid
+from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -48,7 +49,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastmcp import Client
 from pydantic import BaseModel, Field
 from pydantic_ai import Agent, RunContext, Tool, UsageLimits, capture_run_messages
-from pydantic_ai.exceptions import UsageLimitExceeded
+from pydantic_ai.exceptions import ModelAPIError, ModelHTTPError, UsageLimitExceeded
 from pydantic_ai.mcp import MCPToolset
 from pydantic_ai.messages import (FunctionToolCallEvent, FunctionToolResultEvent, ModelResponse, RetryPromptPart,
                                   ToolCallPart, ToolReturnPart)
@@ -117,6 +118,54 @@ class Deps:
         return len(self.chain) - 1
 
 
+MODEL_RETRIES = 3            # extra tries for one model request on a temporary provider error
+
+
+def _transient(e: Exception) -> bool:
+    """Provider hiccups worth retrying: Azure's intermittent 401 "Jwt verification fails", 429, 5xx, no status."""
+    if isinstance(e, ModelHTTPError):
+        return e.status_code in (408, 429) or e.status_code >= 500 or (
+            e.status_code == 401 and "jwt" in str(e.body).lower())
+    return isinstance(e, ModelAPIError)
+
+
+class RetryingResponsesModel(OpenAIResponsesModel):
+    """Retries one model request on a temporary provider error, with backoff.
+
+    Safe: a request has no side effects (tools run only after a reply comes
+    back). Each retry is logged as a board event. Found in P8: about one in
+    three calls to gpt-6-luna failed with Azure's 401 "Jwt verification
+    fails" for a while, which ended whole team runs.
+    """
+
+    async def request(self, messages, model_settings, model_request_parameters):
+        for attempt in range(MODEL_RETRIES + 1):
+            try:
+                return await super().request(messages, model_settings, model_request_parameters)
+            except Exception as e:
+                if attempt == MODEL_RETRIES or not _transient(e):
+                    raise
+                emit("model_retry", None, None, attempt=attempt + 1, error=_short(str(e), 160))
+                await asyncio.sleep(1.5 * 2 ** attempt)
+
+    @asynccontextmanager
+    async def request_stream(self, messages, model_settings, model_request_parameters, run_context=None):
+        # Runs with the live event hook stream their replies, so they come through here.
+        # Retry only while opening the stream; once a reply is flowing, errors pass through.
+        for attempt in range(MODEL_RETRIES + 1):
+            opened = False
+            try:
+                async with super().request_stream(messages, model_settings, model_request_parameters, run_context) as stream:
+                    opened = True
+                    yield stream
+                return
+            except Exception as e:
+                if opened or attempt == MODEL_RETRIES or not _transient(e):
+                    raise
+                emit("model_retry", None, None, attempt=attempt + 1, error=_short(str(e), 160))
+                await asyncio.sleep(1.5 * 2 ** attempt)
+
+
 def _model() -> OpenAIResponsesModel:
     api_key = os.getenv("PORTKEY_API_KEY")
     if not api_key:
@@ -128,7 +177,7 @@ def _model() -> OpenAIResponsesModel:
     # broke the first rerun of an identical request (found in P7).
     client = AsyncOpenAI(base_url=PORTKEY_BASE_URL, api_key=api_key,
                          default_headers={"x-portkey-cache-force-refresh": "true"})
-    return OpenAIResponsesModel(MODEL_NAME, provider=OpenAIProvider(openai_client=client))
+    return RetryingResponsesModel(MODEL_NAME, provider=OpenAIProvider(openai_client=client))
 
 
 def _dynamic_context(ctx: RunContext[Deps]) -> str:
@@ -449,6 +498,43 @@ async def _run_in_background(ticket_id: int) -> None:
             RUNS[ticket_id] = {"status": "error", "error": f"{type(e).__name__}: {e}"}
         emit("run_finished", ticket_id, "boss", status=RUNS[ticket_id]["status"],
              totals=RUNS[ticket_id].get("totals"))
+
+
+@app.get("/api/tickets/{ticket_id}/history")
+async def history(ticket_id: int) -> dict:
+    """What each agent did on the ticket's latest run since the last reset, from the audit trail (survives restarts).
+
+    Reads output/audit_trail.json only (the run log, not shop data).
+    """
+    try:
+        entries = json.loads(AUDIT_PATH.read_text()) if AUDIT_PATH.exists() else []
+    except json.JSONDecodeError:
+        entries = []
+    # Only runs since the last database reset belong to the current board.
+    last_reset = max((i for i, e in enumerate(entries)
+                      if e.get("entry_type") == "human_action" and e.get("action") == "reset_database"), default=-1)
+    entries = entries[last_reset + 1:]
+    runs = [e for e in entries if e.get("entry_type") == "ticket_run" and e.get("ticket_id") == ticket_id]
+    if not runs:
+        return {"ticket_id": ticket_id, "run": None, "agents": []}
+    last = runs[-1]
+    by_id = {e["run_id"]: e for e in entries if e.get("entry_type") == "agent_run"}
+    agents = []
+    for rid in last.get("run_ids", []):
+        e = by_id.get(rid)
+        if not e:
+            continue
+        out = e.get("output") or {}
+        agents.append({
+            "run_id": rid, "agent": e["agent"], "chain": e["chain"], "status": e["status"],
+            "task": e["task"], "duration_s": e["duration_s"],
+            "tokens": e["input_tokens"] + e["output_tokens"], "model_requests": e["model_requests"],
+            "tools": [{"tool": c["tool"], "status": c["status"]} for c in e["tool_calls"]],
+            "findings": out.get("findings", []), "recommendation": out.get("recommendation") or out.get("summary"),
+            "actions_taken": out.get("actions_taken", []), "blocked": out.get("blocked", []),
+        })
+    summary = {k: last.get(k) for k in ("started_at", "duration_s", "status", "totals", "decision", "error")}
+    return {"ticket_id": ticket_id, "run": summary, "agents": agents}
 
 
 @app.post("/api/tickets/{ticket_id}/run", status_code=202)

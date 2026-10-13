@@ -131,9 +131,20 @@
         "--reload-dir",
         "hw/hw_05/hw5/backend",
         "--port",
-        "8010"
+        "8000"
       ],
-      "port": 8010
+      "port": 8000
+    },
+    {
+      "name": "hw5-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "hw/hw_05/hw5/frontend",
+        "run",
+        "dev"
+      ],
+      "port": 5173
     }
   ]
 }

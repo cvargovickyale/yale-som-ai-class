@@ -580,3 +580,29 @@ the same org design as five people."
    someone (or something) that executes it literally, spell out whether
    it's an ordering rule or a blocking rule. Ambiguous priorities become
    deadlocks.
+
+### HW5 build lessons (P8: dashboard), 2026-10-13
+
+10. **A retry only helps if it sits on the path that actually runs.** I
+    added a retry for the provider's intermittent auth failures, and the
+    next run failed without retrying. The live progress feed switched runs
+    to a streaming code path, which my retry didn't wrap. A fake failing
+    provider proved the retry worked; only a real run proved it was
+    *wired in*. *CoS translation:* a control that exists isn't a control
+    that's in the loop. Check that the safeguard sits on the path the work
+    really takes, not just that it's been built.
+
+11. **My test pressed the real button.** A layout check clicked "the first
+    ticket's main button," which by then meant "Start the team" on a live
+    ticket, and spent about 41,000 tokens on a run nobody asked for. The
+    one-run-at-a-time guard stopped it from getting worse. *CoS
+    translation:* in any system that spends money, a "harmless" check must
+    target read-only actions explicitly, and the system should have its own
+    limits for when a check is sloppy.
+
+12. **Delight is a design requirement, not decoration.** The closing
+    animation (green wash, stamp, card flying into a Done pile) answers a
+    real question: "is this finished?" It also makes approving feel like
+    progress rather than a chore. *CoS translation:* the tools people
+    enjoy using are the ones they keep using. Make finishing something
+    visible and satisfying.
