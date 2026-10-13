@@ -126,6 +126,13 @@ destructive commands and preserve unrelated user work.
 
 ## Sandbox/tooling gotchas (environment-level, not homework-specific)
 
+**Which environment are you in?** The first three bullets below describe an
+earlier restricted sandbox (Codex/Cowork-style). They did **not** apply in
+the Claude Code desktop app used for HW4 (2026-10): there, `pip install`,
+`npm install`, and deleting files all worked normally. Test once (e.g. a
+quick `pip install` into the project venv) before assuming either way, and
+don't tell Christopher to run installs himself unless they actually fail.
+
 - **This sandbox's shell cannot delete files or symlinks inside the connected
   workspace folder once written** — `rm`, `rmtree`, and `venv --clear` all
   fail with `Operation not permitted`, even on files/symlinks the same
@@ -310,6 +317,65 @@ patterns worth reusing directly rather than rediscovering:
   vision model to "watch" a video, sample frames (OpenCV via
   `opencv-python-headless`, no system `ffmpeg` dependency needed) rather than
   look for a video-upload API that doesn't exist for this model family.
+
+Homework 4 (public repo `cvargovickyale/campus-customs-hw4`) is the current
+reference for a **React + Vite + TS frontend / FastAPI backend / PydanticAI
+agent** app. Start with `hw/hw_04/hw4/output/harness.md` section 0 (system
+overview), then reuse:
+
+- **Contract-first agent output:** the agent returns IDs plus a flag
+  (`AgentReply{reply, product_ids, results_label}`); code looks up every
+  fact (prices, images) from the DB, and unknown IDs are dropped. The model
+  picks, code states facts.
+- **Static + dynamic instructions:** `prompt.md` is re-read on every run
+  (`uvicorn --reload` ignores `.md` edits; a stale prompt cost an hour of
+  wrong debugging in P8), and a `dynamic_context(ctx)` function writes
+  per-message context (who's chatting, what page they're on) from
+  `AgentDeps`. Page context arrives as an untrusted URL path and is
+  validated against the DB in `main.py`.
+- **Per-message lookup record** (`MessageLookups` in deps): tools read
+  through it, so each DB fact is read once per message and nothing carries
+  across messages. History replies are time-stamped "may be out of date" so
+  old prices are never reused.
+- **Append-only audit trail v2** (`hw4/backend/agent.py`): HW3's
+  message-history approach, plus `capture_run_messages()` so failed or
+  timed-out runs are logged too; fixed `stop_reason` list; per-tool timing,
+  shortened args, and readable result summaries; masks card numbers, emails,
+  and "password is …"; atomic temp-file writes; an unreadable file is moved
+  aside, never overwritten.
+- **Cost controls:** sliding-window rate limits checked *before* the agent
+  runs (guest/customer/site-wide), `UsageLimits`, a timeout, and a
+  one-line-per-message cost log (round trips, tokens, DB queries). Measure
+  tokens per message before optimizing; the instructions are re-sent on
+  every round trip, so round trips are the main cost lever.
+- **PydanticAI 2.54 API notes** (verified against the installed package):
+  `result.usage` is a property, not a method; set
+  `PYDANTIC_AI_NO_BANNER=1`; use `TestModel(call_tools=[])` for offline
+  instruction checks (the default calls every tool with junk args);
+  `ModelRetry` from a tool lets the model self-correct (logged as `retry`).
+  Azure (behind Portkey) has a content filter that blocks jailbreak-style
+  messages; handle it gracefully and never try to get around it.
+- **Public-repo submission:** keep the source in the private workspace,
+  and publish with `hw/hw_04/publish_hw4.sh` (git-archive of tracked files
+  only → a separate local clone → push; refuses `.env`/db/data/
+  node_modules). Confirm the repo name with Christopher before creating a
+  public repo, then grader-test a fresh clone end to end. Copy this
+  script for future public-repo homeworks.
+- **Screenshots for an `app_check.html`:** `playwright-core` installed in
+  the session scratchpad (not the project), driving the system Chrome at
+  `/Applications/Google Chrome.app/...`, headless, `reducedMotion: 'reduce'`,
+  1920×1080 so side panels don't cover content. The preview tool's
+  screenshots are compressed and can't hover. Verify the HTML via a
+  `file://` load at 1280/840/375 px.
+- **Preview-server quirks:** the desktop app stops preview servers when
+  idle (just restart them); other sessions may already hold ports 8000/5173
+  (HW4's Vite reads `HW4_BACKEND` for an alternate port); the venv's
+  `uvicorn` script can be blocked, so launch with `.venv/bin/python -m
+  uvicorn` in `.claude/launch.json`.
+- **Verification habits that caught real bugs:** compare every number
+  against SQL on the DB; for layout, measure overlap (not just horizontal
+  overflow) across a sweep of widths (375–1440); when a fix "should" work,
+  confirm it's actually live before judging it.
 
 ## Infrastructure now available (added mid-semester, 2026-09)
 
