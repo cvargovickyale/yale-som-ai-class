@@ -95,8 +95,7 @@ should be used and the tool output (that matches the new db) - let me know
 when you're ready and I'll ask about each tool individually to kick off the
 tests
 
-**Follow-up prompt used:** _(to fill in: the per-tool test prompts are
-recorded verbatim in `output/mcp_smoke.json`)_
+**Follow-up prompt used:** I don't want to do that. you test them.
 
 **Notes:**
 
@@ -108,5 +107,20 @@ recorded verbatim in `output/mcp_smoke.json`)_
 - Checked that the config launches and connects over MCP with FastMCP's
   client (it lists the 3 tools). No tool was called in that check. Turned
   off FastMCP's startup banner.
-- Claude Code only loads `.mcp.json` at session start from the session's
-  folder, so the tool tests run in a new session opened on `hw5/`.
+- Claude Code only loads `.mcp.json` when a session starts in that folder.
+  Rather than open a new session, Claude Code ran the tests from this
+  session: it launched the server from `hw5/.mcp.json` over stdio and called
+  every tool through the MCP protocol (FastMCP's client). It's the same
+  server and config Claude Code uses, with no LLM involved.
+- `output/mcp_smoke.json` records, for each call, the arguments, the raw
+  tool output, an independent SQL query's answer, and whether they match:
+  - **7 of 7 calls match the database.** Tee S: 0 on hand, short 1. Hoodie
+    M: 8 on hand, short 12. 20 hoodies at list: 62.1% margin, $720 profit;
+    12-hoodie reprint costs $264. Ticket 101 → invoice 501, Bulldog Print
+    Co, $840, 3 days overdue. Ticket 102 → $2,400 rent due 2026-09-02, in
+    2 days. Ticket 103 → nothing linked.
+  - **4 of 4 bad inputs return errors, not invented data:** unknown SKU
+    (twice), size XXL, ticket 999.
+  - **The working database was not changed** (same SHA-1 before and after).
+- The test script is kept outside the submission (`hw/hw_05/mcp_smoke_test.py`)
+  so it can be rerun when P5 adds tools.

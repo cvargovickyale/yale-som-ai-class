@@ -68,7 +68,7 @@ problem's real text when we reach it.
 | P1 | Vibe coder prompts | ✅ Convention set in `hw5/AI_prompts.md` (header only). Kickoff is **not** logged; entries start at P2. | `AI_prompts.md` ✅ |
 | P2 | Study the Campus Customs database | ✅ Data at `hw5/data/`, working copy made (same SHA-1 as original), harness §1 Data, `hw5/.gitignore` (DBs committed; only -journal/-wal/-shm ignored). Venv and `.env.example` deferred to P3. | `data/`, `output/harness.md`, `AI_prompts.md` ✅ |
 | P3 | Build the MCP server | ✅ FastMCP 4.1.0, 3 read-only tools (`check_stock`, `price_and_margin`, `get_ticket`), refuses original DB; not run. venv, requirements, .env.example added. harness §2 | `mcp_server/server.py`, `mcp_server/README.md`, `requirements.txt`, `.env.example` ✅ |
-| P4 | Add the MCP server to the vibe coder and test each tool | Register it with Claude Code via `.mcp.json`, call every tool directly (no agent), and save the results. | `.mcp.json`, `output/mcp_smoke.json` |
+| P4 | Add the MCP server to the vibe coder and test each tool | ✅ `hw5/.mcp.json` (stdio). Claude Code called every tool over MCP from this session: 7/7 match SQL, 4/4 bad inputs error, DB unchanged. Rerun: `hw/hw_05/mcp_smoke_test.py`. | `.mcp.json`, `output/mcp_smoke.json` ✅ |
 | P5 | Build the agent team and grow the MCP tools | Five PydanticAI agents on `gpt-6-luna`, one prompt each, bounded delegation; add the tools they turn out to need. | `backend/main.py`, `backend/models.py`, `backend/prompts/*.md`, `mcp_server/server.py` |
 | P6 | Plan the three tickets | Plan for 101/102/103 before acting (who does what, cash order, approvals). | *likely* `output/desk_tickets.html` |
 | P7 | Backend routes | FastAPI endpoints: tickets, run/resolve, agent activity, approvals (approve/reject), reset. | `backend/main.py`, `models.py` |
@@ -172,7 +172,7 @@ backend enforce them.
 7. **One decider.** Boss makes the final call on each ticket. Specialists
    recommend.
 
-## P4 handoff: tool tests run from a session opened in `hw5/`
+## P4 tool tests (done — kept as reference for rerunning after P5)
 
 Claude Code loads `.mcp.json` only from the folder a session is opened in,
 and only at session start. The kickoff session was opened at the workspace

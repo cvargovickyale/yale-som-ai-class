@@ -1,0 +1,516 @@
+{
+  "problem": "P4 \u2014 Add the MCP server to the vibe coder and test each tool",
+  "prompt": "P4 add the MCP server to claude code and test each tool. [...] I don't want to do that. you test them.",
+  "run_at": "2026-10-13T02:59:50+00:00",
+  "how": "Claude Code launched the server from hw5/.mcp.json (stdio: .venv/bin/python mcp_server/server.py) and called each tool over the MCP protocol with FastMCP's Client. No LLM involved. Each output is compared to an independent SQL query on the same database.",
+  "server": "campus-customs",
+  "database": "data/campus_customs_new.db",
+  "date_today": "2026-08-31",
+  "tools_listed": [
+    {
+      "name": "check_stock",
+      "description": "Inventory: units on hand for a SKU, by size.\n\nGive a size to get that size's count; also give qty_needed to get the\nshortfall (how many more units the shop would need).\nReads: inventory.",
+      "inputs": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sku": {
+            "type": "string"
+          },
+          "size": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "qty_needed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "sku"
+        ]
+      },
+      "read_only": true
+    },
+    {
+      "name": "price_and_margin",
+      "description": "Accounting: cost, price, and margin for an order of a SKU.\n\nShows margin at list price and at an optional discount (percent off list),\nthe order's revenue, cost, and profit, and the current cash balance.\nReads: pricing, cash_accounts.",
+      "inputs": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sku": {
+            "type": "string"
+          },
+          "qty": {
+            "default": 1,
+            "type": "integer"
+          },
+          "discount_pct": {
+            "default": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "sku"
+        ]
+      },
+      "read_only": true
+    },
+    {
+      "name": "get_ticket",
+      "description": "Customer Service: one ticket with who asked, what they asked, and its linked records.\n\nIncludes the linked invoice (vendor, amount, days overdue) or lease\n(landlord, rent, days until due), measured from desk.date_today.\nReads: tickets, desk, invoices, vendors, leases.",
+      "inputs": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ticket_id": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ticket_id"
+        ]
+      },
+      "read_only": true
+    }
+  ],
+  "tests": [
+    {
+      "tool": "check_stock",
+      "purpose": "Ticket 101: can we fill 1 white tee in S?",
+      "arguments": {
+        "sku": "CC-TEE-WHITE",
+        "size": "S",
+        "qty_needed": 1
+      },
+      "output": {
+        "sku": "CC-TEE-WHITE",
+        "name": "Classic Bulldog Tee",
+        "location": "Aisle B",
+        "sizes": [
+          {
+            "size": "S",
+            "qty": 0
+          },
+          {
+            "size": "M",
+            "qty": 5
+          },
+          {
+            "size": "L",
+            "qty": 3
+          },
+          {
+            "size": "XL",
+            "qty": 2
+          }
+        ],
+        "total_on_hand": 10,
+        "requested": {
+          "size": "S",
+          "qty_on_hand": 0,
+          "qty_needed": 1,
+          "shortfall": 1,
+          "can_fill_from_stock": false
+        }
+      },
+      "expected_from_sql": {
+        "sizes": [
+          {
+            "size": "S",
+            "qty": 0
+          },
+          {
+            "size": "M",
+            "qty": 5
+          },
+          {
+            "size": "L",
+            "qty": 3
+          },
+          {
+            "size": "XL",
+            "qty": 2
+          }
+        ],
+        "total_on_hand": 10,
+        "qty_on_hand": 0,
+        "shortfall": 1
+      },
+      "matches_db": true
+    },
+    {
+      "tool": "check_stock",
+      "purpose": "Ticket 103: can we fill 20 navy hoodies in M?",
+      "arguments": {
+        "sku": "CC-HOOD-NAVY",
+        "size": "M",
+        "qty_needed": 20
+      },
+      "output": {
+        "sku": "CC-HOOD-NAVY",
+        "name": "Basic Hoodie Big Yale",
+        "location": "Aisle A",
+        "sizes": [
+          {
+            "size": "S",
+            "qty": 4
+          },
+          {
+            "size": "M",
+            "qty": 8
+          },
+          {
+            "size": "L",
+            "qty": 14
+          },
+          {
+            "size": "XL",
+            "qty": 6
+          }
+        ],
+        "total_on_hand": 32,
+        "requested": {
+          "size": "M",
+          "qty_on_hand": 8,
+          "qty_needed": 20,
+          "shortfall": 12,
+          "can_fill_from_stock": false
+        }
+      },
+      "expected_from_sql": {
+        "sizes": [
+          {
+            "size": "S",
+            "qty": 4
+          },
+          {
+            "size": "M",
+            "qty": 8
+          },
+          {
+            "size": "L",
+            "qty": 14
+          },
+          {
+            "size": "XL",
+            "qty": 6
+          }
+        ],
+        "total_on_hand": 32,
+        "qty_on_hand": 8,
+        "shortfall": 12
+      },
+      "matches_db": true
+    },
+    {
+      "tool": "price_and_margin",
+      "purpose": "Ticket 103: cost, revenue, margin for 20 hoodies at list",
+      "arguments": {
+        "sku": "CC-HOOD-NAVY",
+        "qty": 20,
+        "discount_pct": 0
+      },
+      "output": {
+        "sku": "CC-HOOD-NAVY",
+        "unit_cost": 22.0,
+        "list_price": 58.0,
+        "margin_pct_at_list": 62.1,
+        "discount_pct": 0.0,
+        "unit_price_after_discount": 58.0,
+        "margin_pct_after_discount": 62.1,
+        "qty": 20,
+        "order_revenue": 1160.0,
+        "order_cost": 440.0,
+        "order_profit": 720.0,
+        "below_cost": false,
+        "cash_accounts": [
+          {
+            "name": "checking",
+            "balance": 3400.0,
+            "as_of": "2026-08-31"
+          }
+        ]
+      },
+      "expected_from_sql": {
+        "unit_cost": 22.0,
+        "list_price": 58.0,
+        "margin_pct_at_list": 62.1,
+        "order_revenue": 1160.0,
+        "order_cost": 440.0,
+        "order_profit": 720.0,
+        "cash_balance": 3400.0
+      },
+      "matches_db": true
+    },
+    {
+      "tool": "price_and_margin",
+      "purpose": "Ticket 103: cost of reprinting the 12-hoodie shortfall",
+      "arguments": {
+        "sku": "CC-HOOD-NAVY",
+        "qty": 12,
+        "discount_pct": 0
+      },
+      "output": {
+        "sku": "CC-HOOD-NAVY",
+        "unit_cost": 22.0,
+        "list_price": 58.0,
+        "margin_pct_at_list": 62.1,
+        "discount_pct": 0.0,
+        "unit_price_after_discount": 58.0,
+        "margin_pct_after_discount": 62.1,
+        "qty": 12,
+        "order_revenue": 696.0,
+        "order_cost": 264.0,
+        "order_profit": 432.0,
+        "below_cost": false,
+        "cash_accounts": [
+          {
+            "name": "checking",
+            "balance": 3400.0,
+            "as_of": "2026-08-31"
+          }
+        ]
+      },
+      "expected_from_sql": {
+        "unit_cost": 22.0,
+        "list_price": 58.0,
+        "margin_pct_at_list": 62.1,
+        "order_revenue": 696.0,
+        "order_cost": 264.0,
+        "order_profit": 432.0,
+        "cash_balance": 3400.0
+      },
+      "matches_db": true
+    },
+    {
+      "tool": "get_ticket",
+      "purpose": "Ticket 101: requester + linked invoice",
+      "arguments": {
+        "ticket_id": 101
+      },
+      "output": {
+        "date_today": "2026-08-31",
+        "ticket": {
+          "id": 101,
+          "type": "customer_order",
+          "requester": "Tauhid Zaman",
+          "subject": "Bulldog tee",
+          "sku": "CC-TEE-WHITE",
+          "size": "S",
+          "qty": 1,
+          "lease_id": null,
+          "invoice_id": 501,
+          "status": "open",
+          "notes": "Needs a tee in size S.",
+          "created_at": "2026-08-31T09:15:00-04:00"
+        },
+        "linked_invoice": {
+          "id": 501,
+          "amount": 840.0,
+          "due_date": "2026-08-28",
+          "status": "open",
+          "description": "Rush reprint CC-TEE-WHITE S",
+          "vendor_id": 1,
+          "vendor_name": "Bulldog Print Co",
+          "lead_days": 5,
+          "days_overdue": 3,
+          "is_overdue": true
+        }
+      },
+      "expected_from_sql": {
+        "ticket": {
+          "id": 101,
+          "type": "customer_order",
+          "requester": "Tauhid Zaman",
+          "subject": "Bulldog tee",
+          "sku": "CC-TEE-WHITE",
+          "size": "S",
+          "qty": 1,
+          "lease_id": null,
+          "invoice_id": 501,
+          "status": "open",
+          "notes": "Needs a tee in size S.",
+          "created_at": "2026-08-31T09:15:00-04:00"
+        },
+        "invoice": {
+          "id": 501,
+          "amount": 840.0,
+          "due_date": "2026-08-28",
+          "vendor_name": "Bulldog Print Co",
+          "lead_days": 5,
+          "days_overdue": 3
+        }
+      },
+      "matches_db": true
+    },
+    {
+      "tool": "get_ticket",
+      "purpose": "Ticket 102: requester + linked lease",
+      "arguments": {
+        "ticket_id": 102
+      },
+      "output": {
+        "date_today": "2026-08-31",
+        "ticket": {
+          "id": 102,
+          "type": "rent_notice",
+          "requester": "Elm City Properties",
+          "subject": "Rent due",
+          "sku": null,
+          "size": null,
+          "qty": null,
+          "lease_id": 1,
+          "invoice_id": null,
+          "status": "open",
+          "notes": "Email: shop rent due in 2 days.",
+          "created_at": "2026-08-31T11:05:00-04:00"
+        },
+        "linked_lease": {
+          "id": 1,
+          "space_name": "Chapel Street shop",
+          "landlord": "Elm City Properties",
+          "monthly_rent": 2400.0,
+          "next_due": "2026-09-02",
+          "notes": null,
+          "days_until_due": 2,
+          "is_overdue": false
+        }
+      },
+      "expected_from_sql": {
+        "ticket": {
+          "id": 102,
+          "type": "rent_notice",
+          "requester": "Elm City Properties",
+          "subject": "Rent due",
+          "sku": null,
+          "size": null,
+          "qty": null,
+          "lease_id": 1,
+          "invoice_id": null,
+          "status": "open",
+          "notes": "Email: shop rent due in 2 days.",
+          "created_at": "2026-08-31T11:05:00-04:00"
+        },
+        "lease": {
+          "landlord": "Elm City Properties",
+          "monthly_rent": 2400.0,
+          "next_due": "2026-09-02",
+          "days_until_due": 2
+        }
+      },
+      "matches_db": true
+    },
+    {
+      "tool": "get_ticket",
+      "purpose": "Ticket 103: requester + request, nothing linked",
+      "arguments": {
+        "ticket_id": 103
+      },
+      "output": {
+        "date_today": "2026-08-31",
+        "ticket": {
+          "id": 103,
+          "type": "price_override",
+          "requester": "Yale AI Club",
+          "subject": "Bulk hoodie discount",
+          "sku": "CC-HOOD-NAVY",
+          "size": "M",
+          "qty": 20,
+          "lease_id": null,
+          "invoice_id": null,
+          "status": "open",
+          "notes": "Student org wants 20 hoodies, size M, asking for a bulk discount.",
+          "created_at": "2026-08-31T16:55:00-04:00"
+        }
+      },
+      "expected_from_sql": {
+        "ticket": {
+          "id": 103,
+          "type": "price_override",
+          "requester": "Yale AI Club",
+          "subject": "Bulk hoodie discount",
+          "sku": "CC-HOOD-NAVY",
+          "size": "M",
+          "qty": 20,
+          "lease_id": null,
+          "invoice_id": null,
+          "status": "open",
+          "notes": "Student org wants 20 hoodies, size M, asking for a bulk discount.",
+          "created_at": "2026-08-31T16:55:00-04:00"
+        }
+      },
+      "matches_db": true
+    }
+  ],
+  "error_checks": [
+    {
+      "tool": "check_stock",
+      "purpose": "Unknown SKU must error, not invent stock",
+      "arguments": {
+        "sku": "CC-NOPE"
+      },
+      "is_error": true,
+      "message": "SKU 'CC-NOPE' is not in inventory.",
+      "pass": true
+    },
+    {
+      "tool": "check_stock",
+      "purpose": "Unknown size must error",
+      "arguments": {
+        "sku": "CC-TEE-WHITE",
+        "size": "XXL"
+      },
+      "is_error": true,
+      "message": "Size 'XXL' does not exist for CC-TEE-WHITE. Sizes: S, M, L, XL.",
+      "pass": true
+    },
+    {
+      "tool": "price_and_margin",
+      "purpose": "Unknown SKU must error, not invent a price",
+      "arguments": {
+        "sku": "CC-NOPE",
+        "qty": 1
+      },
+      "is_error": true,
+      "message": "SKU 'CC-NOPE' has no pricing row.",
+      "pass": true
+    },
+    {
+      "tool": "get_ticket",
+      "purpose": "Unknown ticket must error",
+      "arguments": {
+        "ticket_id": 999
+      },
+      "is_error": true,
+      "message": "Ticket 999 not found. Ticket ids: [101, 102, 103].",
+      "pass": true
+    }
+  ],
+  "database_unchanged": {
+    "sha1_before": "f447ca6a2766a90f3c1f81215c8f774ab109ea4c",
+    "sha1_after": "f447ca6a2766a90f3c1f81215c8f774ab109ea4c",
+    "unchanged": true
+  },
+  "summary": {
+    "tests_passed": 7,
+    "tests_total": 7,
+    "error_checks_passed": 4,
+    "error_checks_total": 4
+  }
+}

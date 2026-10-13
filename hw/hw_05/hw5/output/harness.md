@@ -192,5 +192,8 @@ Gaps left on purpose for later problems:
   invoice) needs one; the data has no SKU → vendor link, only
   `vendors.specialty`.
 
-Expected values above come from SQL on the working copy. P4 calls each tool
-directly to confirm them.
+**Tested (P4):** the server is registered with Claude Code in
+`hw5/.mcp.json` (stdio). Every tool was called over MCP and compared with an
+independent SQL query (`output/mcp_smoke.json`). All 7 ticket checks match,
+4 of 4 bad inputs (unknown SKU, size, or ticket) return errors instead of
+data, and the working database was unchanged.
