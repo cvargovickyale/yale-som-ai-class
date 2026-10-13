@@ -1,0 +1,16 @@
+# Secrets: ship .env.example only
+.env
+
+# Local environments and dependencies
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+frontend/dist/
+
+# Both databases in data/ ARE committed (assignment rule). Ignore only
+# SQLite's temporary side files.
+*.db-journal
+*.db-wal
+*.db-shm
