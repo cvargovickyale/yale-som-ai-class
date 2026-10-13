@@ -34,10 +34,20 @@ Tools                  Agent(s)            Tables
   get_lease            Facilities          leases, payments
   save_draft_message   Customer Service    message_drafts (writes, draft only)
 
+Human tools (the dashboard's backend only; no agent is given them, and they
+are registered only in --http mode, so Claude Code's stdio connection can't
+call them either):
+  get_board            board view          all tables (read-only)
+  approve_payment      human approval      payment_requests, payments, cash_accounts, invoices, leases
+  reject_payment       human approval      payment_requests
+  approve_decision     human approval      decisions, tickets, message_drafts, stock_holds, inventory
+  reset_database       human               copies the original over the working copy
+
 Run:  python mcp_server/server.py          (stdio, used by Claude Code via .mcp.json)
       python mcp_server/server.py --http   (HTTP on 127.0.0.1:$MCP_PORT, default 8765, used by the backend)
 """
 
+import calendar
 import os
 import sqlite3
 import sys
@@ -85,14 +95,15 @@ CREATE TABLE IF NOT EXISTS payment_requests (
     id INTEGER PRIMARY KEY, ticket_id INTEGER NOT NULL, kind TEXT NOT NULL,
     ref_id INTEGER NOT NULL, payee TEXT NOT NULL, amount REAL NOT NULL,
     account TEXT NOT NULL, reason TEXT NOT NULL, status TEXT NOT NULL,
-    created_at TEXT NOT NULL);
+    created_at TEXT NOT NULL, decided_by TEXT, decided_at TEXT, decision_note TEXT);
 CREATE TABLE IF NOT EXISTS message_drafts (
     id INTEGER PRIMARY KEY, ticket_id INTEGER NOT NULL, to_name TEXT NOT NULL,
     subject TEXT NOT NULL, body TEXT NOT NULL, status TEXT NOT NULL,
     created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS decisions (
     id INTEGER PRIMARY KEY, ticket_id INTEGER NOT NULL, summary TEXT NOT NULL,
-    reasoning TEXT NOT NULL, status TEXT NOT NULL, created_at TEXT NOT NULL);
+    reasoning TEXT NOT NULL, status TEXT NOT NULL, created_at TEXT NOT NULL,
+    decided_by TEXT, decided_at TEXT);
 """
 
 
@@ -625,8 +636,184 @@ def save_draft_message(ticket_id: int, to_name: str, subject: str, body: str) ->
             "status": "draft", "note": "Saved as a draft. Nothing was sent."}
 
 
+# ---------------------------------------------------------------- Board (read-only, for the dashboard)
+
+@mcp.tool(annotations=READ_ONLY)
+def get_board() -> dict:
+    """Dashboard: every ticket with its status and the team's records for it, plus cash.
+
+    Not given to any agent. Reads: tickets, desk, cash_accounts, and the team's work tables.
+    """
+    with closing(_connect()) as conn:
+        today = _today(conn)
+        tickets = []
+        for t in conn.execute("SELECT * FROM tickets ORDER BY id"):
+            tid = t["id"]
+            tickets.append({**dict(t), "records": {
+                "payment_requests": _rows(conn, "payment_requests", "ticket_id = ?", (tid,)),
+                "reprint_requests": _rows(conn, "reprint_requests", "ticket_id = ?", (tid,)),
+                "stock_holds": _rows(conn, "stock_holds", "ticket_id = ?", (tid,)),
+                "message_drafts": _rows(conn, "message_drafts", "ticket_id = ?", (tid,)),
+                "decisions": _rows(conn, "decisions", "ticket_id = ?", (tid,)),
+            }})
+        cash = [{"name": c["name"], "balance": _money(c["balance"]), "as_of": c["date"]}
+                for c in conn.execute("SELECT * FROM cash_accounts ORDER BY name")]
+        payments = [dict(r) for r in conn.execute("SELECT * FROM payments ORDER BY id")]
+    return {"date_today": today.isoformat(), "tickets": tickets, "cash_accounts": cash, "payments": payments,
+            "counts": {"open": sum(t["status"] == "open" for t in tickets),
+                       "resolved": sum(t["status"] == "resolved" for t in tickets)}}
+
+
+# ---------------------------------------------------------------- Human tools (registered in --http mode only)
+
+def _add_month(d: date) -> date:
+    y, m = (d.year + 1, 1) if d.month == 12 else (d.year, d.month + 1)
+    return d.replace(year=y, month=m, day=min(d.day, calendar.monthrange(y, m)[1]))
+
+
+def approve_payment(payment_request_id: int, approved_by: str) -> dict:
+    """Human: execute a pending payment request. Moves the money.
+
+    Re-checks at the moment of payment: the request is still pending, the
+    bill is still unpaid, and the account has enough cash (never below $0).
+    In one transaction: writes payments (approved_by = the human), lowers
+    cash_accounts.balance, marks an invoice paid (which unblocks its vendor)
+    or moves a lease's next_due forward one month, and marks the request paid.
+    """
+    if not approved_by.strip():
+        raise ToolError("approved_by must name the human approving.")
+    with closing(_connect(read_only=False)) as conn, conn:
+        r = conn.execute("SELECT * FROM payment_requests WHERE id = ?", (payment_request_id,)).fetchone()
+        if r is None:
+            raise ToolError(f"Payment request {payment_request_id} not found.")
+        if r["status"] != "pending_approval":
+            raise ToolError(f"Payment request {payment_request_id} is {r['status']!r}, not pending. Nothing changed.")
+        today = _today(conn)
+        acct = conn.execute("SELECT balance FROM cash_accounts WHERE name = ?", (r["account"],)).fetchone()
+        if acct is None:
+            raise ToolError(f"Cash account {r['account']!r} not found.")
+        after = acct["balance"] - r["amount"]
+        if after < 0:
+            raise ToolError(f"Refused: paying ${r['amount']:,.2f} would leave {r['account']} at ${after:,.2f}. "
+                            f"Cash can't go below $0. Nothing changed.")
+        if r["kind"] == "invoice":
+            inv = conn.execute("SELECT status FROM invoices WHERE id = ?", (r["ref_id"],)).fetchone()
+            if inv is None or inv["status"] != "open":
+                raise ToolError(f"Invoice {r['ref_id']} is not open. Nothing changed.")
+            conn.execute("UPDATE invoices SET status = 'paid' WHERE id = ?", (r["ref_id"],))
+            effect = {"invoice_id": r["ref_id"], "invoice_status": "paid"}
+        else:
+            lease = conn.execute("SELECT next_due FROM leases WHERE id = ?", (r["ref_id"],)).fetchone()
+            if lease is None:
+                raise ToolError(f"Lease {r['ref_id']} not found. Nothing changed.")
+            new_due = _add_month(date.fromisoformat(lease["next_due"])).isoformat()
+            conn.execute("UPDATE leases SET next_due = ? WHERE id = ?", (new_due, r["ref_id"]))
+            effect = {"lease_id": r["ref_id"], "paid_period_due": lease["next_due"], "next_due": new_due}
+        cur = conn.execute(
+            "INSERT INTO payments (kind, ref_id, amount, account, paid_at, approved_by) VALUES (?, ?, ?, ?, ?, ?)",
+            (r["kind"], r["ref_id"], r["amount"], r["account"], today.isoformat(), approved_by.strip()))
+        conn.execute("UPDATE cash_accounts SET balance = ?, date = ? WHERE name = ?",
+                     (after, today.isoformat(), r["account"]))
+        conn.execute("UPDATE payment_requests SET status = 'paid', decided_by = ?, decided_at = ? WHERE id = ?",
+                     (approved_by.strip(), _now(), payment_request_id))
+    return {"payment_id": cur.lastrowid, "payment_request_id": payment_request_id, "kind": r["kind"],
+            "ref_id": r["ref_id"], "payee": r["payee"], "amount": _money(r["amount"]), "paid_at": today.isoformat(),
+            "approved_by": approved_by.strip(), "account": r["account"],
+            "balance_before": _money(acct["balance"]), "balance_after": _money(after), **effect}
+
+
+def reject_payment(payment_request_id: int, rejected_by: str, reason: str = "") -> dict:
+    """Human: reject a pending payment request. No money moves."""
+    if not rejected_by.strip():
+        raise ToolError("rejected_by must name the human rejecting.")
+    with closing(_connect(read_only=False)) as conn, conn:
+        r = conn.execute("SELECT status FROM payment_requests WHERE id = ?", (payment_request_id,)).fetchone()
+        if r is None:
+            raise ToolError(f"Payment request {payment_request_id} not found.")
+        if r["status"] != "pending_approval":
+            raise ToolError(f"Payment request {payment_request_id} is {r['status']!r}, not pending. Nothing changed.")
+        conn.execute("UPDATE payment_requests SET status = 'rejected', decided_by = ?, decided_at = ?, decision_note = ? "
+                     "WHERE id = ?", (rejected_by.strip(), _now(), reason.strip() or None, payment_request_id))
+    return {"payment_request_id": payment_request_id, "status": "rejected", "rejected_by": rejected_by.strip()}
+
+
+def approve_decision(decision_id: int, approved_by: str) -> dict:
+    """Human: approve the Boss's decision and resolve the ticket.
+
+    Refused while the ticket still has payment requests waiting (approve or
+    reject those first). In one transaction: the decision is approved, the
+    ticket is marked resolved, held stock leaves the shelf (inventory.qty goes
+    down; holds become fulfilled), and drafts are marked approved. Approved
+    drafts are still never sent. Reprint requests stay pending: approving an
+    order is a separate step.
+    """
+    if not approved_by.strip():
+        raise ToolError("approved_by must name the human approving.")
+    with closing(_connect(read_only=False)) as conn, conn:
+        d = conn.execute("SELECT * FROM decisions WHERE id = ?", (decision_id,)).fetchone()
+        if d is None:
+            raise ToolError(f"Decision {decision_id} not found.")
+        if d["status"] != "pending_approval":
+            raise ToolError(f"Decision {decision_id} is {d['status']!r}, not pending. Nothing changed.")
+        tid = d["ticket_id"]
+        waiting = conn.execute("SELECT id FROM payment_requests WHERE ticket_id = ? AND status = 'pending_approval'",
+                               (tid,)).fetchall()
+        if waiting:
+            raise ToolError(f"Ticket {tid} still has payment requests waiting: {[w['id'] for w in waiting]}. "
+                            f"Approve or reject them first.")
+        moved = []
+        for h in conn.execute("SELECT * FROM stock_holds WHERE ticket_id = ? AND status = 'held'", (tid,)).fetchall():
+            row = conn.execute("SELECT qty FROM inventory WHERE sku = ? AND size = ?", (h["sku"], h["size"])).fetchone()
+            if row is None or row["qty"] < h["qty"]:
+                raise ToolError(f"Hold {h['id']} needs {h['qty']} of {h['sku']} {h['size']} but only "
+                                f"{row['qty'] if row else 0} are on hand. Nothing changed.")
+            conn.execute("UPDATE inventory SET qty = qty - ? WHERE sku = ? AND size = ?", (h["qty"], h["sku"], h["size"]))
+            conn.execute("UPDATE stock_holds SET status = 'fulfilled' WHERE id = ?", (h["id"],))
+            moved.append({"hold_id": h["id"], "sku": h["sku"], "size": h["size"], "qty": h["qty"]})
+        conn.execute("UPDATE decisions SET status = 'approved', decided_by = ?, decided_at = ? WHERE id = ?",
+                     (approved_by.strip(), _now(), decision_id))
+        conn.execute("UPDATE tickets SET status = 'resolved' WHERE id = ?", (tid,))
+        drafts = conn.execute("UPDATE message_drafts SET status = 'approved_not_sent' WHERE ticket_id = ? AND status = 'draft'",
+                              (tid,)).rowcount
+        reprints = [r["id"] for r in conn.execute(
+            "SELECT id FROM reprint_requests WHERE ticket_id = ? AND status = 'pending_approval'", (tid,))]
+    return {"decision_id": decision_id, "ticket_id": tid, "ticket_status": "resolved", "approved_by": approved_by.strip(),
+            "stock_removed": moved, "drafts_approved_not_sent": drafts, "reprint_requests_still_pending": reprints}
+
+
+def reset_database(confirm: bool) -> dict:
+    """Human: replace the working copy with the original (campus_customs.db). Removes every pending record.
+
+    Uses SQLite's backup API to copy the original into the working copy. The
+    original is opened read-only. confirm must be true.
+    """
+    if confirm is not True:
+        raise ToolError("Pass confirm=true to reset the working database.")
+    if DB_PATH == ORIGINAL_DB:
+        raise ToolError("The working database is the original; nothing to reset.")
+    with closing(sqlite3.connect(ORIGINAL_DB.as_uri() + "?mode=ro", uri=True)) as src, \
+         closing(sqlite3.connect(DB_PATH)) as dst:
+        src.backup(dst)
+    with closing(_connect()) as conn:
+        tables = [r["name"] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")]
+        cash = conn.execute("SELECT balance FROM cash_accounts WHERE name = 'checking'").fetchone()
+        open_count = conn.execute("SELECT COUNT(*) FROM tickets WHERE status = 'open'").fetchone()[0]
+    return {"reset": True, "database": DB_PATH.name, "tables": tables,
+            "checking_balance": _money(cash["balance"]) if cash else None, "open_tickets": open_count}
+
+
+HUMAN_TOOLS = {
+    approve_payment: ToolAnnotations(read_only_hint=False, destructive_hint=True, idempotent_hint=False, open_world_hint=False),
+    reject_payment: PENDING_WRITE,
+    approve_decision: ToolAnnotations(read_only_hint=False, destructive_hint=True, idempotent_hint=False, open_world_hint=False),
+    reset_database: ToolAnnotations(read_only_hint=False, destructive_hint=True, idempotent_hint=True, open_world_hint=False),
+}
+
+
 if __name__ == "__main__":
     if "--http" in sys.argv:
+        for fn, ann in HUMAN_TOOLS.items():
+            mcp.tool(annotations=ann, tags={"human"})(fn)
         mcp.run(transport="http", host="127.0.0.1", port=int(os.environ.get("MCP_PORT", "8765")), show_banner=False)
     else:
         mcp.run(show_banner=False)

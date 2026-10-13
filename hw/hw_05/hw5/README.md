@@ -39,6 +39,9 @@ append-only.
 cp data/campus_customs.db data/campus_customs_new.db
 ```
 
+Or, with the servers running: `POST /api/reset` with `{"confirm": true}`
+(the board's reset button in P8).
+
 **Reset before a full three-ticket run** (tickets 101, 102, 103), so the run
 starts from the original shop state.
 
@@ -55,15 +58,33 @@ server itself when a session is opened in `hw5/`).
 
 ## 4. Start the FastAPI backend
 
-*Routes are added in P7.* Until then, the agent team runs one ticket from
-the command line (the MCP server must be running):
+With the MCP server running, in a second terminal:
 
 ```bash
-.venv/bin/python backend/main.py ticket 102
+cd backend
+../.venv/bin/uvicorn main:app --reload --port 8000
 ```
 
-Each agent appends its own entry to `output/audit_trail.json` when it
-finishes, followed by a summary for the ticket.
+The API is at http://localhost:8000 (interactive docs at
+http://localhost:8000/docs). Every route goes through the MCP server.
+
+| Route | What it does |
+|---|---|
+| `GET /api/tickets` | All tickets, open or resolved, with the team's records for each |
+| `POST /api/tickets/{id}/run` | Run the agent team on a ticket (one run at a time; max 6 per 10 minutes) |
+| `GET /api/events?since=N` | Recent agent events and tool calls, to keep the board current |
+| `GET /api/cash` | Checking balance and payments waiting for approval |
+| `POST /api/payments/{id}/approve` | Human approval: executes the payment and lowers cash |
+| `POST /api/payments/{id}/reject` | Human rejects a payment request |
+| `POST /api/decisions/{id}/approve` | Human approves the Boss's decision; the ticket becomes resolved |
+| `POST /api/reset` | Reset the working database to the original (`{"confirm": true}`) |
+
+Full list: `output/harness.md`, section 6. Each agent appends its own entry
+to `output/audit_trail.json` when it finishes, followed by a ticket summary;
+approvals and resets are appended too.
+
+One ticket can also be run from the command line:
+`.venv/bin/python backend/main.py ticket 102`.
 
 ## 5. Start the React board
 
@@ -76,7 +97,7 @@ finishes, followed by a summary for the ticket.
 | Read tickets, stock, prices, cash, invoices, leases | Approve a payment (invoice or rent) |
 | Propose a payment (Accounting) | Approve a vendor reprint order |
 | Request a reprint (Inventory) | Approve a ticket's final decision |
-| Hold stock for a ticket (Inventory) | Approve and send a message to a customer, landlord, or vendor |
+| Hold stock for a ticket (Inventory) | Approve a message to a customer, landlord, or vendor (drafts are never sent) |
 | Draft a reply to the ticket's requester (Customer Service) | |
 | Record a decision for approval (Boss) | |
 

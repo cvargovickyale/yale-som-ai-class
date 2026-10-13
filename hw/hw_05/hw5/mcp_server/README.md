@@ -48,6 +48,19 @@ stock off the shelf, or sends a message.
 | `get_lease` | Facilities | `lease_id` | reads `leases`, `payments`, `payment_requests` | Lease, days until due, past and pending rent payments |
 | `save_draft_message` | Customer Service | `ticket_id`, `to_name`, `subject`, `body` | writes `message_drafts` | A draft to the ticket's requester (never sent) |
 
+### Board and human tools
+
+| Tool | Who calls it | What it does |
+|---|---|---|
+| `get_board` | Backend (`/api/tickets`, `/api/health`) | Read-only: every ticket with its status and records, cash, payments made |
+| `approve_payment` | Backend, when a human clicks Approve | Executes a payment: writes `payments` (with `approved_by`), lowers cash, marks the invoice paid or moves rent's next due date. Re-checks cash and status at payment time |
+| `reject_payment` | Backend, human | Marks a payment request rejected; no money moves |
+| `approve_decision` | Backend, human | Resolves the ticket. Held stock leaves the shelf; drafts are approved (never sent). Refused while payments are waiting |
+| `reset_database` | Backend, human | Copies the original over the working copy (SQLite backup API); needs `confirm=true` |
+
+No agent is given these. The four human tools are registered **only in
+`--http` mode**, so Claude Code's stdio connection can't call them.
+
 ### Rules enforced in code
 
 - A vendor with any open unpaid invoice can't take a reprint order.

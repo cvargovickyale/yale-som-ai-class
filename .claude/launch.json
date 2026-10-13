@@ -108,6 +108,32 @@
         "8000"
       ],
       "port": 8000
+    },
+    {
+      "name": "hw5-mcp",
+      "runtimeExecutable": "hw/hw_05/hw5/.venv/bin/python",
+      "runtimeArgs": [
+        "hw/hw_05/hw5/mcp_server/server.py",
+        "--http"
+      ],
+      "port": 8765
+    },
+    {
+      "name": "hw5-backend",
+      "runtimeExecutable": "hw/hw_05/hw5/.venv/bin/python",
+      "runtimeArgs": [
+        "-m",
+        "uvicorn",
+        "main:app",
+        "--app-dir",
+        "hw/hw_05/hw5/backend",
+        "--reload",
+        "--reload-dir",
+        "hw/hw_05/hw5/backend",
+        "--port",
+        "8010"
+      ],
+      "port": 8010
     }
   ]
 }

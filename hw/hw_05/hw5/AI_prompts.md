@@ -391,3 +391,81 @@ later
     **flagged**: reprint $264 vs. $160 left, short $104, and blocked until
     invoice 501 is paid.
   - All 10 views still render with no sideways overflow.
+
+## Problem 7 — Backend routes
+
+**Prompt:** P7: p8 react frontend dashboard needs a backend main.py using
+fastapi with routes that do these things:
+show all three tickets and whether each has been resolved or is open
+use ticket id and run agent team on that ticekt
+keep track of recent agent events and what tools they use to keep board
+current
+approve a payment once the human clicks approve and change cash - execute it.
+show current checking bal from cash_accounts
+reset db to original when we want to try fresh run
+
+then start backend/ with uvicorn main:app --reload --port 8000
+
+to turn on localhost:8000. harness.md needs to list each route by url and
+what does
+
+**Follow-up prompt used:** none.
+
+**Notes:**
+
+- **Routes** in `backend/main.py` (FastAPI):
+  - `GET /api/tickets` (open/resolved)
+  - `POST /api/tickets/{id}/run` (runs the team in the background)
+  - `GET /api/events` and `GET /api/runs` (live board feed)
+  - `GET /api/cash` (checking balance)
+  - `POST /api/payments/{id}/approve` (executes the payment) and
+    `POST /api/payments/{id}/reject`
+  - `POST /api/decisions/{id}/approve` (resolves the ticket)
+  - `POST /api/reset`
+  - `GET /api/health`, `GET /api/tickets/{id}`
+
+  Each route is listed with its URL, what it does, and the MCP tool it uses
+  in `harness.md` section 6.
+- **Still no shop layer around MCP:** approving a payment, approving a
+  decision, and resetting the database are MCP tools too (`approve_payment`,
+  `reject_payment`, `approve_decision`, `reset_database`), plus a read-only
+  `get_board`. No agent is given them, and the human tools are registered
+  only in `--http` mode, so Claude Code's stdio connection can't approve a
+  payment.
+- **"Execute it":** approving a payment re-checks status and cash at that
+  moment, writes `payments` with `approved_by`, lowers
+  `cash_accounts.balance`, and marks the invoice paid (unblocking the
+  vendor) or moves rent's next due date forward a month, all in one
+  transaction.
+- **Decision added:** a ticket becomes "resolved" only when the human
+  approves the Boss's decision, and that's refused while the ticket still
+  has payments waiting.
+- **Token-spend guard on the run route:** one team run at a time and at
+  most 6 runs per 10 minutes, checked before any agent starts.
+- **Live events:** a PydanticAI event hook records every tool call, tool
+  result, delegation, and agent start/finish as it happens. Approvals and
+  resets also go into the audit trail as `human_action` entries.
+- **Port:** a Lecture 13 backend from another session was already on port
+  8000, so the test servers ran on 8010 (`.claude/launch.json`: `hw5-mcp`,
+  `hw5-backend`). The README and the assignment's command still use 8000.
+- **Bugs the tests found, all fixed:**
+  1. The event hook used a field this PydanticAI version doesn't have, and
+     it crashed a run. The hook now can't stop an agent.
+  2. A Portkey cache hit on the rerun returned tool-call IDs that Azure
+     rejects. Every request now forces a fresh response; without this,
+     every rerun after a reset would fail.
+  3. Accounting refused to propose rent while invoice 501 (ticket 101's
+     bill) was unpaid. Its prompt now says "pay overdue first" means first
+     in line, not a block. This is my clarification of my own P5 rule.
+- **Tested on the working copy:**
+  - Ticket 102 run through the API: ok, 87 s, 18 model requests,
+    39,128 + 3,946 tokens, rent request pending, cash after pending $1,000.
+  - Approving the decision before the payment was refused.
+  - Approving the payment took cash from $3,400 to $1,000 and moved the
+    lease's next due to 2026-10-02. Approving it again was refused.
+  - Approving the decision resolved ticket 102.
+  - Resetting brought all 9 tables back to the original, row for row.
+  - The audit trail keeps every entry.
+- After a reset through the API, the working copy's contents match the
+  original exactly, but its SHA-1 doesn't (SQLite's backup writes its own
+  file header). "Same as original" is now checked table by table.

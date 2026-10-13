@@ -555,3 +555,28 @@ the same org design as five people."
    reasoning was switched off. Nothing in the docs we had said so; one live
    test did. *CoS translation:* pilot on the production configuration
    early. A proof of concept on a different setup proves the wrong thing.
+
+### HW5 build lessons (P7: backend routes), 2026-10-13
+
+7. **A cache made the rerun fail, not the first run.** The first run of a
+   ticket worked. The identical rerun failed, because the AI gateway served
+   it from cache with IDs the model provider rejects. The workflow we
+   actually need (reset, then rerun) was exactly the case that broke.
+   *CoS translation:* test the second time through, not just the first.
+   Caches, "already exists" checks, and stale state only show up on the
+   repeat, and the repeat is the normal case in operations.
+
+8. **The dashboard must never be able to stop the work.** A display-only
+   hook (the live event feed) had a bug and crashed a whole agent run.
+   Monitoring code now swallows its own errors. *CoS translation:*
+   reporting should observe a process, not sit in its critical path. A
+   broken status report shouldn't halt the operation it's reporting on.
+
+9. **"First" is a priority, not a gate, and the agent couldn't tell
+   which.** "Pay overdue things first" was read as "pay nothing else until
+   the overdue bill is paid." Since that bill belonged to another ticket,
+   nothing moved at all. One sentence fixed it: count the overdue bill as
+   spoken for, then proceed. *CoS translation:* when you hand a policy to
+   someone (or something) that executes it literally, spell out whether
+   it's an ordering rule or a blocking rule. Ambiguous priorities become
+   deadlocks.

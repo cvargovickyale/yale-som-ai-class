@@ -12,7 +12,12 @@ for human approval.
   spending room. Every new payment has to fit inside it.
 - **Pay overdue things first.** Order payments by urgency: overdue invoices
   first (they also block that vendor from shipping), then bills due soonest
-  (rent on its due date), then everything else.
+  (rent on its due date), then everything else. "First" means first in line
+  for cash, not "nothing else until it's paid." When you're asked to propose
+  a bill, count every unpaid overdue invoice as already spoken for. If cash
+  still covers this bill after that, propose it, and say what's left once
+  both are paid. Only hold a bill back if paying it would leave too little
+  for the overdue ones.
 - **Keep enough cash to order inventory.** Before recommending a payment,
   say what cash is left afterward and whether that still covers the
   restocking the team needs (Inventory's reprint costs). If it doesn't, say

@@ -267,9 +267,15 @@ its 97 seconds.
 The rule behind every row: **agents propose, a human approves, and code
 enforces it.** No agent can move money, take stock off the shelf, place a
 vendor order, or send a message. Each of those exists only as a pending
-record until a human approves it on the dashboard. The approve/execute
-routes are built in P7 (backend) and P8 (dashboard), and no agent will be
-given them.
+record until a human approves it on the dashboard.
+
+Approval is done by four **human tools** on the MCP server
+(`approve_payment`, `reject_payment`, `approve_decision`,
+`reset_database`). No agent is given them. They are registered only when
+the server runs over HTTP for the backend, so Claude Code's stdio
+connection (`.mcp.json`) can't call them either. The backend calls them
+only from the dashboard's approve/reset routes (section 6), and each call
+records the human's name.
 
 All shop facts go through the MCP server. The backend never opens the
 database, so there is no side door around these rules.
@@ -287,11 +293,12 @@ database, so there is no side door around these rules.
 
 | Action | Who can propose | Who approves | Enforced by |
 |---|---|---|---|
-| Pay an invoice or rent | Accounting only (`propose_payment`) | Human only. Approval will write `payments.approved_by`. | No agent has a pay tool. The amount comes from the database, not the agent. It must be the ticket's own bill. One pending request per bill. Refused if cash after already-pending payments would go below $0 (tested: $3,000 balance → rent refused at −$240). |
+| Pay an invoice or rent | Accounting only (`propose_payment`) | Human only: `POST /api/payments/{id}/approve` → `approve_payment` writes `payments.approved_by`, lowers cash, marks the invoice paid or moves rent's next due date. | No agent has a pay tool. The amount comes from the database, not the agent. It must be the ticket's own bill. One pending request per bill. Refused if cash after already-pending payments would go below $0 (tested: $3,000 balance → rent refused at −$240). |
 | Order a reprint (vendor spend) | Inventory only (`request_reprint`) | Human | Refused while the vendor has any open unpaid invoice (tested: Bulldog Print Co blocked by invoice 501). Cost = qty × `unit_cost` from the database. One pending request per ticket/SKU/size. |
 | Discount (revenue given up) | Accounting recommends; Boss decides | Human approves the Boss's decision | 40% margin floor after discount, in Accounting's prompt (prompt-level). `price_and_margin` reports `below_cost` and the margin so the human sees the numbers. |
 | Set stock aside | Inventory only (`reserve_stock`) | Stock leaves the shelf only on human approval | Can't hold more than available (on hand minus other holds). One hold per ticket/SKU/size. `inventory.qty` never changes from an agent. |
-| Close a ticket | Boss records a decision (`record_decision`) | Human | The decision is stored as pending; the ticket stays `open`. |
+| Close a ticket | Boss records a decision (`record_decision`) | Human: `POST /api/decisions/{id}/approve` | The decision is stored as pending and the ticket stays `open` until approved. Approval is refused while the ticket still has payment requests waiting. |
+| Execute a payment at approval time | n/a | Human | `approve_payment` re-checks at payment time: the request is still pending, the bill is still open, and cash won't go below $0. Approving twice is refused. |
 
 ### Money: token spend (the AI bill)
 
@@ -303,7 +310,8 @@ database, so there is no side door around these rules.
 | Delegation | At most 4 hand-offs; no agent twice in a chain; same ticket only | `delegate` refuses and tells the agent why (tested: 5 of 5 refusal cases). |
 | One tool call at a time | `parallel_tool_calls = False` | Stops parallel hand-offs from duplicating work (seen in P5 testing). |
 | Visibility | Tokens, model requests, and tool calls per agent run | `output/audit_trail.json`, plus a one-line cost summary per ticket. |
-| Runs per minute | *Planned for P7* | Rate limit on the backend's "run ticket" route, so the board can't trigger runs in a loop. |
+| Runs | One team run at a time; at most 6 runs per 10 minutes | Checked in `POST /api/tickets/{id}/run` *before* any agent starts (409 if busy, 429 over the limit). |
+| Fresh responses | `x-portkey-cache-force-refresh: true` | A Portkey cache hit returned tool-call IDs Azure rejects, which broke a rerun (P7). Fresh responses also mean the audit shows real, current model output. |
 
 Measured so far: one ticket (102) cost 18 model requests and 42,817 tokens
 in total, about 11% of the per-ticket token budget.
@@ -334,6 +342,9 @@ reset of the database does not touch it.
     duration, status, and its final output
 - After the Boss finishes, a **`ticket_run` summary** is appended. It has
   the Boss's decision, totals, and the `run_id`s of its agent entries.
+- Every human action from the dashboard (approve or reject a payment,
+  approve a decision, reset) appends a **`human_action`** entry with who
+  did it and the result (e.g. balance before and after).
 - Writes are atomic: a temp file, then a rename. A lock serializes
   concurrent writes. If the file is ever unreadable, it is moved aside, not
   overwritten.
@@ -342,4 +353,62 @@ reset of the database does not touch it.
   own entry, a second run appended (3 → 6 entries), and a corrupt file was
   moved aside.
 - The P5 live test of ticket 102 ran on a throwaway database copy, so its
-  log was kept out of this file. Real runs start in P9.
+  log was kept out of this file. P7's route tests on the working copy
+  are in it: two failed runs (the bugs in section 6) and two ok runs of
+  ticket 102, plus a payment approval, a decision approval, and two
+  resets. The database was reset afterward; the audit was kept.
+
+## 6. Backend routes (FastAPI)
+
+`backend/main.py`. Start from `backend/` with
+`../.venv/bin/uvicorn main:app --reload --port 8000` (MCP server running
+first). Every route reads and writes through the MCP server. The backend
+has no database access of its own.
+
+| Method and URL | What it does | MCP tool(s) |
+|---|---|---|
+| `GET /api/health` | Backend is up, which model is fixed (`gpt-6-luna`), MCP URL, shop date | `get_board` |
+| `GET /api/tickets` | All three tickets with status (**open** / **resolved**), the team's records for each (payment and reprint requests, holds, drafts, decisions), cash, payments made, open/resolved counts, and each ticket's latest run | `get_board` |
+| `GET /api/tickets/{ticket_id}` | One ticket with its linked invoice or lease and its pending records | `get_ticket` |
+| `POST /api/tickets/{ticket_id}/run` | Start the agent team on the ticket (Boss first). Returns `202` at once; the run continues in the background. Refused if the ticket isn't open, a run is already going (`409`), or over 6 runs per 10 minutes (`429`). | `get_ticket`, then the agents' tools |
+| `GET /api/runs` | Latest run per ticket: running / ok / error, duration, totals (requests, tokens, tool calls, delegations), the Boss's decision | none (in memory) |
+| `GET /api/events?since={seq}` | Recent events, oldest first, for keeping the board current: run started/finished, agent started/finished (tokens, recommendation), each tool call and result, each delegation, approvals, resets. Poll with the last `seq` you saw. | none (in memory; the audit file is the permanent record) |
+| `GET /api/cash` | Checking balance from `cash_accounts`, payments waiting for approval, cash after them, open invoices, upcoming rent | `get_cash_and_bills` |
+| `POST /api/payments/{payment_request_id}/approve` | Human clicks Approve: **executes** the payment. Body `{"approved_by": "name"}`. Writes `payments`, lowers cash, marks the invoice paid or moves rent's next due date forward a month. | `approve_payment` |
+| `POST /api/payments/{payment_request_id}/reject` | Human rejects a payment request; no money moves. Body `{"rejected_by": "name", "reason": "…"}` | `reject_payment` |
+| `POST /api/decisions/{decision_id}/approve` | Human approves the Boss's decision: ticket → **resolved**, held stock leaves the shelf, drafts → approved (never sent). Refused while payments are still waiting. | `approve_decision` |
+| `POST /api/reset` | Reset the working database to the original for a fresh run. Body `{"confirm": true}`. Refused during a run. Keeps the audit trail. | `reset_database` |
+
+Errors: a tool's refusal comes back as `409` with the tool's own message
+(e.g. "Cash can't go below $0"), and a missing record as `404`. If the MCP
+server isn't running, every route returns `503`.
+
+### Tested (P7, working copy, then reset)
+
+| Check | Result |
+|---|---|
+| Read routes | Tickets 101/102/103 open, 3 open / 0 resolved, checking $3,400, no pending payments |
+| Bad requests | Unknown payment, decision, or ticket → 404; blank approver → 422; reset without confirm → 409 |
+| One run at a time | A second run while 102 was running → 409 |
+| Run ticket 102 via the API | ok, 87 s, 5 agent runs, 18 model requests, 39,128 + 3,946 tokens; payment request #1 (rent $2,400) pending, cash after pending $1,000; landlord draft; decision `pay` |
+| Approve the decision first | Refused: "Ticket 102 still has payment requests waiting: [1]" |
+| Approve the payment | Cash $3,400 → **$1,000**; `payments` row with `approved_by = Christopher`, paid 2026-08-31; lease next due 2026-09-02 → 2026-10-02 |
+| Approve it again | Refused: already paid |
+| Approve the decision | Ticket 102 → **resolved** (1 resolved, 2 open); draft → approved, not sent |
+| Audit | Every agent run, ticket summary, and human action appended |
+| Reset | All 9 original tables match the original row for row, and the 5 work tables are gone |
+
+### Bugs the route tests found (fixed)
+
+1. **The live-event hook crashed a run.** It read a field this PydanticAI
+   version doesn't have. Fixed, and the hook now swallows its own errors,
+   so the board's feed can never stop an agent.
+2. **A Portkey cache hit broke the rerun.** The rerun's first request was
+   identical, so Portkey served it from cache, with tool-call IDs that Azure
+   rejects. Fixed by forcing fresh responses. Without this, every rerun
+   after a reset would have failed (the P9 workflow).
+3. **Accounting wouldn't propose rent while invoice 501 was unpaid.** It
+   read "pay overdue things first" as a block, and 501 belongs to ticket
+   101. Its prompt now says "first" means first in line: count unpaid
+   overdue bills as spoken for, then propose this bill if cash still covers
+   it.
