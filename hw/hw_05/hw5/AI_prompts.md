@@ -656,7 +656,38 @@ timing is leaving value on the table.
 
 pull up the html after those answers so I can answer the rest
 
-**Follow-up prompt used:** _(pending: my answers to questions 2–5)_
+**Follow-up prompt used (my answers to questions 2–5):** 2. 101 was different
+as I described in #1 because it chose to not even raise the $840 overdue
+invoice: there was a reasonable conclusion without it (offering other sizes).
+102 went above and beyond by asking about low cash considerations and asking
+if the $840 was paid, where this got raised again. I'm glad I had guardrails
+to keep this from going too many times, also saw the Boss agent try to
+delegate to itself which was funny, glad guardrail caught. 103 was a little
+lazier than expected, did not get creative with customer service and instead
+just offered a discount on what was in stock. Okay but not great.
+
+The facilities agent didn't seem that distinct or powerful compared to
+accounting agent. May have helped the various payments stay together if all
+the money decisions were centralized. May not have had that $840 confusion
+and cut down on delegation steps.
+
+New problems we could solve include: Someone requesting a specific discount
+and us grading if that would work for us; new requests from the landlord
+about potentially paying up front for future months of rent, we could advise
+on that feasibility; we could use inventory info to offer deals on things
+that are high in stock/haven't moved in a while - would only require slight
+tweaks to prompting
+
+New problems we could not yet solve: someone asking what the lead time is
+before something is back in stock  - we would need an agent that read our
+emails or otherwise got vendor info (stakeholder manager) to check on timing;
+we could not yet handle customized orders with extra designs, we'd need
+stakeholder manager to translate those requests to the vendor/printer and
+approve those comms in a bounded way that shows what we could possibly
+produce; we could not yet project availability of product based on
+historical availability and restock times, we would need tools that analyze
+historic data and maybe a historic database of when orders get restocked and
+what's in high demand
 
 **Notes:**
 
@@ -664,6 +695,9 @@ pull up the html after those answers so I can answer the rest
   from the assignment. My grades for question 1 are placed verbatim (101
   B+, 102 B+, 103 A-). Questions 2–5 have empty boxes for my answers.
   Claude wrote no reflection content.
+- Answers 2–5 are placed verbatim in the Reflection tab. Questions 4 and 5
+  are shown as numbered lists, split at my semicolons, with no words
+  changed.
 - Correction (my words): in the 101 grade I first wrote "I changed the
   prompt after the fact". No prompt was changed; what I added was the
   overdue-invoice tracker on the board. The page now says "I added the
