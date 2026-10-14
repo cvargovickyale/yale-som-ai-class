@@ -606,3 +606,22 @@ the same org design as five people."
     progress rather than a chore. *CoS translation:* the tools people
     enjoy using are the ones they keep using. Make finishing something
     visible and satisfying.
+
+### HW5 build lessons (P9: the real run), 2026-10-13
+
+13. **The plan's weakest step was the one nobody owned.** Two of three
+    tickets ran to plan. The miss was step 3 of ticket 101: "Accounting
+    pays the overdue invoice." That was in our plan, but not in any
+    agent's instructions. The Boss asked Accounting for numbers, Accounting
+    answered the question it was asked, and the $840 stayed unpaid. Rent
+    worked because a P6 prompt line made the route explicit. *CoS
+    translation:* a plan that lives only in the planner's head doesn't
+    execute. Every step needs an owner whose instructions actually include
+    it. Hand-offs carry tasks, not intentions.
+
+14. **Reconcile three ways, then explain the gap.** The ending cash
+    ($1,000) matched in the database, the payments table, and the approval
+    log. The $840 difference from plan traced to a single missed step.
+    *CoS translation:* "the numbers tie out" and "the numbers are what we
+    expected" are different checks. Do both, and make the variance
+    explainable to the line item.

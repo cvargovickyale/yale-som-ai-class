@@ -1,7 +1,41 @@
 # Campus Customs Multi-Agent Operations — Harness
 
-How the agent team, MCP server, backend, and dashboard fit together.
-Working notes are added per problem and consolidated at the end.
+How the agent team, MCP server, backend, and dashboard fit together, how
+they're kept safe, and what happened when all three tickets were run for
+real (P9).
+
+## 0. System overview
+
+```
+React board (frontend/, :5173)  ─/api─▶  FastAPI backend (backend/main.py, :8000)  ─MCP/HTTP─▶  MCP server (mcp_server/server.py, :8765)  ─▶  data/campus_customs_new.db
+  human watches + approves               5 PydanticAI agents on gpt-6-luna,                    12 agent tools + board/human tools,        working copy
+                                          delegation, limits, audit trail, routes               shop rules enforced in code
+Claude Code ─stdio (.mcp.json)─▶ same MCP server (agent tools only)                                                                     data/campus_customs.db = original, never opened
+```
+
+| Layer | What it is | Decides | Section |
+|---|---|---|---|
+| Data | SQLite: 9 original tables + 5 work tables the team adds to the working copy | Every fact | 1 |
+| MCP server | FastMCP 4.1. The only code that touches the database | What's allowed: cash floor, vendor block, dedupe, ticket link, drafts only | 2 |
+| Agents | Boss, Inventory, Accounting, Facilities, Customer Service; one prompt each | What to look up, who to ask, what to propose | 3 |
+| Safety | Agents propose, humans approve, code enforces; token and time limits | Who can move money or contact people | 4 |
+| Audit | Append-only `output/audit_trail.json`: every agent run, every human action | The record of who did what | 5 |
+| Backend | FastAPI routes the board calls; run guard; live events; model retries | How the human triggers runs and approvals | 6 |
+| Dashboard | React board: cash, tickets, agent feeds, approvals, Done pile | How the human sees and approves | 7 |
+| Real run | P9: tickets 101, 102, 103 run and approved | What actually happened | 8 |
+
+**What's code and what's the model.** The model reads tickets, chooses
+which tools and teammates to use, weighs trade-offs, and writes the
+summary and the customer draft. Code does everything with consequences:
+it reads every number from the database, enforces every rule, holds every
+action as pending, moves money only on a human click, and logs it all.
+
+**Run it:** README.md. In short:
+1. reset (`cp data/campus_customs.db data/campus_customs_new.db` or the
+   board's Reset)
+2. `python mcp_server/server.py --http`
+3. `cd backend && uvicorn main:app --reload --port 8000`
+4. `cd frontend && npm run dev`
 
 ## 1. Data
 
@@ -140,6 +174,23 @@ Agents: **Boss**, **Inventory**, **Accounting**, **Facilities**,
 - **Accounting:** where an approved payment is recorded.
 - **Boss:** proof that a payment happened, and who approved it.
 
+### Work tables the team adds (working copy only)
+
+The original data has nowhere to record pending work, so the MCP server
+creates these five tables in `campus_customs_new.db` on the first write.
+A reset removes them; `campus_customs.db` never has them.
+
+| Table | Written by | Holds | Becomes final when |
+|---|---|---|---|
+| `payment_requests` | Accounting (`propose_payment`) | Proposed invoice or rent payments: payee, amount (from the DB), reason, `pending_approval` | A human approves it → `paid`, a `payments` row, cash lowered. Or rejects it → `rejected` |
+| `reprint_requests` | Inventory (`request_reprint`) | Proposed vendor orders: qty, unit cost, est. cost, expected arrival | Stays pending; approving orders is out of scope (none were created in P9) |
+| `stock_holds` | Inventory (`reserve_stock`) | Units set aside for a ticket | Its ticket's decision is approved → stock leaves the shelf (none were created in P9) |
+| `message_drafts` | Customer Service (`save_draft_message`) | One draft per ticket, to the requester | Decision approved → `approved_not_sent`. Never sent |
+| `decisions` | Boss (`record_decision`) | One pending decision per ticket: summary and reasoning | A human approves it → `approved`, ticket → `resolved` |
+
+Every approval also records who decided (`decided_by`, `decided_at`), and
+payments record `approved_by`.
+
 ### Data findings that shape later problems
 
 - **The three tickets are linked through cash.** Invoice 501 ($840) + rent
@@ -187,6 +238,16 @@ agent sees only its own tools; the backend filters the list per agent.
 | `propose_payment` | Accounting | writes `payment_requests` (pending) | 101 (invoice 501), 102 (rent) | Creates a payment request for a human to approve. Amount from the database; only the ticket's own bill; refused if cash would go below $0. |
 | `get_lease` | Facilities | reads `leases`, `payments`, `payment_requests` | 102 | Lease 1: Chapel Street shop, Elm City Properties, $2,400 due 2026-09-02 (2 days), no past rent payments. |
 | `save_draft_message` | Customer Service | writes `message_drafts` (draft) | 101, 102, 103 | Drafts to Tauhid Zaman, Elm City Properties, and the Yale AI Club, only to the ticket's requester. Never sent. |
+
+### Board and human tools (not given to any agent)
+
+| Tool | Called by | Reads / writes |
+|---|---|---|
+| `get_board` | Backend `/api/tickets`, `/api/health` | Reads every ticket, its work-table records, cash, payments |
+| `approve_payment` | Backend, when a human clicks Approve (HTTP mode only) | Writes `payments`, `cash_accounts`, `invoices` or `leases`, `payment_requests` |
+| `reject_payment` | Backend, human (HTTP mode only) | `payment_requests` |
+| `approve_decision` | Backend, human (HTTP mode only) | `decisions`, `tickets`, `message_drafts`, `stock_holds`, `inventory` |
+| `reset_database` | Backend, human (HTTP mode only) | Copies the original over the working copy |
 
 ### Rules the tools enforce (not just the prompts)
 
@@ -427,3 +488,95 @@ provider that stays down fails after 3 retries.
    101. Its prompt now says "first" means first in line: count unpaid
    overdue bills as spoken for, then propose this bill if cash still covers
    it.
+
+## 7. Dashboard (React board)
+
+`frontend/`: React 19 + Vite 8 + TypeScript. `npm run dev` opens
+http://localhost:5173. It only calls the backend's `/api` routes (Vite
+proxy to :8000). Full design reasoning is in `output/design.md`.
+
+| Part | What it shows | Route(s) |
+|---|---|---|
+| Checking balance | Big, live; counts down on a payment; waiting-for-approval and after-approval amounts; amber when under $500 | `GET /api/cash` |
+| On the desk | Open tickets; **Start the team** on any one (you pick the order); live "Team at work" line; "N need you"; the Boss's suggestion | `GET /api/tickets`, `POST /api/tickets/{id}/run` |
+| The team | Five agents with status (idle / on #N) and their last three steps; click for the full feed | `GET /api/events` |
+| Review popup | The Boss's call and reasoning, risks, **Approve / Reject** each payment, the draft (never sent), stock, what each agent did, team totals | `GET /api/tickets/{id}/history`, `POST /api/payments/{id}/approve` or `/reject`, `POST /api/decisions/{id}/approve` |
+| Done pile | Closed tickets, after a green "stamp and fly" animation; click for the read-only review | `GET /api/tickets` |
+| Reset | Confirmation popup; disabled during a run | `POST /api/reset` |
+
+Safety in the UI: every approval needs a name in **Approving as** (stored
+with the approval). Closing a ticket is disabled until its payments are
+handled. Backend refusals show as a toast with the backend's own message.
+There is no send button anywhere.
+
+## 8. The real run (P9)
+
+**Procedure:**
+1. Reset the working database (audit entry 41). All 9 tables matched the
+   original, with no work tables.
+2. A human ran tickets 101 → 102 → 103 from the board and approved on it.
+3. A read-only watcher screenshotted the board after each ticket closed.
+
+Every response reported `gpt-6-luna-global`. No model retries were needed.
+Full step-by-step record: `output/resolved_tickets.json` (audit entries
+42–62). Screenshots: `output/resolved_board.html`. Expected-vs-actual and
+the cash ledger: `output/desk_tickets.html`.
+
+| Ticket | Hand-offs | Boss's call | Human approvals | Cash | Cost |
+|---|---|---|---|---|---|
+| 101 Tauhid, tee S | Boss → Inventory; Boss → Accounting → Inventory; Boss → CS | **Alternative:** offer in-stock M/L/XL at $28; no S reprint promised | Decision | $0 | 5 runs, 24 requests, 64,880 tokens, 87 s |
+| 102 Rent | Boss → Facilities → Accounting → Inventory; Boss → CS | **Pay:** rent request 1, $2,400 | Payment 1, then decision | −$2,400 | 5 runs, 20 requests, 47,395 tokens, 90 s |
+| 103 Hoodies | Boss → Inventory; Boss → Accounting; Boss → CS | **Partial:** 8 M at $36.67 (36.78% off, the 40% floor) | Decision | $0 | 4 runs, 18 requests, 48,664 tokens, 72 s |
+| **Total** | 11 delegations, 1 refused (Boss → itself) | | 4 approvals | **−$2,400** | 14 runs, 62 requests, 160,939 tokens, 48 tool calls |
+
+**Cash:** $3,400.00 − $2,400.00 = **$1,000.00**. That equals
+`cash_accounts.balance` in the working database, and the money out agrees
+in `payments`, the paid `payment_requests`, and the audit trail's
+approval.
+
+**Plan vs. actual (P6 → P9):**
+- **102 went exactly to plan.** The P6 routing line held: Facilities
+  brought in Accounting, the Boss didn't re-ask it, and the landlord
+  draft didn't claim the rent was paid.
+- **103 went to plan on the numbers.** It hit the exact 36.78% floor,
+  flagged 40% as below it, and flagged Option B (a $264 reprint vs. $160
+  left, short $104). But the draft made one offer instead of two options.
+- **101 missed the planned $840 invoice payment.** The Boss asked
+  Accounting for numbers rather than to pay. Accounting judged the
+  payment feasible but held back because the reprint cost was unknown. So
+  invoice 501 is still open and Bulldog Print Co is still blocked, which
+  is why cash ended at $1,000 instead of the planned $160.
+
+**Guardrails seen working in the real run:**
+- The Boss's attempt to delegate to itself was refused.
+- Four bad tool inputs were refused and the agents corrected them:
+  `qty_needed=0`, SKUs with a size suffix, and SKU "102".
+- No payment was possible without a human click.
+- No draft was sent.
+- Every response was gpt-6-luna.
+
+## 9. Known limitations
+
+- **The invoice rule is a judgment call, not a control.** Nothing *makes*
+  the team pay an overdue invoice that blocks a customer order (ticket
+  101). A line in the Boss's prompt, like the P6 rent-routing line, would
+  likely fix it, but it's still the model's judgment.
+- **One draft per ticket.** `save_draft_message` replaces a draft, so "two
+  options" must be one message. In 103 the model offered one.
+- **Holds are optional.** The Boss can make an offer without reserving
+  the stock it promises (103 flagged this itself).
+- **Approving reprint orders isn't built.** `request_reprint` creates
+  pending orders, but no route approves them (none were created in P9).
+- **Revenue isn't booked.** The scenario says cash only goes out, so a
+  discount offer never raises the balance.
+- **Provider flakiness.** Azure behind Portkey intermittently returned
+  `401 Jwt verification fails` during P8. Retries cover it, but a long
+  outage still ends a run (the board shows "Try again").
+- **Approver identity is a typed name, not a login.** It's recorded with
+  every approval ("TestChristopher" in P9), but anyone at the board can
+  type any name. A real deployment would put the approve routes behind
+  authentication.
+- **Live events live in memory.** They're lost on a backend restart. The
+  audit file is the permanent record, and the board's history comes from
+  it.
+

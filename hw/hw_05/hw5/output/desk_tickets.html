@@ -47,7 +47,7 @@
     padding: 12px; background: var(--gray); min-height: 420px;
   }
   .panel[hidden] { display: none; }
-  fieldset {
+  fieldset { min-width: 0;
     border: 2px groove var(--white); margin: 0 0 12px; padding: 8px 10px 10px;
   }
   legend { padding: 0 4px; font-weight: bold; }
@@ -110,12 +110,30 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   h3 { margin: 0 0 6px; font-size: 12px; }
+  .cmp { table-layout: fixed; }
+  .cmp th:nth-child(1) { width: 34px; } .cmp th:nth-child(4) { width: 92px; }
+  .badge { display: inline-block; padding: 0 6px; font-weight: bold; font-size: 11px; border: 1px solid var(--ink); white-space: nowrap; }
+  .badge.ok { background: #c0f0c0; } .badge.diff { background: #ffffa0; } .badge.miss { background: #ffc0c0; } .badge.extra { background: #e0e0ff; }
+  .chain { list-style: none; margin: 0; padding: 0; }
+  .chain > li { background: var(--white); border: 1px solid var(--gray-dark); padding: 5px 8px; margin-bottom: 4px; }
+  .chain .tools { margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .t { font-family: "Courier New", Courier, monospace; font-size: 11px; border: 1px solid var(--gray-dark); padding: 0 4px; background: #f4f4f4; }
+  .t.error { background: #ffe0e0; } .t.refused { background: #ffd8a8; }
+  .indent1 { margin-left: 18px; } .indent2 { margin-left: 36px; } .indent3 { margin-left: 54px; }
+  .result { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 6px 14px; }
+  .result div b { display: block; color: var(--gray-darker); font-weight: normal; }
+  .ledger td.n, .ledger th.n { width: 110px; }
+  .ledger tr.total td { font-weight: bold; border-top: 3px double var(--ink); }
+  .ledger tr.sub td { background: #f4f4f4; }
+  .check { background: #c0f0c0; border: 1px solid var(--green); padding: 6px 8px; margin-top: 8px; }
+  .sidebyside { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 760px) { .sidebyside { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 <div class="window" role="application" aria-label="Campus Customs desk ticket plans">
   <div class="titlebar">
-    <span>Campus Customs Desk — Ticket Plans (expected vs. actual)</span>
+    <span>Campus Customs Desk — Ticket Plans: expected vs. actual</span>
     <span class="btns" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
   </div>
   <div class="menubar" aria-hidden="true"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>T</u>ickets</span><span><u>H</u>elp</span></div>
@@ -202,8 +220,35 @@
       </div>
 
       <fieldset>
-        <legend>Actual (filled in after the run)</legend>
-        <div class="placeholder">Actual agent steps, tool calls, and results from <code>output/audit_trail.json</code> go here after the tickets are resolved.</div>
+        <legend>Actual: real run, P9 (from <code>output/audit_trail.json</code>)</legend>
+        <h3>Expected vs. actual</h3>
+        <div style="overflow-x:auto"><table class="cmp">
+          <thead><tr><th>#</th><th>Expected (P6 plan)</th><th>Actual (P9 run)</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Boss reads 101 with <code>get_ticket</code></td><td>Boss read 101: tee S for Tauhid, linked invoice 501 ($840, 3 days overdue).</td><td><span class="badge ok">matched</span></td></tr>
+            <tr><td>2</td><td>Inventory: <code>check_stock</code> tee S → 0, short 1</td><td>Inventory: tee S <b>0 on hand, short 1</b>. Also ran <code>find_vendor</code> (Bulldog Print Co blocked by 501, as "Watch for" predicted) and checked M 5 / L 3 / XL 2. One call with <code>qty_needed=0</code> was refused by the tool and corrected.</td><td><span class="badge ok">matched</span></td></tr>
+            <tr><td>3</td><td>Accounting: <code>propose_payment(101, invoice, 501)</code>, $840 → cash $2,560</td><td><b>Not proposed.</b> The Boss asked Accounting for price, margin and cash, not to pay the invoice. Accounting found paying 501 "feasible" ($3,400 → $2,560, then $160 after rent), asked Inventory to confirm the reprint quantity/cost, couldn't, and held back.</td><td><span class="badge miss">missed</span></td></tr>
+            <tr><td>4</td><td>CS drafts to Tauhid: out of stock, no firm date, M/L/XL alternative</td><td>Draft to Tauhid: S unavailable, no reprint or date promised, M (5), L (3), XL (2) at $28; "we won't reserve it until you confirm."</td><td><span class="badge ok">matched</span></td></tr>
+            <tr><td>5</td><td>Boss decision: <b>waiting</b></td><td>Boss decision: <b>alternative</b>. Offer the in-stock sizes; don't commit to an S reprint yet.</td><td><span class="badge diff">different</span></td></tr>
+          </tbody>
+        </table></div>
+        <div class="sidebyside" style="margin-top:10px">
+          <div>
+            <h3>Who worked, and how they delegated</h3>
+            <ol class="chain">
+              <li class=""><span class="chip boss">Boss</span> 87 s, 6 requests, 22,408 tokens<div class="tools"><span class="t ok">get_ticket</span><span class="t ok">delegate → inventory</span><span class="t ok">delegate → accounting</span><span class="t ok">delegate → customer_service</span><span class="t ok">record_decision</span></div></li>
+              <li class="indent1"><span class="chip inventory">Inventory</span> (asked by Boss) 18 s, 17,409 tokens<div class="tools"><span class="t ok">check_stock S</span><span class="t ok">find_vendor</span><span class="t error">check_stock M qty 0</span><span class="t ok">check_stock M</span><span class="t ok">check_stock L</span><span class="t ok">check_stock XL</span></div></li>
+              <li class="indent1"><span class="chip accounting">Accounting</span> (asked by Boss) 26 s, 12,441 tokens<div class="tools"><span class="t error">price_and_margin CC-TEE-WHITE-S</span><span class="t ok">price_and_margin</span><span class="t ok">get_cash_and_bills</span><span class="t ok">delegate → inventory</span></div></li>
+              <li class="indent2"><span class="chip inventory">Inventory</span> (asked by Accounting) 10 s, 6,796 tokens<div class="tools"><span class="t ok">check_stock S</span><span class="t ok">find_vendor</span></div></li>
+              <li class="indent1"><span class="chip cs">Customer Service</span> (asked by Boss) 9 s, 5,826 tokens<div class="tools"><span class="t ok">get_ticket</span><span class="t ok">save_draft_message</span></div></li>
+            </ol>
+          </div>
+          <div>
+            <h3>Result</h3>
+            <div class="result"><div><b>Run</b>ok, 87 s, 5 agent runs</div><div><b>Cost</b>24 model requests, 64,880 tokens, 19 tool calls</div><div><b>Model</b>gpt-6-luna-global on every response</div><div><b>Human</b>Approved the decision (no payment existed)</div><div><b>Money moved</b>$0.00</div><div><b>Left open</b>Invoice 501, $840, still overdue; Bulldog Print Co still blocked</div></div>
+            <div class="note"><b>Why step 3 was missed:</b> the plan said "Accounting pays the overdue invoice," but nothing in the Boss's prompt says an order ticket's linked overdue invoice should be paid. So the Boss's task to Accounting only asked for numbers. Accounting's "keep enough cash to restock" rule, with an unknown reprint cost, then made it cautious. The P6 routing line covered rent tickets only.</div>
+          </div>
+        </div>
       </fieldset>
     </section>
 
@@ -276,8 +321,34 @@
       </div>
 
       <fieldset>
-        <legend>Actual (filled in after the run)</legend>
-        <div class="placeholder">Actual agent steps, tool calls, and results from <code>output/audit_trail.json</code> go here after the tickets are resolved.</div>
+        <legend>Actual: real run, P9 (from <code>output/audit_trail.json</code>)</legend>
+        <h3>Expected vs. actual</h3>
+        <div style="overflow-x:auto"><table class="cmp">
+          <thead><tr><th>#</th><th>Expected (P6 plan)</th><th>Actual (P9 run)</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Boss reads 102 with <code>get_ticket</code></td><td>Boss tried to delegate to itself first (<b>refused</b> by the guardrail), then ran <code>list_open_tickets</code> and <code>get_ticket(102)</code>.</td><td><span class="badge ok">matched</span></td></tr>
+            <tr><td>2</td><td>Facilities: <code>get_lease(1)</code> → $2,400 due 9/2</td><td>Facilities: lease 1, Elm City Properties, <b>$2,400 due 2026-09-02</b>, no past rent payments.</td><td><span class="badge ok">matched</span></td></tr>
+            <tr><td>3</td><td>Facilities → Accounting: <code>propose_payment(102, rent, 1)</code></td><td>Accounting proposed <b>payment request 1: $2,400 rent</b>. Its reason: "cash covers the $840 overdue invoice first and this $2,400." It also asked Inventory about restock needs (a 3rd hand-off); Inventory called <code>check_stock(sku="102")</code>, which was refused, and reported "unknown."</td><td><span class="badge ok">matched</span> <span class="badge extra">extra</span></td></tr>
+            <tr><td>4</td><td>CS: short acknowledgment to the landlord, not "paid"</td><td>Draft to Elm City Properties: "scheduled for human approval before its September 2, 2026 due date. No payment has been made yet."</td><td><span class="badge ok">matched</span></td></tr>
+            <tr><td>5</td><td>Boss decision: <b>pay</b>; Boss does not re-ask Accounting</td><td>Boss decision: <b>pay</b>. The Boss went through Facilities only (the P6 routing line held).</td><td><span class="badge ok">matched</span></td></tr>
+          </tbody>
+        </table></div>
+        <div class="sidebyside" style="margin-top:10px">
+          <div>
+            <h3>Who worked, and how they delegated</h3>
+            <ol class="chain">
+              <li class=""><span class="chip boss">Boss</span> 90 s, 7 requests, 20,795 tokens<div class="tools"><span class="t refused">delegate → boss</span><span class="t ok">list_open_tickets</span><span class="t ok">get_ticket</span><span class="t ok">delegate → facilities</span><span class="t ok">delegate → customer_service</span><span class="t ok">record_decision</span></div></li>
+              <li class="indent1"><span class="chip facilities">Facilities</span> (asked by Boss) 54 s, 6,513 tokens<div class="tools"><span class="t ok">get_ticket</span><span class="t ok">get_lease</span><span class="t ok">delegate → accounting</span></div></li>
+              <li class="indent2"><span class="chip accounting">Accounting</span> (asked by Facilities) 21 s, 10,283 tokens<div class="tools"><span class="t ok">get_cash_and_bills</span><span class="t ok">delegate → inventory</span><span class="t ok">propose_payment rent 1</span></div></li>
+              <li class="indent3"><span class="chip inventory">Inventory</span> (asked by Accounting, depth 3) 7 s, 4,239 tokens<div class="tools"><span class="t error">check_stock sku=102</span></div></li>
+              <li class="indent1"><span class="chip cs">Customer Service</span> (asked by Boss) 7 s, 5,565 tokens<div class="tools"><span class="t ok">get_ticket</span><span class="t ok">save_draft_message</span></div></li>
+            </ol>
+          </div>
+          <div>
+            <h3>Result</h3>
+            <div class="result"><div><b>Run</b>ok, 90 s, 5 agent runs</div><div><b>Cost</b>20 model requests, 47,395 tokens, 15 tool calls (1 delegation refused)</div><div><b>Model</b>gpt-6-luna-global on every response</div><div><b>Human</b>Approved payment 1, then the decision</div><div><b>Money moved</b>−$2,400.00 rent to Elm City Properties</div><div><b>After</b>Checking $3,400 → <b>$1,000</b>; lease next due → 2026-10-02</div></div>
+          </div>
+        </div>
       </fieldset>
     </section>
 
@@ -366,16 +437,85 @@
       </div>
 
       <fieldset>
-        <legend>Actual (filled in after the run)</legend>
-        <div class="placeholder">Actual agent steps, tool calls, and results from <code>output/audit_trail.json</code> go here after the tickets are resolved.</div>
+        <legend>Actual: real run, P9 (from <code>output/audit_trail.json</code>)</legend>
+        <h3>Expected vs. actual</h3>
+        <div style="overflow-x:auto"><table class="cmp">
+          <thead><tr><th>#</th><th>Expected (P6 plan)</th><th>Actual (P9 run)</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Boss reads 103 with <code>get_ticket</code></td><td>Boss read 103: Yale AI Club, 20 × M, discount request.</td><td><span class="badge ok">matched</span></td></tr>
+            <tr><td>2</td><td>Inventory: <code>check_stock</code> M ×20 → 8, short 12; <code>find_vendor</code> → blocked</td><td>Inventory: <b>8 on hand, short 12</b>; Bulldog Print Co <b>blocked</b> by 501. No hold and no reprint request.</td><td><span class="badge ok">matched</span></td></tr>
+            <tr><td>3</td><td>Accounting: largest discount at the 40% floor = 36.8% ($36.67)</td><td>Accounting: <b>36.78% off = $36.67</b> is the most allowed. It also priced 40% off and flagged it as below the floor. One bad SKU (<code>CC-HOOD-NAVY-M</code>) was refused by the tool and corrected.</td><td><span class="badge ok">matched</span></td></tr>
+            <tr><td>4</td><td>Boss suggests the price override for approval</td><td>Boss decision <b>partial</b>: 8 M hoodies at $36.67 each (8 × $14.67 = $117.36 gross profit); no promise on the other 12.</td><td><span class="badge ok">matched</span></td></tr>
+            <tr><td>5</td><td>CS: one draft with Option A (other sizes now) and Option B (wait, bigger discount)</td><td>One offer, not two: 8 M at 36.78% off, and "revisit the other 12 once supply and funding are resolved." <b>Option A (L has 14) wasn't offered.</b></td><td><span class="badge diff">different</span></td></tr>
+            <tr><td>flag</td><td>Option B flagged: reprint $264 vs. $160 left, short $104</td><td>Flagged by Accounting and in the Boss's reasoning: "12 reprints cost about $264, a $104 shortfall."</td><td><span class="badge ok">matched</span></td></tr>
+          </tbody>
+        </table></div>
+        <div class="sidebyside" style="margin-top:10px">
+          <div>
+            <h3>Who worked, and how they delegated</h3>
+            <ol class="chain">
+              <li class=""><span class="chip boss">Boss</span> 72 s, 6 requests, 21,116 tokens<div class="tools"><span class="t ok">get_ticket</span><span class="t ok">delegate → inventory</span><span class="t ok">delegate → accounting</span><span class="t ok">delegate → customer_service</span><span class="t ok">record_decision</span></div></li>
+              <li class="indent1"><span class="chip inventory">Inventory</span> (asked by Boss) 17 s, 6,418 tokens<div class="tools"><span class="t ok">check_stock M ×20</span><span class="t ok">find_vendor</span></div></li>
+              <li class="indent1"><span class="chip accounting">Accounting</span> (asked by Boss) 22 s, 15,413 tokens<div class="tools"><span class="t error">price_and_margin CC-HOOD-NAVY-M</span><span class="t ok">price_and_margin 0%</span><span class="t ok">get_cash_and_bills</span><span class="t ok">price_and_margin 36.78%</span><span class="t ok">price_and_margin 40%</span></div></li>
+              <li class="indent1"><span class="chip cs">Customer Service</span> (asked by Boss) 10 s, 5,717 tokens<div class="tools"><span class="t ok">get_ticket</span><span class="t ok">save_draft_message</span></div></li>
+            </ol>
+          </div>
+          <div>
+            <h3>Result</h3>
+            <div class="result"><div><b>Run</b>ok, 72 s, 4 agent runs</div><div><b>Cost</b>18 model requests, 48,664 tokens, 14 tool calls</div><div><b>Model</b>gpt-6-luna-global on every response</div><div><b>Human</b>Approved the decision</div><div><b>Money moved</b>$0.00 (the offer is revenue, which this homework doesn't book)</div><div><b>Stock</b>Unchanged: no hold, so the 8 M aren't reserved (the Boss flagged this risk)</div></div>
+          </div>
+        </div>
       </fieldset>
     </section>
 
     <!-- ===================================================== Cash -->
     <section class="panel" role="tabpanel" id="p-cash" aria-labelledby="tab-cash" hidden>
       <fieldset>
-        <legend>Cash</legend>
-        <div class="placeholder">To be filled in later.</div>
+        <legend>Cash: checking account ledger, P9 run</legend>
+        <p style="margin:0 0 8px">Every line is a real database record. Cash only goes out in this homework, so the only movements are payments a human approved.</p>
+        <div style="overflow-x:auto"><table class="ledger">
+          <thead><tr><th>Step</th><th>What happened</th><th>Record</th><th class="n">Amount</th><th class="n">Balance</th></tr></thead>
+          <tbody>
+            <tr class="sub"><td>Start</td><td>Opening balance after the P9 reset (original data)</td><td><code>cash_accounts</code> checking, as of 2026-08-31</td><td class="n"></td><td class="n">$3,400.00</td></tr>
+            <tr><td>101 · 1–2</td><td>Boss and Inventory read the ticket and stock</td><td>reads only</td><td class="n">$0.00</td><td class="n">$3,400.00</td></tr>
+            <tr><td>101 · 3</td><td>Accounting checked the $840 invoice 501 but <b>did not propose it</b>, so nothing to approve</td><td>no payment request</td><td class="n">$0.00</td><td class="n">$3,400.00</td></tr>
+            <tr><td>101 · 5</td><td>Human approved the decision (offer M/L/XL); no money involved</td><td>decision 1, approved</td><td class="n">$0.00</td><td class="n">$3,400.00</td></tr>
+            <tr><td>102 · 3</td><td>Accounting proposed rent for lease 1 (period due 2026-09-02), pending approval</td><td>payment request 1</td><td class="n">$0.00</td><td class="n">$3,400.00</td></tr>
+            <tr><td>102 · human</td><td><b>Human approved payment 1</b>: rent to Elm City Properties, paid 2026-08-31, approved by "TestChristopher"</td><td><code>payments</code> id 1, kind rent, ref 1</td><td class="n">−$2,400.00</td><td class="n">$1,000.00</td></tr>
+            <tr><td>102 · 5</td><td>Human approved the decision</td><td>decision 2, approved</td><td class="n">$0.00</td><td class="n">$1,000.00</td></tr>
+            <tr><td>103 · 3</td><td>Accounting priced the discount; reprint $264 flagged as not affordable</td><td>reads only</td><td class="n">$0.00</td><td class="n">$1,000.00</td></tr>
+            <tr><td>103 · 5</td><td>Human approved the decision (8 M at $36.67); revenue isn't booked to cash</td><td>decision 3, approved</td><td class="n">$0.00</td><td class="n">$1,000.00</td></tr>
+            <tr class="total"><td>End</td><td>Closing balance</td><td>computed: $3,400.00 − $2,400.00</td><td class="n">−$2,400.00</td><td class="n">$1,000.00</td></tr>
+          </tbody>
+        </table></div>
+        <div class="check"><b>Reconciliation: balanced.</b> Working database <code>cash_accounts.balance</code> (checking) = <b>$1,000.00</b>; ledger closing = <b>$1,000.00</b>; difference <b>$0.00</b>. The money out agrees in three independent places: the <code>payments</code> table ($2,400.00, 1 row), paid <code>payment_requests</code> ($2,400.00), and the audit trail's human approval (balance before $3,400.00 → after $1,000.00).</div>
+
+        <div class="two" style="margin-top:12px">
+          <fieldset>
+            <legend>Expected vs. actual cash</legend>
+            <table>
+              <thead><tr><th>After</th><th class="n">Plan</th><th class="n">Actual</th></tr></thead>
+              <tbody>
+                <tr><td>Start</td><td class="n">$3,400.00</td><td class="n">$3,400.00</td></tr>
+                <tr><td>101</td><td class="n">$2,560.00</td><td class="n">$3,400.00</td></tr>
+                <tr><td>102</td><td class="n">$160.00</td><td class="n">$1,000.00</td></tr>
+                <tr><td>103</td><td class="n">$160.00</td><td class="n">$1,000.00</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:6px 0 0">The $840.00 gap is exactly invoice 501, which was never proposed (ticket 101, step 3).</p>
+          </fieldset>
+          <fieldset>
+            <legend>Still owed (not cash yet)</legend>
+            <table>
+              <tbody>
+                <tr><td>Invoice 501, Bulldog Print Co, due 2026-08-28 (3 days overdue), <b>open</b></td><td class="n">$840.00</td></tr>
+                <tr><td>Rent, lease 1, next due 2026-10-02</td><td class="n">$2,400.00</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:6px 0 0">If invoice 501 were paid now: $1,000.00 − $840.00 = <b>$160.00</b>, the same end point the plan expected. Bulldog Print Co can't ship a reprint until it's paid.</p>
+          </fieldset>
+        </div>
+
       </fieldset>
     </section>
 
@@ -388,7 +528,7 @@
     </section>
   </div>
 
-  <div class="statusbar"><span>Plan only: no agent has run yet</span><span>Shop date 2026-08-31</span><span>Cash $3,400.00</span></div>
+  <div class="statusbar"><span>Plan (P6) and actual run (P9)</span><span>Shop date 2026-08-31</span><span>Checking: $3,400.00 start → $1,000.00 end</span></div>
 </div>
 
 <script>
