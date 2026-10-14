@@ -629,3 +629,62 @@ the same org design as five people."
     *CoS translation:* "the numbers tie out" and "the numbers are what we
     expected" are different checks. Do both, and make the variance
     explainable to the line item.
+
+### HW5 wrap-up (P10 reflection + submission), 2026-10-14
+
+15. **"Safe" isn't the same as "good."** I gave the agents B+, B+, and A-.
+    Every run followed every rule, overpromised nothing, and made the
+    conservative choice: offer other sizes instead of chasing the sale,
+    hold the $840 instead of unblocking the vendor, discount only what was
+    on the shelf. The prompts said clearly what was forbidden but never
+    what a *great* outcome looks like, so the agents optimized for "nothing
+    went wrong." *CoS translation:* telling a team only the rules gets you
+    rule-following. Also state the risk appetite and what winning looks
+    like (when to spend cash, when to stretch for the customer), or you'll
+    get safe, mediocre work.
+
+16. **Don't create a role without a distinct capability.** Facilities
+    added a hand-off without adding judgment: the rent ticket took 5 agent
+    runs and about 47,000 tokens for one lease lookup and one payment, and
+    splitting money decisions between Facilities and Accounting is part of
+    how the $840 fell through the cracks. Centralizing money decisions in
+    Accounting would have meant fewer steps and one owner for every bill.
+    *CoS translation:* every hand-off costs time and creates a gap between
+    owners. Before adding a role, ask what it can do that the existing ones
+    can't. If the answer is "the same thing, for a different category,"
+    merge it.
+
+17. **"Don't overpromise" needs a partner rule: "always give a next step."**
+    Ticket 103's draft refused to give any date, so it said nothing about
+    timing at all. "Check back in about a week" would have cost nothing
+    and kept the customer engaged. A guardrail against one failure mode
+    (false promises) pushed the agent into the opposite one (silence).
+    *CoS translation:* when you write a "never," also write what to do
+    instead. Customers, like stakeholders, need a next step even when you
+    can't give an answer.
+
+18. **Know where the toolkit ends.** Some new requests the team could
+    handle with today's tools, like grading a specific discount or pushing
+    deals on overstocked items. Others need new *data* (live vendor status,
+    sales and restock history) or a new *relationship* (a stakeholder
+    manager who talks to vendors within approved limits). Scaling an AI
+    team isn't just better prompts; it's new information sources and new
+    permission boundaries. *CoS translation:* when scoping "can the AI do
+    this?", ask two questions: does it have the data, and is it allowed to
+    talk to the people involved?
+
+**HW5 soundbite:** "Agents propose, humans approve, code enforces. And the
+risky decisions aren't only the ones the team makes; they're the ones it
+quietly doesn't."
+
+**HW5 in 30 seconds (interview version):** I built a five-agent operations
+team for a campus merch shop: Boss, Inventory, Accounting, Facilities, and
+Customer Service. It runs on one MCP server that is the only path to the
+data, with a React dashboard where a human approves every payment. The
+rules that matter (no overdraft, no paying a blocked vendor, no duplicate
+payments, nothing sent without review) are enforced in code, not prompts,
+and every agent action lands in an append-only audit trail. In the real
+run the books reconciled to the penny ($3,400 → $1,000). The most useful
+finding was organizational, not technical: the agents made a defensible
+cash decision that I never saw, so I added a dashboard tracker for
+decisions *not* taken, and I'd merge two overlapping roles next time.
