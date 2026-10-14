@@ -24,8 +24,13 @@ rm -rf "$STAGE"
 if find "$PUBLISH_DIR/hw5" \( -name '.env' -o -name node_modules -o -name .venv -o -name '*.db-wal' -o -name '*.db-shm' -o -name '*.db-journal' \) | grep -q .; then
   echo "Refusing to publish: found .env, node_modules, .venv, or SQLite temp files" >&2; exit 1
 fi
-if grep -rqs "PORTKEY_API_KEY=[A-Za-z0-9_-]\{20,\}" "$PUBLISH_DIR/hw5"; then
+if grep -rhos "PORTKEY_API_KEY=[A-Za-z0-9_-]\{20,\}" "$PUBLISH_DIR/hw5" | grep -vq "PORTKEY_API_KEY=your-"; then
   echo "Refusing to publish: something looks like a real Portkey key" >&2; exit 1
+fi
+# The real key from the workspace .env must not appear anywhere (value never printed).
+REAL_KEY="$(sed -n 's/^PORTKEY_API_KEY=//p' "$WORKSPACE/.env" 2>/dev/null | head -1 | tr -d '"\r')"
+if [ -n "$REAL_KEY" ] && grep -rqsF -- "$REAL_KEY" "$PUBLISH_DIR/hw5"; then
+  echo "Refusing to publish: the real PORTKEY_API_KEY appears in hw5/" >&2; exit 1
 fi
 # ...and require what the assignment says graders need.
 for f in data/campus_customs.db data/campus_customs_new.db output/github_url.txt .env.example .mcp.json README.md; do
