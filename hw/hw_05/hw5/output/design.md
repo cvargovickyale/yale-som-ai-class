@@ -69,6 +69,30 @@ Below 1180 px the Done pile moves under the other two columns, and below
 - A one-line note says where the number comes from and that money moves
   only when you approve.
 
+### The overdue ticker (added after P9)
+
+In the P9 run, the team held invoice 501 ($840, 3 days overdue) to keep
+cash available. Because nobody proposed paying it, nothing about it
+appeared on the board except one line in a risks box. Christopher didn't
+see it at all. So:
+
+- **An amber strip sits right under the header**, above the balance:
+  "Overdue · $840.00 — Invoice 501 · Bulldog Print Co · $840.00 · 3 days
+  overdue (due 2026-08-28) · Bulldog Print Co won't ship new product until
+  it's paid."
+- **It behaves like a ticker only when it has to.** On a wide screen it
+  sits still. When the items don't fit, it scrolls slowly (32 s loop) and
+  pauses on hover. With reduced motion it never moves (you scroll it
+  instead).
+- **With no overdue invoices**, it turns into a small green "No overdue
+  invoices."
+- **The cash card** adds a third figure, **"Overdue bills, not yet
+  proposed"**, in amber. That's money owed that isn't counted in "waiting
+  for your approval."
+
+Amber, not red: it's a "look at this" item, consistent with the board's
+rule that amber means money needing attention.
+
 ### How tickets move: open → working → needs you → done
 
 | State | What you see |

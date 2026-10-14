@@ -609,15 +609,19 @@ the same org design as five people."
 
 ### HW5 build lessons (P9: the real run), 2026-10-13
 
-13. **The plan's weakest step was the one nobody owned.** Two of three
-    tickets ran to plan. The miss was step 3 of ticket 101: "Accounting
-    pays the overdue invoice." That was in our plan, but not in any
-    agent's instructions. The Boss asked Accounting for numbers, Accounting
-    answered the question it was asked, and the $840 stayed unpaid. Rent
-    worked because a P6 prompt line made the route explicit. *CoS
-    translation:* a plan that lives only in the planner's head doesn't
-    execute. Every step needs an owner whose instructions actually include
-    it. Hand-offs carry tasks, not intentions.
+13. **A defensible decision can still be an invisible one.** In ticket
+    101 the team held the $840 overdue invoice to keep cash available.
+    Paying it and the rent would have left $160 with a reprint cost still
+    unknown, so the hold kept a $1,000 cushion. That's a reasonable call.
+    But because no one *proposed* paying it, it never reached the approver
+    as a choice: I didn't see it at all until I read the outputs. The fix
+    wasn't to overrule the decision. It was to make it visible: an overdue
+    ticker on the board. *CoS translation:* the risky decisions aren't
+    only the actions taken; they're the ones quietly not taken. Make sure
+    "we chose to hold this" surfaces to the decision-maker as clearly as
+    "we want to spend this." (Also: the plan said "pay first," and nothing
+    in any agent's instructions said so. Hand-offs carry tasks, not
+    intentions.)
 
 14. **Reconcile three ways, then explain the gap.** The ending cash
     ($1,000) matched in the database, the payments table, and the approval

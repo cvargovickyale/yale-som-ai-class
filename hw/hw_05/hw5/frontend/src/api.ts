@@ -48,8 +48,13 @@ export interface Board {
   payments: { id: number; kind: string; ref_id: number; amount: number; paid_at: string; approved_by: string }[]
   counts: { open: number; resolved: number }
 }
+export interface Invoice {
+  id: number; vendor_id: number; vendor_name: string; amount: number; due_date: string; status: string
+  description: string | null; days_overdue: number; days_until_due: number; is_overdue: boolean
+}
 export interface Cash {
   date_today: string
+  open_invoices: Invoice[]
   checking: { name: string; balance: number; as_of: string; pending_payments: number; cash_after_pending: number } | null
   pending_payment_requests: PaymentRequest[]
 }

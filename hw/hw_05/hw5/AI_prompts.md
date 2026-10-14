@@ -611,3 +611,18 @@ agents routes dashboard and safety
     limitations (§9).
 - All pages were checked for sideways overflow at 375–1280 px.
   `resolved_tickets.json` is valid JSON.
+- **After the outputs** I asked about the $840, which I hadn't seen at
+  all. Because no one proposed paying invoice 501, it showed up only as a
+  line in 101's risks box. Two decisions, recorded here (no new prompt
+  slot):
+  - **Overdue ticker:** the board now has an amber strip under the header
+    listing every overdue invoice, plus "Overdue bills, not yet proposed:
+    $840" in the cash card. It's frontend only; the data was already in
+    `/api/cash`. Checked at 375–1440 px and with reduced motion. (The P9
+    screenshots in `resolved_board.html` were taken before it existed.)
+  - **Justification:** 101's write-ups now frame not spending the $840 as
+    a deliberate hold to keep cash available for reprints and emergencies.
+    Paying it and the rent would have left $160 with the reprint cost
+    unknown, so the hold kept a $1,000 cushion. This uses Accounting's and
+    the Boss's own recorded reasoning, and still states the trade-off: the
+    invoice stays overdue and the vendor stays blocked.

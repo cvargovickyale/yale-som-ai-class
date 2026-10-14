@@ -497,7 +497,8 @@ proxy to :8000). Full design reasoning is in `output/design.md`.
 
 | Part | What it shows | Route(s) |
 |---|---|---|
-| Checking balance | Big, live; counts down on a payment; waiting-for-approval and after-approval amounts; amber when under $500 | `GET /api/cash` |
+| Overdue ticker | Amber strip under the header listing every overdue invoice (amount, vendor, days overdue, and that the vendor won't ship until paid). It scrolls only when it doesn't fit; "No overdue invoices" in green otherwise. Added after P9, so an overdue bill nobody proposed paying is never invisible | `GET /api/cash` (`open_invoices`) |
+| Checking balance | Big, live; counts down on a payment; waiting-for-approval and after-approval amounts; amber when under $500; **"Overdue bills, not yet proposed"** when an overdue invoice has no payment request | `GET /api/cash` |
 | On the desk | Open tickets; **Start the team** on any one (you pick the order); live "Team at work" line; "N need you"; the Boss's suggestion | `GET /api/tickets`, `POST /api/tickets/{id}/run` |
 | The team | Five agents with status (idle / on #N) and their last three steps; click for the full feed | `GET /api/events` |
 | Review popup | The Boss's call and reasoning, risks, **Approve / Reject** each payment, the draft (never sent), stock, what each agent did, team totals | `GET /api/tickets/{id}/history`, `POST /api/payments/{id}/approve` or `/reject`, `POST /api/decisions/{id}/approve` |
@@ -541,11 +542,17 @@ approval.
 - **103 went to plan on the numbers.** It hit the exact 36.78% floor,
   flagged 40% as below it, and flagged Option B (a $264 reprint vs. $160
   left, short $104). But the draft made one offer instead of two options.
-- **101 missed the planned $840 invoice payment.** The Boss asked
-  Accounting for numbers rather than to pay. Accounting judged the
-  payment feasible but held back because the reprint cost was unknown. So
-  invoice 501 is still open and Bulldog Print Co is still blocked, which
-  is why cash ended at $1,000 instead of the planned $160.
+- **101 held the $840 invoice on purpose, to keep cash available for
+  reprints and emergencies.** Paying invoice 501 and then the $2,400 rent
+  would have left only $160, with the tee reprint cost still unknown.
+  Accounting chose not to commit it ("confirm that cost before
+  committing"), and the Boss offered in-stock sizes instead "rather than
+  make an uncertain commitment." That kept a $1,000 cushion. The cost: the
+  invoice stays overdue and Bulldog Print Co can't ship a reprint until
+  it's paid. It differs from the P6 plan, which paid it first. No payment
+  request was created, so there was nothing to approve. It's why cash
+  ended at $1,000 instead of the planned $160, and the board's overdue
+  ticker (section 7) keeps it visible.
 
 **Guardrails seen working in the real run:**
 - The Boss's attempt to delegate to itself was refused.
@@ -557,10 +564,11 @@ approval.
 
 ## 9. Known limitations
 
-- **The invoice rule is a judgment call, not a control.** Nothing *makes*
-  the team pay an overdue invoice that blocks a customer order (ticket
-  101). A line in the Boss's prompt, like the P6 rent-routing line, would
-  likely fix it, but it's still the model's judgment.
+- **Paying an overdue invoice is a judgment call, not a control.** In
+  ticket 101 the team chose to hold the $840 to keep cash available.
+  That's defensible, but it was the model's call, and it never put the
+  question to the human as an explicit "pay or hold?" choice. The overdue
+  ticker now makes the open invoice visible either way.
 - **One draft per ticket.** `save_draft_message` replaces a draft, so "two
   options" must be one message. In 103 the model offered one.
 - **Holds are optional.** The Boss can make an offer without reserving

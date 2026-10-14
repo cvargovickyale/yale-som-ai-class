@@ -3,6 +3,7 @@ import { api, ApiError, type AgentEvent, type AgentName, type Board, type Cash, 
 import { AgentModal } from './components/AgentModal'
 import { AgentsPanel } from './components/AgentsPanel'
 import { CashCard } from './components/CashCard'
+import { OverdueTicker } from './components/OverdueTicker'
 import { DonePile } from './components/DonePile'
 import { Icon } from './components/Icon'
 import { Modal } from './components/Modal'
@@ -151,6 +152,8 @@ export default function App() {
       {offline && (
         <p className="banner" role="status"><Icon name="alert" size={16} /> Can't reach the backend. Start the MCP server and <code>uvicorn main:app --port 8000</code>, then this page reconnects by itself.</p>
       )}
+
+      <OverdueTicker cash={cash} />
 
       <section className="hero">
         <CashCard cash={cash} />

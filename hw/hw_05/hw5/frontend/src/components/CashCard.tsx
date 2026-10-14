@@ -6,6 +6,9 @@ import { usd } from '../format'
 /** The checking balance, front and center. Counts down when you approve a payment. */
 export function CashCard({ cash }: { cash: Cash | null }) {
   const c = cash?.checking ?? null
+  // Overdue invoices with no payment request yet: money owed that isn't in "waiting for your approval".
+  const proposed = new Set((cash?.pending_payment_requests ?? []).filter(p => p.kind === 'invoice').map(p => p.ref_id))
+  const overdue = (cash?.open_invoices ?? []).filter(i => i.is_overdue && !proposed.has(i.id)).reduce((n, i) => n + i.amount, 0)
   const shown = useAnimatedNumber(c ? c.balance : null)
   const prev = useRef<number | null>(null)
   const [delta, setDelta] = useState<{ amount: number; key: number } | null>(null)
@@ -36,6 +39,7 @@ export function CashCard({ cash }: { cash: Cash | null }) {
         <dl className="cash-sub">
           <div><dt>Waiting for your approval</dt><dd>{usd(c.pending_payments)}</dd></div>
           <div><dt>After those are paid</dt><dd className={c.cash_after_pending < 500 ? 'tight' : ''}>{usd(c.cash_after_pending)}</dd></div>
+          {overdue > 0 && <div><dt>Overdue bills, not yet proposed</dt><dd className="tight">{usd(overdue)}</dd></div>}
         </dl>
       )}
       <p className="cash-note">From <code>cash_accounts</code>. Money moves only when you approve.</p>

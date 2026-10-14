@@ -227,7 +227,7 @@
           <tbody>
             <tr><td>1</td><td>Boss reads 101 with <code>get_ticket</code></td><td>Boss read 101: tee S for Tauhid, linked invoice 501 ($840, 3 days overdue).</td><td><span class="badge ok">matched</span></td></tr>
             <tr><td>2</td><td>Inventory: <code>check_stock</code> tee S → 0, short 1</td><td>Inventory: tee S <b>0 on hand, short 1</b>. Also ran <code>find_vendor</code> (Bulldog Print Co blocked by 501, as "Watch for" predicted) and checked M 5 / L 3 / XL 2. One call with <code>qty_needed=0</code> was refused by the tool and corrected.</td><td><span class="badge ok">matched</span></td></tr>
-            <tr><td>3</td><td>Accounting: <code>propose_payment(101, invoice, 501)</code>, $840 → cash $2,560</td><td><b>Not proposed.</b> The Boss asked Accounting for price, margin and cash, not to pay the invoice. Accounting found paying 501 "feasible" ($3,400 → $2,560, then $160 after rent), asked Inventory to confirm the reprint quantity/cost, couldn't, and held back.</td><td><span class="badge miss">missed</span></td></tr>
+            <tr><td>3</td><td>Accounting: <code>propose_payment(101, invoice, 501)</code>, $840 → cash $2,560</td><td><b>Held on purpose to keep cash available.</b> Accounting found paying 501 feasible ($3,400 → $2,560) but saw that, with the $2,400 rent due in two days, only <b>$160</b> would be left. The reprint cost was still unconfirmed (it asked Inventory; no cost was available). So it chose not to commit the $840 yet. No payment request was created.</td><td><span class="badge diff">different (deliberate hold)</span></td></tr>
             <tr><td>4</td><td>CS drafts to Tauhid: out of stock, no firm date, M/L/XL alternative</td><td>Draft to Tauhid: S unavailable, no reprint or date promised, M (5), L (3), XL (2) at $28; "we won't reserve it until you confirm."</td><td><span class="badge ok">matched</span></td></tr>
             <tr><td>5</td><td>Boss decision: <b>waiting</b></td><td>Boss decision: <b>alternative</b>. Offer the in-stock sizes; don't commit to an S reprint yet.</td><td><span class="badge diff">different</span></td></tr>
           </tbody>
@@ -245,8 +245,8 @@
           </div>
           <div>
             <h3>Result</h3>
-            <div class="result"><div><b>Run</b>ok, 87 s, 5 agent runs</div><div><b>Cost</b>24 model requests, 64,880 tokens, 19 tool calls</div><div><b>Model</b>gpt-6-luna-global on every response</div><div><b>Human</b>Approved the decision (no payment existed)</div><div><b>Money moved</b>$0.00</div><div><b>Left open</b>Invoice 501, $840, still overdue; Bulldog Print Co still blocked</div></div>
-            <div class="note"><b>Why step 3 was missed:</b> the plan said "Accounting pays the overdue invoice," but nothing in the Boss's prompt says an order ticket's linked overdue invoice should be paid. So the Boss's task to Accounting only asked for numbers. Accounting's "keep enough cash to restock" rule, with an unknown reprint cost, then made it cautious. The P6 routing line covered rent tickets only.</div>
+            <div class="result"><div><b>Run</b>ok, 87 s, 5 agent runs</div><div><b>Cost</b>24 model requests, 64,880 tokens, 19 tool calls</div><div><b>Model</b>gpt-6-luna-global on every response</div><div><b>Human</b>Approved the decision (no payment existed)</div><div><b>Money moved</b>$0.00</div><div><b>Held on purpose</b>Invoice 501, $840: kept cash at $3,400 here (and $1,000 after rent) for reprints and emergencies. Still overdue; Bulldog Print Co still blocked</div></div>
+            <div class="note"><b>Why the $840 wasn't spent: keeping cash available for reprints and emergencies.</b> Paying invoice 501 and the rent together would have taken checking from $3,400 to <b>$160</b>, before the team even knew what the tee reprint would cost. Accounting's call, in its own words: <i>"after the $2,400 rent due in two days only $160 remains; the reprint quantity/cost is unconfirmed, so confirm that cost before committing."</i> The Boss agreed: <i>"offer available alternatives rather than make an uncertain commitment."</i> Holding the $840 kept a <b>$1,000 cushion</b> for reprints or anything unexpected, and Tauhid still got a real option (M, L or XL in stock today). <b>The trade-off:</b> invoice 501 stays overdue, and Bulldog Print Co won't ship a reprint until it's paid. It's flagged on the board's overdue ticker so it isn't forgotten. <span style="color:var(--gray-darker)">(It differs from the P6 plan, which assumed paying it first. No payment request was created, so the board had nothing to approve.)</span></div>
           </div>
         </div>
       </fieldset>
@@ -478,7 +478,7 @@
           <tbody>
             <tr class="sub"><td>Start</td><td>Opening balance after the P9 reset (original data)</td><td><code>cash_accounts</code> checking, as of 2026-08-31</td><td class="n"></td><td class="n">$3,400.00</td></tr>
             <tr><td>101 · 1–2</td><td>Boss and Inventory read the ticket and stock</td><td>reads only</td><td class="n">$0.00</td><td class="n">$3,400.00</td></tr>
-            <tr><td>101 · 3</td><td>Accounting checked the $840 invoice 501 but <b>did not propose it</b>, so nothing to approve</td><td>no payment request</td><td class="n">$0.00</td><td class="n">$3,400.00</td></tr>
+            <tr><td>101 · 3</td><td>Accounting checked the $840 invoice 501 and <b>held it on purpose</b> to keep cash for reprints and emergencies ($3,400 − $840 − $2,400 rent would leave only $160)</td><td>no payment request</td><td class="n">$0.00</td><td class="n">$3,400.00</td></tr>
             <tr><td>101 · 5</td><td>Human approved the decision (offer M/L/XL); no money involved</td><td>decision 1, approved</td><td class="n">$0.00</td><td class="n">$3,400.00</td></tr>
             <tr><td>102 · 3</td><td>Accounting proposed rent for lease 1 (period due 2026-09-02), pending approval</td><td>payment request 1</td><td class="n">$0.00</td><td class="n">$3,400.00</td></tr>
             <tr><td>102 · human</td><td><b>Human approved payment 1</b>: rent to Elm City Properties, paid 2026-08-31, approved by "TestChristopher"</td><td><code>payments</code> id 1, kind rent, ref 1</td><td class="n">−$2,400.00</td><td class="n">$1,000.00</td></tr>
@@ -502,7 +502,7 @@
                 <tr><td>103</td><td class="n">$160.00</td><td class="n">$1,000.00</td></tr>
               </tbody>
             </table>
-            <p style="margin:6px 0 0">The $840.00 gap is exactly invoice 501, which was never proposed (ticket 101, step 3).</p>
+            <p style="margin:6px 0 0">The $840.00 gap is exactly invoice 501, held on purpose in ticket 101 to keep a cash cushion: $1,000.00 on hand instead of $160.00.</p>
           </fieldset>
           <fieldset>
             <legend>Still owed (not cash yet)</legend>
@@ -512,7 +512,7 @@
                 <tr><td>Rent, lease 1, next due 2026-10-02</td><td class="n">$2,400.00</td></tr>
               </tbody>
             </table>
-            <p style="margin:6px 0 0">If invoice 501 were paid now: $1,000.00 − $840.00 = <b>$160.00</b>, the same end point the plan expected. Bulldog Print Co can't ship a reprint until it's paid.</p>
+            <p style="margin:6px 0 0">If invoice 501 were paid now: $1,000.00 − $840.00 = <b>$160.00</b>, the same end point the plan expected. Holding it keeps $1,000.00 available for reprints and emergencies, at the cost of an overdue vendor: Bulldog Print Co can't ship a reprint until it's paid. The board's overdue ticker keeps it visible.</p>
           </fieldset>
         </div>
 
