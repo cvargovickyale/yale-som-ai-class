@@ -225,8 +225,18 @@ don't tell Christopher to run installs himself unless they actually fail.
   `../campus-customs-hw4`). `hw/hw_04/WORKPLAN.md` has the P1–P13 map;
   `hw4/output/harness.md` section 0 is the system overview. Treat it as
   frozen once graded, like HW1–HW3.
-- `hw/hw_05/` and `hw/hw_06/`: future homework slots; do not assume their
-  requirements or create content until the user provides the assignment.
+- `hw/hw_05/`: **built and published (2026-10-14); Christopher submits the
+  repo URL on Canvas.** Campus Customs multi-agent operations: FastMCP
+  server (`mcp_server/server.py`, the only DB access), FastAPI +
+  five PydanticAI agents on `gpt-6-luna` with bounded delegation
+  (`backend/main.py`), React/Vite/TS board (`frontend/`). Public repo
+  https://github.com/cvargovickyale/campus-customs-hw5 (root = `hw5/`, both
+  DBs committed by rule). Edit in `hw/hw_05/hw5/`, commit, republish with
+  `hw/hw_05/publish_hw5.sh "message"`. `hw/hw_05/WORKPLAN.md` has the P1–P11
+  map; `hw5/output/harness.md` §0 is the system overview. Treat as frozen
+  once graded.
+- `hw/hw_06/`: future homework slot; don't assume requirements or create
+  content until the user provides the assignment.
 
 **HW1, HW2, and HW3 are submitted work and are frozen.** Do not modify
 `hw/hw_01/`, `hw/hw_02/`, `hw/hw_03/`, root-level `hw1/`, `hw2/`, `hw3/`,
@@ -382,6 +392,29 @@ overview), then reuse:
   against SQL on the DB; for layout, measure overlap (not just horizontal
   overflow) across a sweep of widths (375–1440); when a fix "should" work,
   confirm it's actually live before judging it.
+
+Homework 5 (public repo `cvargovickyale/campus-customs-hw5`) is the
+reference for an **MCP server + multi-agent team + approval dashboard**.
+Start with `hw/hw_05/hw5/output/harness.md` §0, then reuse:
+
+- **MCP as the only data layer.** FastMCP serves agent tools (stdio for
+  Claude Code via `.mcp.json`, `--http` for the backend). Human-only tools
+  (approve/reset) are registered in HTTP mode only, and each agent sees an
+  allowlisted subset (`toolset.filtered`).
+- **Propose → approve → execute.** Agents write *pending* records (payment,
+  reprint, hold, draft, decision); only a human route executes. Rules (cash
+  floor, vendor block, dedupe, ticket link) live in the tool.
+- **Bounded delegation:** a `delegate` tool with depth cap, no revisits,
+  same ticket, a shared `UsageLimits` budget, timeouts, and a per-agent
+  append-only audit (`run_id`/`parent_run_id`/chain).
+- **gpt-6-luna gotchas (Portkey/Azure):** tools need the Responses API
+  (Chat Completions rejects tools with reasoning on); force
+  `x-portkey-cache-force-refresh` (cache hits return IDs Azure rejects on
+  rerun); retry intermittent `401 Jwt verification fails` on both
+  `request` and `request_stream` (the event hook makes runs stream).
+- **Verification:** throwaway DB copies via `CAMPUS_CUSTOMS_DB` for tests;
+  a read-only Playwright watcher for screenshots (never click run/approve
+  buttons in checks: one stray click cost ~41k tokens in P8).
 
 ## Infrastructure now available (added mid-semester, 2026-09)
 
