@@ -626,3 +626,43 @@ agents routes dashboard and safety
     unknown, so the hold kept a $1,000 cushion. This uses Accounting's and
     the Boss's own recorded reasoning, and still states the trade-off: the
     invoice stays overdue and the vendor stays blocked.
+
+## Problem 10 — Reflection
+
+**Prompt:** P10: time to reflect. questions are screenshotted, responses will
+be in my own words, please put these into desk_tickets.html:
+
+1. Agents grade: Ticket 101 B+ :I think the answer to give Tauhid only other
+size alternatives and not offer the size S he requested was fair, but too
+conservative and unlikely to result in a sale. It played things safe. It
+didn't even tell me to pay the overdue invoice until the retrospective (I
+changed the prompt after the fact to flag that more intentionally) because it
+thought there was a resonable conclusion without paying the invoice that
+would keep more cash. I get it, but I don't love it. Followed all the rules
+and didn't overpromise.
+2. Agents grade: Ticket 102 B+: Said the right thing, also had the same issue
+as 101 where the overdue 840 was not truly prioritized even though the agents
+said it was important. Agent got the $2,400 paid and kept good relationship
+with the landlord. Again too conservative to keep money for
+restocking/emergency need. Fine, but it should have surfaced that decision
+more obviously. Added overdue invoice tracker more prominently to avoid this
+issue going forward.
+3. Agents grade: Ticket 103 A-: This is a nice email and a decent proposal,
+but doesn't go out of our way to accommodate the customer. I think there is
+better customer service available but this is a nice safe option to offer a
+discount. The discount is actually the nicest thing we did, but we could have
+also said check back in a few days/a week for updates. Saying nothing about
+timing is leaving value on the table.
+
+pull up the html after those answers so I can answer the rest
+
+**Follow-up prompt used:** _(pending: my answers to questions 2–5)_
+
+**Notes:**
+
+- The Reflection tab in `output/desk_tickets.html` lists all five questions
+  from the assignment. My grades for question 1 are placed verbatim (101
+  B+, 102 B+, 103 A-). Questions 2–5 have empty boxes for my answers.
+  Claude wrote no reflection content.
+- `desk_tickets.html#reflection` (also `#101`, `#102`, `#103`, `#cash`)
+  now opens straight to that tab.

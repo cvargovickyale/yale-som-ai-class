@@ -126,6 +126,13 @@
   .ledger tr.total td { font-weight: bold; border-top: 3px double var(--ink); }
   .ledger tr.sub td { background: #f4f4f4; }
   .check { background: #c0f0c0; border: 1px solid var(--green); padding: 6px 8px; margin-top: 8px; }
+  .refl h3 { font-size: 13px; margin: 0 0 6px; }
+  .refl .q { margin-bottom: 14px; }
+  .grade { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 4px 12px; background: var(--white); border: 1px solid var(--gray-dark); padding: 8px 10px; margin-bottom: 6px; }
+  .grade .mark { font-size: 22px; font-weight: bold; text-align: center; align-self: center; }
+  .grade .who { font-weight: bold; }
+  .answer { background: var(--white); border: 1px solid var(--gray-dark); padding: 8px 10px; white-space: pre-wrap; }
+  .todo { background: var(--white); border: 2px dashed var(--gray-dark); padding: 14px; color: var(--gray-darker); }
   .sidebyside { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 760px) { .sidebyside { grid-template-columns: 1fr; } }
 </style>
@@ -522,8 +529,31 @@
     <!-- ===================================================== Reflection -->
     <section class="panel" role="tabpanel" id="p-refl" aria-labelledby="tab-refl" hidden>
       <fieldset>
-        <legend>Reflection</legend>
-        <div class="placeholder">To be filled in later.</div>
+        <legend>Reflection (P10, in Christopher's words)</legend>
+        <div class="refl">
+          <div class="q">
+            <h3>1. How would you evaluate the performance of the agents on each ticket and why?</h3>
+            <div class="grade"><div class="mark">B+</div><div><div class="who">Ticket 101</div><div>I think the answer to give Tauhid only other size alternatives and not offer the size S he requested was fair, but too conservative and unlikely to result in a sale. It played things safe. It didn&#x27;t even tell me to pay the overdue invoice until the retrospective (I changed the prompt after the fact to flag that more intentionally) because it thought there was a resonable conclusion without paying the invoice that would keep more cash. I get it, but I don&#x27;t love it. Followed all the rules and didn&#x27;t overpromise.</div></div></div>
+            <div class="grade"><div class="mark">B+</div><div><div class="who">Ticket 102</div><div>Said the right thing, also had the same issue as 101 where the overdue 840 was not truly prioritized even though the agents said it was important. Agent got the $2,400 paid and kept good relationship with the landlord. Again too conservative to keep money for restocking/emergency need. Fine, but it should have surfaced that decision more obviously. Added overdue invoice tracker more prominently to avoid this issue going forward.</div></div></div>
+            <div class="grade"><div class="mark">A-</div><div><div class="who">Ticket 103</div><div>This is a nice email and a decent proposal, but doesn&#x27;t go out of our way to accommodate the customer. I think there is better customer service available but this is a nice safe option to offer a discount. The discount is actually the nicest thing we did, but we could have also said check back in a few days/a week for updates. Saying nothing about timing is leaving value on the table.</div></div></div>
+          </div>
+          <div class="q">
+            <h3>2. For each ticket, how did Actual compare to the Expected plan you wrote earlier?</h3>
+            <div class="todo">Christopher's answer goes here.</div>
+          </div>
+          <div class="q">
+            <h3>3. What would have been simpler as one agent with tools, and why?</h3>
+            <div class="todo">Christopher's answer goes here.</div>
+          </div>
+          <div class="q">
+            <h3>4. Describe three new problems Campus Customs might face that this agent team could solve with the tools you built</h3>
+            <div class="todo">Christopher's answer goes here.</div>
+          </div>
+          <div class="q">
+            <h3>5. Describe three new problems Campus Customs might face that this agent team could not solve with the tools you built, and explain the tools and agents you would need to solve them</h3>
+            <div class="todo">Christopher's answer goes here.</div>
+          </div>
+        </div>
       </fieldset>
     </section>
   </div>
@@ -542,6 +572,8 @@
     });
     tab.focus();
   }
+  const fromHash = { '#101': 'tab-101', '#102': 'tab-102', '#103': 'tab-103', '#cash': 'tab-cash', '#reflection': 'tab-refl' }[location.hash]
+  if (fromHash) setTimeout(() => select(document.getElementById(fromHash)), 0)
   tabs.forEach((t, i) => {
     t.addEventListener('click', () => select(t));
     t.addEventListener('keydown', e => {
