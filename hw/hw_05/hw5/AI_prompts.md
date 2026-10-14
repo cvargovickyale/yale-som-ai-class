@@ -664,5 +664,10 @@ pull up the html after those answers so I can answer the rest
   from the assignment. My grades for question 1 are placed verbatim (101
   B+, 102 B+, 103 A-). Questions 2–5 have empty boxes for my answers.
   Claude wrote no reflection content.
+- Correction (my words): in the 101 grade I first wrote "I changed the
+  prompt after the fact". No prompt was changed; what I added was the
+  overdue-invoice tracker on the board. The page now says "I added the
+  overdue invoice tracker to the board after the fact to flag that more
+  intentionally." The prompt above is kept as I originally typed it.
 - `desk_tickets.html#reflection` (also `#101`, `#102`, `#103`, `#cash`)
   now opens straight to that tab.
