@@ -705,3 +705,16 @@ what's in high demand
   intentionally." The prompt above is kept as I originally typed it.
 - `desk_tickets.html#reflection` (also `#101`, `#102`, `#103`, `#cash`)
   now opens straight to that tab.
+
+## Problem 11 — Push to a public GitHub repo (submission; not a logged build problem)
+
+- Public repo: https://github.com/cvargovickyale/campus-customs-hw5 (root
+  contains only `hw5/`, matching the expected layout). The URL is in
+  `output/github_url.txt`, and I submit it on Canvas myself.
+- Published with `hw/hw_05/publish_hw5.sh` (outside `hw5/`). It exports only
+  git-tracked files, refuses `.env`, `.venv`, `node_modules`, SQLite temp
+  files, and anything that looks like a real key, and **requires** both
+  databases.
+- README: quick start (copy the original DB to the working copy → MCP server
+  → FastAPI backend → React board → reset before a full run), plus the full
+  file layout.

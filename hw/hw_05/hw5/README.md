@@ -13,8 +13,26 @@ React board (frontend/)  ──>  FastAPI backend (backend/main.py)  ──>  MC
 ```
 
 - **Model:** `gpt-6-luna` through Portkey for every agent, fixed in code.
-- **Data:** `data/campus_customs.db` is the original and is never written.
-  `data/campus_customs_new.db` is the working copy every tool uses.
+- **Data (both databases are included in this repo):**
+  `data/campus_customs.db` is the original and is never written.
+  `data/campus_customs_new.db` is the working copy every tool uses. As
+  committed, the working copy holds the **end state of the P9 run**
+  (checking $1,000, all three tickets resolved), matching
+  `output/resolved_tickets.json`. Copy the original over it (step 2) to run
+  the tickets yourself.
+
+### Quick start (four steps, three terminals)
+
+1. **Copy the original database to the working copy** for a clean run:
+   `cp data/campus_customs.db data/campus_customs_new.db`
+2. **Start the MCP server:** `.venv/bin/python mcp_server/server.py --http`
+3. **Start the FastAPI backend:**
+   `cd backend && ../.venv/bin/uvicorn main:app --reload --port 8000`
+4. **Start the React board:** `cd frontend && npm install && npm run dev`.
+   It opens http://localhost:5173.
+
+**Reset the database before a full three-ticket run.** Details for each
+step are below.
 - **Details:** `output/harness.md` (data, tools, agents, safety, audit) and
   `mcp_server/README.md` (the tools).
 
@@ -26,6 +44,7 @@ From the `hw5/` folder:
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 cp .env.example .env        # then put your PORTKEY_API_KEY in .env
+cd frontend && npm install  # Node 20+; the board
 ```
 
 ## 2. Reset the database (clean run)
@@ -130,15 +149,39 @@ Token spend is capped per ticket at 40 model requests, 80 tool calls, and
 400,000 tokens, with time limits. Delegation goes at most 4 hand-offs deep,
 and no agent can appear twice in a chain.
 
-## Files
+## File layout
 
-| Path | What it is |
-|---|---|
-| `mcp_server/server.py` | The MCP server: all 12 tools and the shop's rules |
-| `backend/main.py` | The five agents, delegation, limits, audit trail |
-| `backend/models.py` | Data shapes agents return and the audit records |
-| `backend/prompts/*.md` | One prompt per agent |
-| `output/harness.md` | How the system works: data, tools, agents, safety, audit |
-| `output/mcp_smoke.json` | Each original tool called over MCP and checked against SQL (P4) |
-| `output/audit_trail.json` | Append-only log of every agent run |
-| `AI_prompts.md` | Prompts used per problem |
+```
+hw5/
+├── AI_prompts.md              prompts used per problem (P2–P10)
+├── requirements.txt           Python dependencies
+├── .env.example               placeholders only (never the real .env)
+├── .gitignore
+├── .mcp.json                  registers the MCP server with Claude Code (stdio)
+├── README.md
+├── data/
+│   ├── campus_customs.db      original, never written
+│   └── campus_customs_new.db  working copy (P9 end state as committed)
+├── mcp_server/
+│   ├── server.py              FastMCP server: 12 agent tools + board/human tools, shop rules
+│   └── README.md              what the server is for, its tools, the database
+├── frontend/                  React + Vite + TypeScript board (npm run dev)
+├── backend/
+│   ├── main.py                FastAPI routes + the five agents, delegation, limits, audit
+│   ├── models.py              data shapes agents return; audit records
+│   └── prompts/
+│       ├── boss.md
+│       ├── inventory.md
+│       ├── accounting.md
+│       ├── facilities.md
+│       └── customer_service.md
+└── output/
+    ├── harness.md             the whole system: data, tools, MCP, agents, safety, audit, routes, dashboard, P9 run
+    ├── mcp_smoke.json         each tool called over MCP and checked against SQL (P4)
+    ├── desk_tickets.html      tabs per ticket: expected (P6) vs. actual (P9); cash ledger; reflection
+    ├── design.md              dashboard design guidance and decisions
+    ├── resolved_tickets.json  how each ticket was run, with every human approval (P9)
+    ├── resolved_board.html    screenshots of the board after each ticket was resolved
+    ├── audit_trail.json       append-only log of every agent run and human action
+    └── github_url.txt         this repo's URL
+```
